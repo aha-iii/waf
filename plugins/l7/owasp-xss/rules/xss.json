@@ -1,0 +1,6 @@
+[
+  {"id":"xss-001","name":"XSS-script标签","pattern":"(?i)<script","category":"xss","severity":"high"},
+  {"id":"xss-002","name":"XSS-javascript","pattern":"(?i)javascript:","category":"xss","severity":"high"},
+  {"id":"xss-003","name":"XSS-onerror","pattern":"(?i)onerror\\s*=","category":"xss","severity":"high"},
+  {"id":"xss-004","name":"XSS-eval","pattern":"(?i)eval\\(","category":"xss","severity":"high"}
+]

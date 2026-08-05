@@ -1,0 +1,16 @@
+[package]
+name = "nerve-waf-coraza"
+description = "Clieet bridge to embedded Coraza+CRS engine (nerve-waf-coraza)"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

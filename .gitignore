@@ -1,0 +1,57 @@
+# Build / deps
+/target/
+**/node_modules/
+**/dist/
+/dist/
+*.tsbuildinfo
+
+# Local env & secrets (examples 可提交)
+.env
+.env.*
+!.env.example
+**/*.local.env
+deploy/.env
+deploy/**/.env
+
+# TLS private material
+**/*.pem
+**/*.key
+!**/*.key.example
+deploy/**/certs/
+
+# Runtime / local data (源码里的示例与规则包按需保留时再放宽)
+/data/routes.json
+/data/events.json
+/data/waf-ai-dev/
+/data/waf-edge-stack/
+/data/nerve-waf-expert/
+/data/native-expert-test/
+/logs/
+*.log
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.cursor/
+.qoder/
+.workbuddy/
+.superpowers/
+.local/
+.deploy-stage/
+
+# Scripts（本地运维脚本，不入库）
+/scripts/
+
+# Accidental / temp
+/cannot
+/cargo
+/tmp/
+/tmp-*/
+*.swp
+*~
+
+# Cargo / coverage
+**/*.rlib
+**/flamegraph.svg

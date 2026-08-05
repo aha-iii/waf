@@ -1,0 +1,106 @@
+/* PatternFly Topology 嵌入 WAF Console */
+.nerve-pf-topology {
+  min-height: 620px;
+  background: #f0f0f0;
+  border: 1px solid var(--border, #d2d2d2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.nerve-pf-topology-view.pf-topology-container {
+  height: 620px;
+}
+.nerve-pf-topology .pf-topology-visualization-surface {
+  background: #f0f0f0;
+}
+.nerve-pf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 420px;
+  color: var(--text-secondary);
+}
+.nerve-pf-sidebar {
+  padding: 16px 16px 24px;
+  height: 100%;
+  overflow-y: auto;
+  font-size: 13px;
+}
+.nerve-pf-sidebar-sub {
+  color: #6a6e73 !important;
+  margin-top: 4px !important;
+  font-size: 12px !important;
+}
+.nerve-pf-section-title {
+  margin-top: 12px !important;
+  margin-bottom: 8px !important;
+}
+.nerve-pf-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+.nerve-pf-stat-row-sm {
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 8px;
+}
+.nerve-pf-stat-row div {
+  text-align: center;
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 8px 4px;
+}
+.nerve-pf-stat-row strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #151515;
+}
+.nerve-pf-stat-row span {
+  font-size: 11px;
+  color: #6a6e73;
+}
+.nerve-pf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.nerve-pf-table th,
+.nerve-pf-table td {
+  padding: 6px 4px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+}
+.nerve-pf-table .num {
+  text-align: right;
+  font-weight: 600;
+}
+.nerve-pf-table .ok {
+  text-align: right;
+  color: #3e8635;
+  font-weight: 600;
+}
+.nerve-pf-health-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #f0f0f0;
+  margin-top: 8px;
+}
+.nerve-pf-health-bar .ok {
+  background: #3e8635;
+}
+.nerve-pf-hint {
+  margin-top: 16px;
+  color: #6a6e73;
+  font-size: 12px;
+}
+.nerve-pf-layout-hint {
+  margin-left: 12px;
+  font-size: 12px;
+  color: #6a6e73;
+  white-space: nowrap;
+}

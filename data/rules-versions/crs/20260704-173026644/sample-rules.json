@@ -1,0 +1,25 @@
+{
+  "pack_id": "crs-sample",
+  "version": "2024.1",
+  "description": "OWASP CRS 示例规则包（Phase 5 灰度加载）",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "942100",
+      "name": "SQL Injection Detected",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)(union\\s+select|or\\s+1\\s*=\\s*1|'\\s*or\\s*'1'\\s*=\\s*'1)",
+      "action": "block"
+    },
+    {
+      "id": "941100",
+      "name": "XSS Detected",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)(<script|javascript:|onerror=)",
+      "action": "block"
+    }
+  ]
+}

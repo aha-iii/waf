@@ -1,0 +1,18 @@
+[package]
+name = "nerve-waf-crs-import"
+description = "Import OWASP ModSecurity CRS .conf rules into Nerve WAF JSON packs"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "nerve-waf-crs-import"
+path = "src/main.rs"
+
+[dependencies]
+nerve-waf-l7 = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }
+glob = { workspace = true }

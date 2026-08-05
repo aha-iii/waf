@@ -1,0 +1,8 @@
+[package]
+name = "nerve-waf-license"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }

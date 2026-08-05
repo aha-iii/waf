@@ -1,0 +1,26 @@
+[package]
+name = "nerve-waf-dataplane"
+description = "WAF Edge dataplane snapshot contract (control plane compile → data plane consume)"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-semantic = { workspace = true }
+nerve-waf-whitelist = { workspace = true }
+nerve-waf-bot = { workspace = true }
+nerve-waf-cc = { workspace = true }
+nerve-waf-geo = { workspace = true }
+nerve-waf-libinjection = { workspace = true }
+nerve-waf-intel = { workspace = true }
+nerve-waf-api-sec = { workspace = true }
+nerve-waf-behavior = { workspace = true }
+nerve-waf-store = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = "0.10"
+
+[dev-dependencies]
+nerve-waf-embed = { workspace = true }

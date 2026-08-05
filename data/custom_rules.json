@@ -1,0 +1,60 @@
+{
+  "sets": [
+    {
+      "id": "default",
+      "name": "默认自定义规则",
+      "description": "Console 可编辑的签名规则",
+      "enabled": true
+    }
+  ],
+  "rules": [
+    {
+      "id": "custom-xff-len",
+      "rule_set_id": "default",
+      "name": "XFF 过长",
+      "phase": "request",
+      "priority": 10,
+      "enabled": true,
+      "match_field": "headers",
+      "match_op": "regex",
+      "match_pattern": "(?i)x-forwarded-for:\\s*.{100,}",
+      "action": "block",
+      "severity": "medium",
+      "category": "custom",
+      "rule_type": "signature",
+      "plugin_name": ""
+    },
+    {
+      "id": "custom-uri-sqlmap",
+      "rule_set_id": "default",
+      "name": "URI 含 sqlmap",
+      "phase": "request",
+      "priority": 20,
+      "enabled": true,
+      "match_field": "uri",
+      "match_op": "contains",
+      "match_pattern": "sqlmap",
+      "action": "block",
+      "severity": "high",
+      "category": "custom",
+      "rule_type": "signature",
+      "plugin_name": ""
+    },
+    {
+      "id": "custom-9f522cda-e481-4cf7-9a25-84d900a66440",
+      "rule_set_id": "",
+      "name": "测试lua自定义规则",
+      "phase": "request",
+      "priority": 100,
+      "enabled": true,
+      "match_field": "plugin",
+      "match_op": "plugin",
+      "match_pattern": "owasp-sqli",
+      "action": "block",
+      "severity": "medium",
+      "category": "custom",
+      "rule_type": "plugin",
+      "plugin_name": "owasp-sqli"
+    }
+  ]
+}

@@ -1,0 +1,352 @@
+{
+  "pack_id": "owasp-core-v1",
+  "version": "2026.1",
+  "description": "OWASP Core Rule Set v1 — production WAF signatures for SQLi, XSS, path traversal, RCE, SSRF, webshell, XXE, and LDAP injection",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "942100",
+      "name": "SQLi UNION SELECT",
+      "category": "sqli",
+      "severity": "critical",
+      "pattern": "(?i)union\\s+(all\\s+)?select\\b"
+    },
+    {
+      "id": "942110",
+      "name": "SQLi OR 1=1 tautology",
+      "category": "sqli",
+      "severity": "critical",
+      "pattern": "(?i)(or[\\s\\+'\"]*1\\s*=\\s*1|'\\s*or\\s*'1'\\s*=\\s*'1|\"\\s*or\\s*\"1\"\\s*=\\s*\"1)"
+    },
+    {
+      "id": "942120",
+      "name": "SQLi inline comment",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)(--\\s|/\\*|\\*/|#\\s)"
+    },
+    {
+      "id": "942130",
+      "name": "SQLi EXEC xp_cmdshell",
+      "category": "sqli",
+      "severity": "critical",
+      "pattern": "(?i)\\b(exec(ute)?\\s*\\(|xp_cmdshell\\s*\\()"
+    },
+    {
+      "id": "942140",
+      "name": "SQLi time-based sleep",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)\\b(sleep|pg_sleep|waitfor\\s+delay|dbms_pipe\\.receive_message)\\s*\\("
+    },
+    {
+      "id": "942150",
+      "name": "SQLi benchmark timing",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)\\bbenchmark\\s*\\("
+    },
+    {
+      "id": "942160",
+      "name": "SQLi information_schema probe",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)information_schema\\.(tables|columns|schemata|table_constraints)"
+    },
+    {
+      "id": "942170",
+      "name": "SQLi char() obfuscation",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)\\bchar\\s*\\("
+    },
+    {
+      "id": "942180",
+      "name": "SQLi hex encoding",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)(0x[0-9a-f]{4,}|\\\\x[0-9a-f]{2})"
+    },
+    {
+      "id": "942190",
+      "name": "SQLi DROP TABLE",
+      "category": "sqli",
+      "severity": "critical",
+      "pattern": "(?i)\\bdrop\\s+(table|database|schema)\\b"
+    },
+    {
+      "id": "942200",
+      "name": "SQLi INSERT INTO",
+      "category": "sqli",
+      "severity": "high",
+      "pattern": "(?i)insert\\s+into\\s+\\w+\\s*\\("
+    },
+    {
+      "id": "942210",
+      "name": "SQLi LOAD_FILE",
+      "category": "sqli",
+      "severity": "critical",
+      "pattern": "(?i)\\bload_file\\s*\\("
+    },
+    {
+      "id": "942220",
+      "name": "SQLi concat obfuscation",
+      "category": "sqli",
+      "severity": "medium",
+      "pattern": "(?i)\\b(group_concat|concat|concat_ws)\\s*\\("
+    },
+    {
+      "id": "941100",
+      "name": "XSS script tag",
+      "category": "xss",
+      "severity": "critical",
+      "pattern": "(?i)<\\s*script[^>]*>"
+    },
+    {
+      "id": "941110",
+      "name": "XSS javascript URI",
+      "category": "xss",
+      "severity": "critical",
+      "pattern": "(?i)javascript\\s*:"
+    },
+    {
+      "id": "941120",
+      "name": "XSS event handler onerror",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)\\bonerror\\s*="
+    },
+    {
+      "id": "941130",
+      "name": "XSS event handler onload",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)\\bonload\\s*="
+    },
+    {
+      "id": "941140",
+      "name": "XSS SVG event handler",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)<\\s*svg[^>]*\\bon\\w+\\s*="
+    },
+    {
+      "id": "941150",
+      "name": "XSS iframe injection",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)<\\s*iframe[^>]*>"
+    },
+    {
+      "id": "941160",
+      "name": "XSS data text/html URI",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)data\\s*:\\s*text/html"
+    },
+    {
+      "id": "941170",
+      "name": "XSS vbscript URI",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)vbscript\\s*:"
+    },
+    {
+      "id": "941180",
+      "name": "XSS CSS expression",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)expression\\s*\\("
+    },
+    {
+      "id": "941190",
+      "name": "XSS document.cookie access",
+      "category": "xss",
+      "severity": "medium",
+      "pattern": "(?i)document\\s*\\.\\s*cookie"
+    },
+    {
+      "id": "941200",
+      "name": "XSS eval call",
+      "category": "xss",
+      "severity": "high",
+      "pattern": "(?i)\\beval\\s*\\("
+    },
+    {
+      "id": "930100",
+      "name": "Path traversal dot-dot-slash",
+      "category": "path_traversal",
+      "severity": "high",
+      "pattern": "\\.\\./"
+    },
+    {
+      "id": "930110",
+      "name": "Path traversal dot-dot-backslash",
+      "category": "path_traversal",
+      "severity": "high",
+      "pattern": "\\.\\.\\\\"
+    },
+    {
+      "id": "930120",
+      "name": "Path traversal URL encoded",
+      "category": "path_traversal",
+      "severity": "high",
+      "pattern": "(?i)(%2e%2e%2f|%2e%2e/|\\.\\.%2f|%2f%2e%2e|%2e%2e%5c)"
+    },
+    {
+      "id": "930130",
+      "name": "Path traversal double URL encoded",
+      "category": "path_traversal",
+      "severity": "high",
+      "pattern": "(?i)(%252e%252e%2f|%252e%252e%255c)"
+    },
+    {
+      "id": "930140",
+      "name": "Path traversal sensitive file",
+      "category": "path_traversal",
+      "severity": "critical",
+      "pattern": "(?i)(/etc/passwd|/proc/self|\\\\windows\\\\system32|\\\\windows\\\\win\\.ini)"
+    },
+    {
+      "id": "932100",
+      "name": "RCE semicolon command chain",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": ";\\s*(cat|ls|id|wget|curl|bash|sh|powershell|cmd|nc|netcat|rm|whoami)\\b"
+    },
+    {
+      "id": "932110",
+      "name": "RCE pipe command chain",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": "\\|\\s*(cat|ls|id|bash|sh|nc|netcat|wget|curl|whoami)\\b"
+    },
+    {
+      "id": "932120",
+      "name": "RCE dollar-paren substitution",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": "\\$\\([^)]*(cat|id|ls|bash|sh|wget|curl|whoami|nc)"
+    },
+    {
+      "id": "932130",
+      "name": "RCE backtick substitution",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": "`[^`]*(cat|id|ls|bash|sh|wget|curl|whoami|nc)"
+    },
+    {
+      "id": "932140",
+      "name": "RCE cmd.exe invocation",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": "(?i)cmd\\.exe\\s*(/c|/k)"
+    },
+    {
+      "id": "932150",
+      "name": "RCE shell -c invocation",
+      "category": "rce",
+      "severity": "critical",
+      "pattern": "(?i)(/bin/sh|/bin/bash|/bin/zsh)\\s+-c\\b"
+    },
+    {
+      "id": "934100",
+      "name": "SSRF loopback 127.0.0.1",
+      "category": "ssrf",
+      "severity": "high",
+      "pattern": "127\\.0\\.0\\.1"
+    },
+    {
+      "id": "934110",
+      "name": "SSRF localhost hostname",
+      "category": "ssrf",
+      "severity": "high",
+      "pattern": "(?i)\\blocalhost\\b"
+    },
+    {
+      "id": "934120",
+      "name": "SSRF link-local 169.254",
+      "category": "ssrf",
+      "severity": "high",
+      "pattern": "169\\.254\\.\\d{1,3}\\.\\d{1,3}"
+    },
+    {
+      "id": "934130",
+      "name": "SSRF cloud metadata endpoint",
+      "category": "ssrf",
+      "severity": "critical",
+      "pattern": "(?i)(169\\.254\\.169\\.254|metadata\\.google\\.internal|metadata\\.azure\\.com|169\\.254\\.170\\.2)"
+    },
+    {
+      "id": "934140",
+      "name": "SSRF file URI scheme",
+      "category": "ssrf",
+      "severity": "critical",
+      "pattern": "(?i)file://"
+    },
+    {
+      "id": "933100",
+      "name": "Webshell PHP eval base64",
+      "category": "webshell",
+      "severity": "critical",
+      "pattern": "(?i)(eval\\s*\\(\\s*base64_decode|assert\\s*\\()"
+    },
+    {
+      "id": "933110",
+      "name": "Webshell base64_decode",
+      "category": "webshell",
+      "severity": "critical",
+      "pattern": "(?i)base64_decode\\s*\\("
+    },
+    {
+      "id": "933120",
+      "name": "Webshell system passthru",
+      "category": "webshell",
+      "severity": "critical",
+      "pattern": "(?i)\\b(system|passthru|shell_exec|proc_open|popen)\\s*\\("
+    },
+    {
+      "id": "933130",
+      "name": "Webshell PHP superglobal input",
+      "category": "webshell",
+      "severity": "high",
+      "pattern": "\\$_\\s*(GET|POST|REQUEST|COOKIE)\\s*\\["
+    },
+    {
+      "id": "943100",
+      "name": "XXE entity declaration",
+      "category": "xxe",
+      "severity": "critical",
+      "pattern": "(?i)<!\\s*entity\\b"
+    },
+    {
+      "id": "943110",
+      "name": "XXE SYSTEM keyword",
+      "category": "xxe",
+      "severity": "critical",
+      "pattern": "(?i)SYSTEM\\s+[\"']"
+    },
+    {
+      "id": "943120",
+      "name": "XXE external entity reference",
+      "category": "xxe",
+      "severity": "critical",
+      "pattern": "(?i)<!\\s*entity\\s+\\w+\\s+SYSTEM"
+    },
+    {
+      "id": "944100",
+      "name": "LDAP injection wildcard uid",
+      "category": "ldap",
+      "severity": "high",
+      "pattern": "\\*\\)\\s*\\(\\s*(?i:uid)="
+    },
+    {
+      "id": "944110",
+      "name": "LDAP injection objectClass",
+      "category": "ldap",
+      "severity": "high",
+      "pattern": "(?i)objectclass\\s*="
+    }
+  ]
+}

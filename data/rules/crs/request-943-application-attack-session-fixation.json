@@ -1,0 +1,46 @@
+{
+  "pack_id": "request-943-application-attack-session-fixation",
+  "version": "4.25.0",
+  "description": "核心规则集 imported from REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION.conf (regex subset)",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "943100",
+      "name": "Possible Session Fixation Attack: Setting Cookie Values in HTML",
+      "pattern": "(?i)\\.cookie\\b.*?;[^0-9A-Z_a-z]*?(?:expires|domain)[^0-9A-Z_a-z]*?=|\\bhttp-equiv[^0-9A-Z_a-z]+set-cookie\\b",
+      "category": "session",
+      "severity": "medium",
+      "paranoia_level": 1,
+      "scan_targets": [
+        "COOKIES",
+        "COOKIE_NAMES",
+        "ARGS_NAMES",
+        "ARGS",
+        "BODY"
+      ]
+    },
+    {
+      "id": "943110",
+      "name": "Possible Session Fixation Attack: SessionID Parameter Name with Off-Domain Referer",
+      "pattern": "^(?:j(?:se(?:ssionid|rvsession)|wsession)|(?:asp(?:\\.net_)?session|zend_session_)id|p(?:hpsessi(?:on|d)|lay_session)|(?:(?:w(?:eblogic|l)|rack\\.|laravel_)sessio|(?:next-auth\\.session-|meteor_login_)toke)n|s(?:(?:ession[\\-_]?|ails\\.s)id|hiny-token)|_(?:session_id|(?:(?:flask|rails)_sessio|_(?:secure|host)-next-auth\\.session-toke)n)|c(?:f(?:s?id|token)|onnect\\.sid|akephp|i_session)|koa[\\.:]sess)$",
+      "category": "session",
+      "severity": "medium",
+      "paranoia_level": 1,
+      "scan_targets": [
+        "ARGS_NAMES"
+      ]
+    },
+    {
+      "id": "943120",
+      "name": "Possible Session Fixation Attack: SessionID Parameter Name with No Referer",
+      "pattern": "^(?:j(?:se(?:ssionid|rvsession)|wsession)|(?:asp(?:\\.net_)?session|session[\\-_]?)id|phpsessi(?:on|d)|(?:weblogic|laravel_)session|_(?:session_id|flask_session)|c(?:f(?:s?id|token)|onnect\\.sid))$",
+      "category": "session",
+      "severity": "medium",
+      "paranoia_level": 1,
+      "scan_targets": [
+        "ARGS_NAMES"
+      ]
+    }
+  ]
+}

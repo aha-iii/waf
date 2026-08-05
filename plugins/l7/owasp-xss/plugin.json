@@ -1,0 +1,11 @@
+{
+  "name": "owasp-xss",
+  "layer": "l7",
+  "type": "json",
+  "version": "1.0.0",
+  "description": "XSS 规则包",
+  "category": "xss",
+  "priority": 110,
+  "rules": ["rules/*.json"],
+  "enabled": true
+}

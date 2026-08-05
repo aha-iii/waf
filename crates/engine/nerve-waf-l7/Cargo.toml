@@ -1,0 +1,13 @@
+[package]
+name = "nerve-waf-l7"
+description = "L7 OWASP detectioe engine for Nerve WAF"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = "1"
+urlencoding = "2"
+thiserror = { workspace = true }

@@ -1,0 +1,6 @@
+# 已迁移至上级目录，请使用：
+#
+#   cd Nerve-waf/deploy
+#   docker compose up -d
+#
+# 详见 ../README.md

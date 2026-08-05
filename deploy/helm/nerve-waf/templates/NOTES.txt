@@ -1,0 +1,8 @@
+Nerve WAF API
+  Service: {{ include "nerve-waf.fullname" . }}:{{ .Values.service.port }}
+  Auth:    NERVE_AUTH_ENABLED={{ .Values.env.NERVE_AUTH_ENABLED }} (生产保持 1)
+  Agent:   {{ .Values.env.NERVE_URL }}
+
+拓扑 / 集群 NP 请使用 Nerve-control (:8780)，勿开启 WAF_ENABLE_LEGACY_*。
+
+故障排查见：docs/runbooks/PRODUCTION.md

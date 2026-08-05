@@ -1,0 +1,25 @@
+# Nerve WAF 控制面配置
+# 优先级：CLI / 环境变量 > config.yml > 默认值
+
+waf:
+  api:
+    port: 8780
+  data_dir: "./data"
+  plugins_dir: "./plugins"
+  nerve_url: "http://127.0.0.1:8766"
+  database:
+    url: null
+  console:
+    port: 5174
+
+logging:
+  level: info
+  access_log: "./logs/access.log"
+  audit_log: "./logs/audit.log"
+  error_log: "./logs/error.log"
+  server_log: "./logs/server.log"
+  format: json
+  rotate: daily
+  max_size_mb: 100
+  max_age_days: 7
+  max_backups: 14

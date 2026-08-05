@@ -1,0 +1,25 @@
+# Nerve WAF API — 测试环境配置
+# 挂载路径：/etc/nerve-waf/config.yml
+
+waf:
+  api:
+    port: 8781
+  data_dir: "/var/lib/nerve-waf/data"
+  plugins_dir: "/opt/nerve-waf/plugins"
+  nerve_url: "http://host.docker.internal:8766"
+  database:
+    url: "postgres://postgres:p%40ssw0rd@192.168.10.16:5432/nerve"
+  console:
+    port: 5174
+
+logging:
+  level: info
+  access_log: "/var/lib/nerve-waf/logs/access.log"
+  audit_log: "/var/lib/nerve-waf/logs/audit.log"
+  error_log: "/var/lib/nerve-waf/logs/error.log"
+  server_log: "/var/lib/nerve-waf/logs/server.log"
+  format: json
+  rotate: daily
+  max_size_mb: 100
+  max_age_days: 7
+  max_backups: 14

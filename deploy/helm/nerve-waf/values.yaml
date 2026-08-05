@@ -1,0 +1,46 @@
+replicaCount: 2
+
+image:
+  repository: nerve/nerve-waf-api
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8781
+
+# 生产务必设 Secret；示例仅占位
+auth:
+  enabled: true
+  # 推荐用 existingSecret；否则用 apiKey（勿提交真实密钥）
+  apiKey: ""
+  existingSecret: ""
+  existingSecretKey: NERVE_API_KEY
+
+env:
+  DATABASE_URL: "postgres://postgres:p%40ssw0rd@postgres:5432/nerve"
+  NERVE_URL: "http://nerve-agent:8766"
+  TZ: "Asia/Shanghai"
+  NERVE_EXPERT_ENGINE: "on"
+  NERVE_EXPERT_PACK: "/opt/nerve/native/baseline"
+  NERVE_NATIVE_DEV_PACK: "1"
+  # 拓扑/NP 已迁 Control；勿在生产打开
+  WAF_ENABLE_LEGACY_TOPOLOGY: "0"
+  WAF_ENABLE_LEGACY_NP: "0"
+  NERVE_AUTH_ENABLED: "1"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+probes:
+  livenessPath: /api/health
+  readinessPath: /api/health
+  initialDelaySeconds: 10
+  periodSeconds: 10

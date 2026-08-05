@@ -1,0 +1,35 @@
+[package]
+name = "nerve-waf-edge"
+description = "Nerve WAF L7 edge data plane (inspect + reverse proxy to upstream)"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "nerve-waf-edge"
+path = "src/main.rs"
+
+[dependencies]
+nerve-waf-embed = { workspace = true }
+nerve-waf-dataplane = { workspace = true }
+nerve-waf-plugin-host = { workspace = true }
+nerve-waf-sdk = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { workspace = true }
+dotenvy = { workspace = true }
+
+[features]
+default = ["inspect-trace"]
+inspect-trace = ["nerve-waf-embed/inspect-trace"]
+accel-hyperscan = ["nerve-waf-embed/accel-hyperscan"]
+accel-hyperscan-ffi = ["nerve-waf-embed/accel-hyperscan-ffi"]
+
+[dev-dependencies]
+nerve-waf-rules-ops = { workspace = true }
+nerve-waf-l7 = { workspace = true }

@@ -1,0 +1,32 @@
+[package]
+name = "nerve-waf-embed"
+description = "进程内嵌 WAF Inspect（供 Gateway 边缘节点等同进程调用）"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+inspect-trace = ["nerve-waf-inspect/inspect-trace", "dep:nerve-inspect-trace"]
+accel-hyperscan = ["nerve-waf-inspect/accel-hyperscan"]
+accel-hyperscan-ffi = ["nerve-waf-inspect/accel-hyperscan-ffi"]
+
+[dependencies]
+nerve-waf-core = { workspace = true }
+nerve-waf-sdk = { workspace = true }
+nerve-waf-inspect = { workspace = true }
+nerve-inspect-trace = { workspace = true, optional = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-plugin-host = { workspace = true }
+nerve-waf-bot = { workspace = true }
+nerve-waf-libinjection = { workspace = true }
+nerve-waf-semantic = { workspace = true }
+nerve-waf-dataplane = { workspace = true }
+nerve-waf-cc = { workspace = true }
+nerve-waf-geo = { workspace = true }
+nerve-waf-behavior = { workspace = true }
+nerve-waf-intel = { workspace = true }
+nerve-waf-whitelist = { workspace = true }
+nerve-waf-api-sec = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }

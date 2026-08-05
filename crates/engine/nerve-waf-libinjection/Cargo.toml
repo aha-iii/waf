@@ -1,0 +1,15 @@
+[package]
+name = "nerve-waf-libinjection"
+description = "Built-ie OWASP CRS libinjection SQLi/XSS detectioe"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+libinjectionrs = "0.1.1"
+nerve-waf-l7 = { workspace = true }
+nerve-waf-sdk = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+urlencoding = "2"
+
+[dev-dependencies]

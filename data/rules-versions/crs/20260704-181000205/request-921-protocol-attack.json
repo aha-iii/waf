@@ -1,0 +1,86 @@
+{
+  "pack_id": "request-921-protocol-attack",
+  "version": "4.25.0",
+  "description": "核心规则集 imported from REQUEST-921-PROTOCOL-ATTACK.conf (regex subset)",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "921110",
+      "name": "HTTP Request Smuggling Attack",
+      "pattern": "(?:get|p(?:(?:os|u)t|atch|rop(?:find|atch))|head|options|co(?:nnect|py)|delete|trac[ek]|m(?:kcol|ove)|(?:un)?lock)[sx0b]+[^sx0b]+[sx0b]+http/[0-9]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921120",
+      "name": "HTTP Response Splitting Attack",
+      "pattern": "[nr][^0-9A-Z_a-z]*?(?:content-(?:type|length)|set-cookie|location):[sx0b]*[0-9A-Z_a-z]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921130",
+      "name": "HTTP Response Splitting Attack",
+      "pattern": "(?:bhttp/d|<(?:html|meta)b)",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921140",
+      "name": "HTTP Header Injection Attack via headers",
+      "pattern": "[nr]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921150",
+      "name": "HTTP Header Injection Attack via payload (CR/LF detected)",
+      "pattern": "[nr]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921160",
+      "name": "HTTP Header Injection Attack via payload (CR/LF and header-name detected)",
+      "pattern": "[nr]+(?:[sx0b]|location|re(?:fresh|mote-(?:ip|addr))|(?:set-)?cookie|forwarded-(?:(?:fo|serve)r|host)|host|via|originating-IP|x-(?:forwarded-(?:(?:fo|serve)r|host)|host|via|remote-(?:ip|addr)|originating-IP))[sx0b]*:",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921190",
+      "name": "HTTP Splitting (CR/LF in request filename detected)",
+      "pattern": "[nr]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921421",
+      "name": "Content-Type header: Dangerous content type outside the mime type declaration",
+      "pattern": "^[^sx0b,;]+[sx0b,;].*?(?:application/(?:.++)?json|(?:application/(?:soap+)?|text/)xml)",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921240",
+      "name": "mod_proxy attack attempt detected",
+      "pattern": "unix:[^|]*|",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921151",
+      "name": "HTTP Header Injection Attack via payload (CR/LF detected)",
+      "pattern": "[nr]",
+      "category": "protocol",
+      "severity": "medium"
+    },
+    {
+      "id": "921422",
+      "name": "Content-Type header: Dangerous content type outside the mime type declaration",
+      "pattern": "^[^sx0b,;]+[sx0b,;].*?b(?:((?:tex|multipar)t|application)|((?:audi|vide)o|image|cs[sv]|(?:vn|relate)d|p(?:df|lain)|json|(?:soa|cs)p|x(?:ml|-www-form-urlencoded)|form-data|x-amf|(?:octe|repor)t|stream)|([+/]))b",
+      "category": "protocol",
+      "severity": "medium"
+    }
+  ]
+}

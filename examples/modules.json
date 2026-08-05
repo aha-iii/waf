@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "mode": "block",
+  "modules": {
+    "sqli": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "xss": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "rce": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "path_traversal": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "ssrf": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "file_upload": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "webshell": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "custom": { "enabled": true, "action": "block", "sensitivity": "medium" },
+    "info_leak": { "enabled": true, "action": "block", "sensitivity": "low" },
+    "bot": { "enabled": true, "action": "challenge", "sensitivity": "medium" },
+    "cc": { "enabled": true, "action": "block", "sensitivity": "medium" }
+  }
+}

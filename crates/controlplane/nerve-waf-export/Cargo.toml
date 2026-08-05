@@ -1,0 +1,9 @@
+[package]
+name = "nerve-waf-export"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }

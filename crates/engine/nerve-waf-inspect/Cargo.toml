@@ -1,0 +1,33 @@
+[package]
+name = "nerve-waf-inspect"
+description = "Nerve WAF 统一检测流水线"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+inspect-trace = ["dep:nerve-inspect-trace", "nerve-antibody/inspect-trace"]
+accel-hyperscan = ["nerve-antibody/accel-hyperscan"]
+accel-hyperscan-ffi = ["nerve-antibody/accel-hyperscan-ffi"]
+
+[dependencies]
+nerve-waf-core = { workspace = true }
+nerve-waf-sdk = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-plugin-host = { workspace = true }
+nerve-waf-cc = { workspace = true }
+nerve-waf-geo = { workspace = true }
+nerve-waf-bot = { workspace = true }
+nerve-waf-intel = { workspace = true }
+nerve-waf-api-sec = { workspace = true }
+nerve-waf-whitelist = { workspace = true }
+nerve-waf-behavior = { workspace = true }
+nerve-waf-libinjection = { workspace = true }
+nerve-waf-semantic = { workspace = true }
+nerve-waf-coraza = { workspace = true }
+nerve-waf-wasm = { workspace = true }
+nerve-antibody = { path = "../../../../Nerve-antibody/crates/integration/nerve-antibody" }
+nerve-inspect-trace = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }

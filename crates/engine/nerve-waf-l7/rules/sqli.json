@@ -1,0 +1,6 @@
+[
+  {"id":"sql-001","name":"SQL注入-UNION","pattern":"(?i)(union\\s+(all\\s+)?select|select\\s+.*\\s+from)","category":"sqli","severity":"high"},
+  {"id":"sql-002","name":"SQL注入-OR恒真","pattern":"(?i)(or[\\s\\+]+['\"]?\\s*1\\s*(=|%3D)\\s*1|1\\s*or\\s*1)","category":"sqli","severity":"high"},
+  {"id":"sql-003","name":"SQL注入-注释","pattern":"(?i)(--|#|/\\*)","category":"sqli","severity":"medium"},
+  {"id":"sql-004","name":"SQL注入-EXEC","pattern":"(?i)(exec|execute|xp_cmdshell)","category":"sqli","severity":"high"}
+]

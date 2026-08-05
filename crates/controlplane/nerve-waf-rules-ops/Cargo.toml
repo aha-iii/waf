@@ -1,0 +1,12 @@
+[package]
+name = "nerve-waf-rules-ops"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-l7 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+glob = { workspace = true }
+chrono = { workspace = true }

@@ -1,0 +1,13 @@
+[
+  {"id":"path-001","name":"路径穿越","pattern":"(\\.\\./|\\.\\.\\\\|\\.\\.%2f)","category":"path_traversal","severity":"high","scan_targets":["REQUEST_FILENAME","ARGS"]},
+  {"id":"rce-001","name":"命令注入-管道","pattern":"(?i)(;\\s*\\||\\|\\s*sh|\\$\\()","category":"rce","severity":"high"},
+  {
+    "id":"ssrf-001",
+    "name":"SSRF-内网",
+    "pattern":"(?i)(?:^|[^0-9])(?:127\\.0\\.0\\.1|localhost|169\\.254\\.\\d{1,3}\\.\\d{1,3}|10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|192\\.168\\.\\d{1,3}\\.\\d{1,3})(?:[^0-9]|$)",
+    "category":"ssrf",
+    "severity":"medium",
+    "scan_targets":["ARGS","REQUEST_FILENAME","REFERER"]
+  },
+  {"id":"upload-001","name":"Webshell-php","pattern":"(?i)(<\\?php|eval\\s*\\(\\s*base64)","category":"webshell","severity":"high"}
+]

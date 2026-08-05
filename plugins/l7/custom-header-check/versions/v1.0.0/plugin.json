@@ -1,0 +1,12 @@
+{
+  "name": "custom-header-check",
+  "layer": "l7",
+  "type": "lua",
+  "version": "1.0.0",
+  "description": "自定义 Header / URI 检查",
+  "priority": 200,
+  "category": "custom",
+  "rules": [],
+  "script": "plugin.lua",
+  "enabled": true
+}

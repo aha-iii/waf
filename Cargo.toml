@@ -1,0 +1,108 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/contract/nerve-waf-sdk",
+    "crates/engine/nerve-waf-core",
+    "crates/engine/nerve-waf-inspect",
+    "crates/engine/nerve-inspect-trace",
+    "crates/dataplane/nerve-waf-embed",
+    "crates/engine/nerve-waf-wasm",
+    "crates/engine/nerve-waf-coraza",
+    "crates/controlplane/nerve-waf-client",
+    "crates/engine/nerve-waf-plugins",
+    "crates/engine/nerve-waf-engine",
+    "crates/engine/nerve-waf-l7",
+    "crates/engine/nerve-waf-plugin-host",
+    "crates/controlplane/nerve-waf-store",
+    "crates/controlplane/nerve-waf-api",
+    "crates/contract/nerve-waf-dataplane",
+    "crates/modules/nerve-waf-cc",
+    "crates/modules/nerve-waf-geo",
+    "crates/modules/nerve-waf-bot",
+    "crates/modules/nerve-waf-challenge",
+    "crates/controlplane/nerve-waf-export",
+    "crates/controlplane/nerve-waf-np-compiler",
+    "crates/controlplane/nerve-waf-service-policy",
+    "crates/controlplane/nerve-waf-auth",
+    "crates/modules/nerve-waf-intel",
+    "crates/controlplane/nerve-waf-rules-ops",
+    "crates/modules/nerve-waf-api-sec",
+    "crates/controlplane/nerve-waf-rbac",
+    "crates/controlplane/nerve-waf-tamper",
+    "crates/controlplane/nerve-waf-license",
+    "crates/modules/nerve-waf-whitelist",
+    "crates/controlplane/nerve-waf-crs-import",
+    "crates/modules/nerve-waf-behavior",
+    "crates/engine/nerve-waf-libinjection",
+    "crates/modules/nerve-waf-triage",
+    "crates/engine/nerve-waf-canonical",
+    "crates/engine/nerve-waf-normalize",
+    "crates/engine/nerve-waf-semantic",
+    "crates/dataplane/nerve-waf-edge",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+authors = ["Nerve Team"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror = "2"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+axum = { version = "0.8", features = ["json"] }
+tower-http = { version = "0.6", features = ["cors", "fs"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+clap = { version = "4", features = ["derive", "env"] }
+dotenvy = "0.15"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+regex = "1"
+async-trait = "0.1"
+
+nerve-waf-sdk = { path = "crates/contract/nerve-waf-sdk" }
+nerve-waf-core = { path = "crates/engine/nerve-waf-core" }
+nerve-waf-inspect = { path = "crates/engine/nerve-waf-inspect" }
+nerve-inspect-trace = { path = "crates/engine/nerve-inspect-trace" }
+nerve-waf-embed = { path = "crates/dataplane/nerve-waf-embed" }
+nerve-waf-coraza = { path = "crates/engine/nerve-waf-coraza" }
+nerve-waf-wasm = { path = "crates/engine/nerve-waf-wasm" }
+nerve-waf-client = { path = "crates/controlplane/nerve-waf-client" }
+nerve-waf-plugins = { path = "crates/engine/nerve-waf-plugins" }
+nerve-waf-engine = { path = "crates/engine/nerve-waf-engine" }
+nerve-waf-l7 = { path = "crates/engine/nerve-waf-l7" }
+nerve-waf-plugin-host = { path = "crates/engine/nerve-waf-plugin-host" }
+nerve-waf-store = { path = "crates/controlplane/nerve-waf-store" }
+nerve-waf-cc = { path = "crates/modules/nerve-waf-cc" }
+nerve-waf-geo = { path = "crates/modules/nerve-waf-geo" }
+nerve-waf-export = { path = "crates/controlplane/nerve-waf-export" }
+nerve-waf-np-compiler = { path = "crates/controlplane/nerve-waf-np-compiler" }
+nerve-waf-service-policy = { path = "crates/controlplane/nerve-waf-service-policy" }
+nerve-waf-auth = { path = "crates/controlplane/nerve-waf-auth" }
+nerve-waf-intel = { path = "crates/modules/nerve-waf-intel" }
+nerve-waf-rules-ops = { path = "crates/controlplane/nerve-waf-rules-ops" }
+nerve-waf-api-sec = { path = "crates/modules/nerve-waf-api-sec" }
+nerve-waf-rbac = { path = "crates/controlplane/nerve-waf-rbac" }
+nerve-waf-tamper = { path = "crates/controlplane/nerve-waf-tamper" }
+nerve-waf-license = { path = "crates/controlplane/nerve-waf-license" }
+nerve-waf-bot = { path = "crates/modules/nerve-waf-bot" }
+nerve-waf-challenge = { path = "crates/modules/nerve-waf-challenge" }
+nerve-waf-whitelist = { path = "crates/modules/nerve-waf-whitelist" }
+nerve-waf-crs-import = { path = "crates/controlplane/nerve-waf-crs-import" }
+nerve-waf-behavior = { path = "crates/modules/nerve-waf-behavior" }
+nerve-waf-libinjection = { path = "crates/engine/nerve-waf-libinjection" }
+nerve-waf-triage = { path = "crates/modules/nerve-waf-triage" }
+nerve-waf-canonical = { path = "crates/engine/nerve-waf-canonical" }
+nerve-waf-normalize = { path = "crates/engine/nerve-waf-normalize" }
+nerve-waf-semantic = { path = "crates/engine/nerve-waf-semantic" }
+nerve-waf-dataplane = { path = "crates/contract/nerve-waf-dataplane" }
+nerve-alert-client = { path = "../../Nerve-alert/crates/nerve-alert-client" }
+nerve-alert-sdk = { path = "../../Nerve-alert/crates/nerve-alert-sdk" }
+glob = "0.3"
+libinjectionrs = "0.1.1"
+mlua = { version = "0.10", features = ["lua54", "vendored"] }

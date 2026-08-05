@@ -1,0 +1,8 @@
+[package]
+name = "nerve-waf-tamper"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+sha2 = "0.10"

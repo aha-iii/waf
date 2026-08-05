@@ -1,0 +1,14 @@
+[package]
+name = "nerve-waf-wasm"
+description = "In-process Coraza+CRS via coraza-proxy-wasm (Proxy-Wasm ABI / wasmtime)"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-l7 = { workspace = true }
+proxy-wasm-test-framework = { path = "../../../vendor/proxy-wasm-test-framework" }
+anyhow = "1"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

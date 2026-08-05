@@ -1,0 +1,8 @@
+[package]
+name = "nerve-waf-whitelist"
+description = "WAF 白名单 / 误报调优"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }

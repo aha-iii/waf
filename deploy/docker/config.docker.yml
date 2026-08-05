@@ -1,0 +1,21 @@
+# 容器内默认配置（路径与 deploy/docker/Dockerfile 一致）
+waf:
+  api:
+    port: 8781
+  data_dir: "/var/lib/nerve-waf/data"
+  plugins_dir: "/opt/nerve-waf/plugins"
+  nerve_url: "http://nerve-agent:8766"
+  database:
+    url: null
+
+logging:
+  level: info
+  access_log: "/var/lib/nerve-waf/logs/access.log"
+  audit_log: "/var/lib/nerve-waf/logs/audit.log"
+  error_log: "/var/lib/nerve-waf/logs/error.log"
+  server_log: "/var/lib/nerve-waf/logs/server.log"
+  format: json
+  rotate: daily
+  max_size_mb: 100
+  max_age_days: 7
+  max_backups: 14

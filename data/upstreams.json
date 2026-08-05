@@ -1,0 +1,15 @@
+{
+  "upstreams": [
+    {
+      "id": "default",
+      "name": "默认后端",
+      "enabled": true,
+      "scheme": "http",
+      "type": "roundrobin",
+      "nodes": [
+        { "host": "127.0.0.1", "port": 8080, "weight": 1 }
+      ],
+      "description": "Gateway 默认 upstream，可在 Console → Upstreams 管理"
+    }
+  ]
+}

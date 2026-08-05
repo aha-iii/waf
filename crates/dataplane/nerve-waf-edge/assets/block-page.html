@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>请求已被拦截 · Nerve</title>
+  <style>
+    :root {
+      --bg: #eef1f6;
+      --ink: rgba(0, 0, 0, 0.88);
+      --mute: rgba(0, 0, 0, 0.45);
+      --line: #e8e8e8;
+      --card: #fff;
+      --primary: #1677ff;
+      --primary-2: #4096ff;
+      --danger: #c7000b;
+      --danger-soft: #fff1f0;
+      --danger-border: #ffccc7;
+      --mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(22, 119, 255, 0.04) 0%, transparent 50%),
+        linear-gradient(225deg, rgba(22, 119, 255, 0.06) 0%, transparent 45%);
+    }
+    .bg::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(22, 119, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22, 119, 255, 0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 10%, transparent 75%);
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 10%, transparent 75%);
+    }
+    .topbar {
+      position: relative;
+      z-index: 2;
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      flex-shrink: 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--primary-2), var(--primary));
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+    }
+    .brand-name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: var(--mute);
+      margin-left: 2px;
+    }
+    .center {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 32px 16px 48px;
+    }
+    .card {
+      width: min(520px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(15, 35, 80, 0.06);
+      padding: 28px 28px 22px;
+      animation: enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes enter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--danger-soft);
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .status i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(199, 0, 11, 0.15);
+    }
+    .http {
+      margin-left: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mute);
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .desc {
+      font-size: 14px;
+      line-height: 1.65;
+      color: rgba(0, 0, 0, 0.65);
+      margin-bottom: 20px;
+    }
+    .event-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #f7f9fc;
+      border: 1px solid var(--line);
+      margin-bottom: 16px;
+    }
+    .event-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .event-label {
+      font-size: 12px;
+      color: var(--mute);
+      margin-bottom: 4px;
+    }
+    .event-id {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      word-break: break-all;
+    }
+    .btn {
+      appearance: none;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #4096ff; }
+    .btn.is-done { background: #389e0d; }
+    details {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 500;
+      user-select: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .facts {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .fact {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .fact dt { color: var(--mute); }
+    .fact dd {
+      font-family: var(--mono);
+      font-size: 12px;
+      word-break: break-all;
+    }
+    .footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 0 16px 20px;
+      font-size: 12px;
+      color: var(--mute);
+    }
+    @media (max-width: 480px) {
+      .card { padding: 22px 18px 18px; }
+      h1 { font-size: 20px; }
+      .event-box { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">N</div>
+      <span class="brand-name">Nerve</span>
+      <span class="brand-sub">Web 应用防火墙</span>
+    </div>
+  </header>
+
+  <main class="center">
+    <section class="card" role="alert">
+      <div>
+        <span class="status"><i></i> 请求已拦截</span>
+        <span class="http">HTTP 403</span>
+      </div>
+
+      <h1>此请求未通过安全检测</h1>
+      <p class="desc">
+        保护策略判定本次访问存在风险，已阻止继续访问。
+        若为正常业务，请将下方事件 ID 提供给站点管理员以便核查。
+      </p>
+
+      <div class="event-box">
+        <div class="event-meta">
+          <div class="event-label">事件 ID</div>
+          <div class="event-id" id="event">__NERVE_EVENT__</div>
+        </div>
+        <button type="button" class="btn" id="copy">复制</button>
+      </div>
+
+      <details>
+        <summary>技术详情</summary>
+        <dl class="facts">
+          <div class="fact">
+            <dt>Action</dt>
+            <dd id="action">__NERVE_ACTION__</dd>
+          </div>
+          <div class="fact">
+            <dt>Rule</dt>
+            <dd id="rule">__NERVE_RULE__</dd>
+          </div>
+          <div class="fact">
+            <dt>Site</dt>
+            <dd id="site">__NERVE_SITE__</dd>
+          </div>
+        </dl>
+      </details>
+    </section>
+  </main>
+
+  <p class="footer">Protected by Nerve WAF</p>
+
+  <script>
+    const q = new URLSearchParams(location.search);
+    const map = { event: "event", ref: "event", rule: "rule", site: "site", action: "action" };
+    Object.keys(map).forEach((k) => {
+      if (q.get(k)) document.getElementById(map[k]).textContent = q.get(k);
+    });
+    const copyBtn = document.getElementById("copy");
+    copyBtn.addEventListener("click", async () => {
+      const v = document.getElementById("event").textContent;
+      try {
+        await navigator.clipboard.writeText(v);
+        copyBtn.textContent = "已复制";
+        copyBtn.classList.add("is-done");
+        setTimeout(() => {
+          copyBtn.textContent = "复制";
+          copyBtn.classList.remove("is-done");
+        }, 1600);
+      } catch (_) {}
+    });
+  </script>
+</body>
+</html>

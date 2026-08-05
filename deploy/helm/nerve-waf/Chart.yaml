@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nerve-waf
+description: Nerve WAF API（L7 inspect + WAF-L3 SyncPlan）— 独立于 Control
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

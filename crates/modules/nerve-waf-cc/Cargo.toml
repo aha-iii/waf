@@ -1,0 +1,14 @@
+[package]
+name = "nerve-waf-cc"
+description = "CC / rate limitieg for Nerve WAF"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+dashmap = "6"
+redis = { version = "0.27" }
+tracing = { workspace = true }

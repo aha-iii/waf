@@ -1,0 +1,28 @@
+[package]
+name = "nerve-waf-store"
+description = "WAF event storage (PostgreSQL + file fallback)"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-semantic = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "chrono", "uuid", "json"], optional = true }
+argon2 = "0.5"
+password-hash = "0.5"
+rand = "0.8"
+
+[features]
+default = ["postgres"]
+postgres = ["dep:sqlx"]
+
+[dev-dependencies]
+tempfile = "3"

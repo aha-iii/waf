@@ -1,0 +1,23 @@
+{
+  "pack_id": "request-931-application-attack-rfi",
+  "version": "4.25.0",
+  "description": "核心规则集 imported from REQUEST-931-APPLICATION-ATTACK-RFI.conf (regex subset)",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "931100",
+      "name": "Possible Remote File Inclusion (RFI) Attack: URL Parameter using IP Address",
+      "pattern": "(?i)^(f(?:ile|tps?)|https?|ssh)://(?:[?[0-9a-f]+:[0-:a-f]+]?|[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})",
+      "category": "ssrf",
+      "severity": "high"
+    },
+    {
+      "id": "931120",
+      "name": "Possible Remote File Inclusion (RFI) Attack: URL Payload Used w/Trailing Question Mark Character (?)",
+      "pattern": "^(?i:file|ftps?|https?).*??+$",
+      "category": "ssrf",
+      "severity": "high"
+    }
+  ]
+}

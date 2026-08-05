@@ -1,0 +1,27 @@
+{
+  "pack_id": "request-922-multipart-attack",
+  "version": "4.25.0",
+  "description": "核心规则集 imported from REQUEST-922-MULTIPART-ATTACK.conf (regex subset)",
+  "enabled": true,
+  "rollout_pct": 100,
+  "rules": [
+    {
+      "id": "922120",
+      "name": "Content-Transfer-Encoding was deprecated by rfc7578 in 2015 and should not be used",
+      "pattern": "content-transfer-encoding:(.*)",
+      "category": "misc",
+      "severity": "medium",
+      "paranoia_level": 1,
+      "scan_targets": []
+    },
+    {
+      "id": "922130",
+      "name": "Multipart header contains characters outside of valid range",
+      "pattern": "[^\\x21-\\x7E][\\x21-\\x39\\x3B-\\x7E]*:",
+      "category": "misc",
+      "severity": "medium",
+      "paranoia_level": 1,
+      "scan_targets": []
+    }
+  ]
+}

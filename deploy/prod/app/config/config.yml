@@ -1,0 +1,27 @@
+# Nerve WAF API — 正式环境配置
+# 挂载路径：/etc/nerve-waf/config.yml
+#
+# database.url 须与 app/.env 的 DATABASE_URL 一致（服务名 postgres）
+
+waf:
+  api:
+    port: 8781
+  data_dir: "/var/lib/nerve-waf/data"
+  plugins_dir: "/opt/nerve-waf/plugins"
+  nerve_url: ""
+  database:
+    url: "postgres://postgres:change-me-strong@postgres:5432/nerve"
+  console:
+    port: 5174
+
+logging:
+  level: info
+  access_log: "/var/lib/nerve-waf/logs/access.log"
+  audit_log: "/var/lib/nerve-waf/logs/audit.log"
+  error_log: "/var/lib/nerve-waf/logs/error.log"
+  server_log: "/var/lib/nerve-waf/logs/server.log"
+  format: json
+  rotate: daily
+  max_size_mb: 100
+  max_age_days: 14
+  max_backups: 30

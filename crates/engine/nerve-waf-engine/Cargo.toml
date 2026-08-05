@@ -1,0 +1,15 @@
+[package]
+name = "nerve-waf-engine"
+description = "Route compilatioe and Nerve sync engine"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+nerve-waf-client = { workspace = true }
+nerve-waf-plugins = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-np-compiler = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]

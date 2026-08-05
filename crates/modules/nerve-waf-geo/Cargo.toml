@@ -1,0 +1,13 @@
+[package]
+name = "nerve-waf-geo"
+description = "GeoIP / country blocking for Nerve WAF"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+ipnet = "2"
+maxminddb = "0.27"
+tracing = { workspace = true }

@@ -1,0 +1,110 @@
+# 形态 B 单机部署：控制面 API + Console + 数据面 Edge（同一镜像，不同 entrypoint）
+#
+#   docker load -i ../dist/nerve-waf-api-1.0.0.tar
+#   cd Nerve-waf/deploy && docker compose up -d
+#
+# 业务域名 → EDGE_PORT(8080)；管理 Console → CONSOLE_PORT(8782，建议内网)；API → PORT(8781)
+
+name: nerve-waf-test
+
+services:
+  nerve-waf-api:
+    image: nerve/nerve-waf-api:${TAG:-1.0.0}
+    pull_policy: never
+    container_name: nerve-waf-api
+    ports:
+      - "${PORT:-8781}:8781"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      PORT: "8781"
+      WAF_CONFIG: /etc/nerve-waf/config.yml
+      WAF_CONSOLE_ATTACH: "0"
+      NERVE_WAF_DATA: /var/lib/nerve-waf/data
+      NERVE_RULES_DIR: /opt/nerve-waf/data/rules/crs
+      DATABASE_URL: ${DATABASE_URL}
+      NERVE_AUTH_ENABLED: ${NERVE_AUTH_ENABLED:-0}
+      NERVE_API_KEY: ${NERVE_API_KEY:-}
+      NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-on}
+      NERVE_EXPERT_PACK: ${NERVE_EXPERT_PACK:-/opt/nerve/native/baseline}
+      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-1}
+      NERVE_URL: ${NERVE_URL:-}
+      NERVE_GATEWAY_ADMIN_URL: ${NERVE_GATEWAY_ADMIN_URL:-}
+      NERVE_GATEWAY_DASHBOARD_URL: ${NERVE_GATEWAY_DASHBOARD_URL:-}
+      RUST_LOG: ${RUST_LOG:-info}
+      WAF_ENABLE_LEGACY_TOPOLOGY: "0"
+      WAF_ENABLE_LEGACY_NP: "0"
+    volumes:
+      - ./config/config.yml:/etc/nerve-waf/config.yml:ro
+      - nerve-waf-data:/var/lib/nerve-waf/data
+      - nerve-waf-logs:/var/lib/nerve-waf/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8781/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  nerve-waf-console:
+    image: nerve/nerve-waf-api:${TAG:-1.0.0}
+    pull_policy: never
+    container_name: nerve-waf-console
+    ports:
+      - "${CONSOLE_PORT:-8782}:8782"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      WAF_CONSOLE_PORT: "8782"
+      WAF_API_UPSTREAM: http://nerve-waf-api:8781
+      WAF_CONSOLE_DIR: /opt/nerve-waf/console
+      RUST_LOG: ${RUST_LOG:-info}
+    depends_on:
+      nerve-waf-api:
+        condition: service_healthy
+    entrypoint: ["/usr/local/bin/nerve-waf-console"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8782/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  nerve-waf-edge:
+    image: nerve/nerve-waf-api:${TAG:-1.0.0}
+    pull_policy: never
+    container_name: nerve-waf-edge
+    ports:
+      - "${EDGE_PORT:-8080}:8080"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      WAF_EDGE_PORT: "8080"
+      WAF_EDGE_API: http://nerve-waf-api:8781
+      NERVE_WAF_PLUGINS_DIR: /opt/nerve-waf/plugins
+      NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-on}
+      NERVE_EXPERT_PACK: ${NERVE_EXPERT_PACK:-/opt/nerve/native/baseline}
+      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-1}
+      RUST_LOG: ${RUST_LOG:-info}
+    depends_on:
+      nerve-waf-api:
+        condition: service_healthy
+    entrypoint: ["/usr/local/bin/nerve-waf-edge"]
+    command: ["--port", "8080", "--api", "http://nerve-waf-api:8781"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  nerve-waf-data:
+  nerve-waf-logs:

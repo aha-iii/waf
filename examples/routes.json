@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "id": "block-malicious-egress",
+      "name": "封禁恶意出站 IP",
+      "layer": "l3",
+      "priority": 100,
+      "enabled": true,
+      "match": { "dst_port": 4444 },
+      "plugins": [
+        {
+          "name": "port-block",
+          "enabled": true,
+          "config": { "ports": [4444, 6666, 31337], "deny_dst": true }
+        }
+      ]
+    },
+    {
+      "id": "manual-blacklist",
+      "name": "手动黑名单",
+      "layer": "l3",
+      "priority": 200,
+      "enabled": true,
+      "match": {},
+      "plugins": [
+        {
+          "name": "ip-blacklist",
+          "enabled": true,
+          "config": { "ips": ["1.2.3.4", "203.0.113.50"] }
+        }
+      ]
+    },
+    {
+      "id": "pod-dns-whitelist",
+      "name": "Pod DNS 基线加白",
+      "layer": "l3",
+      "priority": 50,
+      "enabled": true,
+      "match": { "pod": "cgroup:*" },
+      "plugins": [
+        {
+          "name": "baseline-allow",
+          "enabled": true,
+          "config": { "pod": "cgroup:1da40000", "ips": ["8.8.8.8", "1.1.1.1"] }
+        }
+      ]
+    }
+  ]
+}
