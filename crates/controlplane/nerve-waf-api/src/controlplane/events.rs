@@ -473,7 +473,7 @@ fn pick_inspect_source(body: &InspectBody, fallback: &str) -> String {
 }
 
 /// 与告警触发条件对齐。
-fn should_alert_waf_event(record: &WafEventRecord) -> bool {
+pub(crate) fn should_alert_waf_event(record: &WafEventRecord) -> bool {
     record.action == "block"
         || record.action == "challenge"
         || record.severity == "high"
@@ -1130,7 +1130,7 @@ pub fn payload_from_event(ev: &WafEventRecord) -> AlertPayload {
     }
 }
 
-fn spawn_alert_dispatch(
+pub(crate) fn spawn_alert_dispatch(
     state: &AppState,
     ev: &WafEventRecord,
     triage: Option<nerve_waf_triage::TriageResult>,

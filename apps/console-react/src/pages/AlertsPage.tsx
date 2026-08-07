@@ -204,6 +204,8 @@ function normalizeConfig(cfg: AlertConfig): AlertConfig {
   const webhooks = [...(cfg.webhooks ?? [])];
   let merged: AlertConfig = {
     ...cfg,
+    // 规则命中 block 一律可推，不再按类型白名单过滤
+    categories: [],
     wecom,
     email: cfg.email ?? defaultEmail(),
     sms: cfg.sms ?? defaultSms(),

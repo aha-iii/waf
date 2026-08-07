@@ -55,3 +55,6 @@ Thumbs.db
 # Cargo / coverage
 **/*.rlib
 **/flamegraph.svg
+
+# Local blazehttp dataset symlink (/tmp); do not commit
+vendor/blazehttp

@@ -23,7 +23,11 @@
         "type": "roundrobin",
         "nodes": { "nerve-official:80": 1 },
         "pass_host": "pass",
-        "scheme": "http"
+        "scheme": "http",
+        "retries": 2,
+        "retry_timeout": 5,
+        "timeout": { "connect": 3, "send": 10, "read": 10 },
+        "keepalive_pool": { "size": 16, "idle_timeout": 60, "requests": 1000 }
       }
     },
     {
@@ -36,7 +40,11 @@
         "type": "roundrobin",
         "nodes": { "nerve-official:80": 1 },
         "pass_host": "pass",
-        "scheme": "http"
+        "scheme": "http",
+        "retries": 2,
+        "retry_timeout": 5,
+        "timeout": { "connect": 3, "send": 10, "read": 10 },
+        "keepalive_pool": { "size": 16, "idle_timeout": 60, "requests": 1000 }
       }
     },
     {
@@ -112,6 +120,24 @@
         "nodes": { "nerve-waf-edge:8080": 1 },
         "pass_host": "pass",
         "scheme": "http"
+      }
+    },
+    {
+      "id": "gitlab-host",
+      "name": "gitlab-host",
+      "host": "${GIT_DOMAIN}",
+      "uri": "/*",
+      "priority": 200,
+      "upstream": {
+        "type": "roundrobin",
+        "nodes": { "gitlab:80": 1 },
+        "pass_host": "pass",
+        "scheme": "http"
+      },
+      "plugins": {
+        "client-control": {
+          "max_body_size": 268435456
+        }
       }
     }
   ]

@@ -210,6 +210,9 @@ services:
       - ./target/official:/usr/share/nginx/html:ro
     networks:
       - nerve-prod
+    # 仅排序提示；真正抗并行启动靠 official.conf 的 resolver + 变量 proxy_pass
+    depends_on:
+      - nerve-waf-api
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
       interval: 15s

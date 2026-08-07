@@ -12,7 +12,6 @@ import {
   defaultPaginationState,
   nerveConfirm,
   nerveResult,
-  paginate,
 } from "@nerve/ui";
 import { apiGet, apiPost, apiPut } from "../api";
 import { sanitizeProductText } from "../brand-sanitize";
@@ -33,6 +32,7 @@ import {
   triageVerdictClass,
   triageVerdictLabel,
 } from "../lib/events-display";
+import { buildEventsListQuery } from "../lib/events-list-query";
 import type { ProtectionModules, WafEvent } from "../lib/waf-types";
 import { MODULE_META } from "../module-meta";
 import { PAGE_META } from "../nav";
@@ -93,21 +93,23 @@ export function EventsPage() {
     setLoading(true);
     setError(null);
     try {
-      const q = new URLSearchParams({ limit: "100", triage: "true", layer: "l7" });
-      if (catFilter) q.set("category", catFilter);
-      if (siteFilter) q.set("site_id", siteFilter);
+      const q = buildEventsListQuery({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        category: catFilter,
+        siteId: siteFilter,
+      });
       const data = await apiGet<{ total: number; events: WafEvent[] }>(
         `/api/events?${q}`,
       );
       setEvents(data.events);
       setTotal(data.total);
-      setPagination((p) => ({ ...p, page: 1 }));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
-  }, [catFilter, siteFilter]);
+  }, [catFilter, siteFilter, pagination.page, pagination.pageSize]);
 
   useEffect(() => {
     void load();
@@ -234,8 +236,6 @@ export function EventsPage() {
     }
   }, []);
 
-  const pageRows = paginate(events, pagination.page, pagination.pageSize);
-
   return (
     <>
       <NervePageHeader title={meta.title} subtitle={meta.subtitle} />
@@ -246,7 +246,10 @@ export function EventsPage() {
             value={siteFilter}
             options={siteOptions}
             style={{ width: 200, marginLeft: 8 }}
-            onChange={(e) => setSiteFilter(e.target.value)}
+            onChange={(e) => {
+              setSiteFilter(e.target.value);
+              setPagination((p) => ({ ...p, page: 1 }));
+            }}
           />
         </label>
         <label className="muted small">
@@ -255,7 +258,10 @@ export function EventsPage() {
             value={catFilter}
             options={EVENT_CATEGORY_OPTIONS}
             style={{ width: 160, marginLeft: 8 }}
-            onChange={(e) => setCatFilter(e.target.value)}
+            onChange={(e) => {
+              setCatFilter(e.target.value);
+              setPagination((p) => ({ ...p, page: 1 }));
+            }}
           />
         </label>
         <NerveButton variant="primary" onClick={() => void load()}>
@@ -280,7 +286,7 @@ export function EventsPage() {
                 className="events-l7-table"
                 scroll={{ x: "max-content" }}
                 rowKey="id"
-                dataSource={pageRows}
+                dataSource={events}
                 columns={[
                   {
                     key: "ts",
@@ -504,7 +510,7 @@ export function EventsPage() {
               />
             </div>
             <NervePagination
-              total={events.length}
+              total={total}
               page={pagination.page}
               pageSize={pagination.pageSize}
               onChange={setPagination}

@@ -1964,6 +1964,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nerve-antibody-cache"
+version = "0.1.0"
+dependencies = [
+ "parking_lot",
+ "serde",
+]
+
+[[package]]
 name = "nerve-antibody-compiler"
 version = "0.1.0"
 dependencies = [
@@ -1992,6 +2000,7 @@ version = "0.1.0"
 dependencies = [
  "nerve-antibody-accel",
  "nerve-antibody-adaptive",
+ "nerve-antibody-cache",
  "nerve-antibody-compiler",
  "nerve-antibody-dsl",
  "nerve-antibody-license",
@@ -2037,6 +2046,7 @@ dependencies = [
  "nerve-antibody-license",
  "rand 0.8.6",
  "serde",
+ "serde_json",
  "sha2",
  "tar",
  "tempfile",

@@ -27,6 +27,7 @@ WAF_DOMAIN="${WAF_DOMAIN:-waf.ahatec.com.cn}"
 ALERT_DOMAIN="${ALERT_DOMAIN:-alert.ahatec.com.cn}"
 WWW_DOMAIN="${WWW_DOMAIN:-www.ahatec.com.cn}"
 ROOT_DOMAIN="${ROOT_DOMAIN:-ahatec.com.cn}"
+GIT_DOMAIN="${GIT_DOMAIN:-git.ahatec.com.cn}"
 
 need_cmd() {
   command -v "$1" >/dev/null 2>&1 || { echo "missing command: $1" >&2; exit 1; }
@@ -39,16 +40,16 @@ if [[ ! -f "$ROUTES_FILE" ]]; then
   exit 1
 fi
 
-echo ">> apply APISIX routes → ${ADMIN} (domains: ${WAF_DOMAIN} / ${ALERT_DOMAIN} / ${WWW_DOMAIN} / ${ROOT_DOMAIN})"
+echo ">> apply APISIX routes → ${ADMIN} (domains: ${WAF_DOMAIN} / ${ALERT_DOMAIN} / ${WWW_DOMAIN} / ${ROOT_DOMAIN} / ${GIT_DOMAIN})"
 
 # 展开 ${ALERT_DOMAIN} 等占位，再逐条 PUT
 EXPANDED="$(
-  WAF_DOMAIN="$WAF_DOMAIN" ALERT_DOMAIN="$ALERT_DOMAIN" WWW_DOMAIN="$WWW_DOMAIN" ROOT_DOMAIN="$ROOT_DOMAIN" \
+  WAF_DOMAIN="$WAF_DOMAIN" ALERT_DOMAIN="$ALERT_DOMAIN" WWW_DOMAIN="$WWW_DOMAIN" ROOT_DOMAIN="$ROOT_DOMAIN" GIT_DOMAIN="$GIT_DOMAIN" \
   python3 - "$ROUTES_FILE" <<'PY'
 import json, os, sys
 path = sys.argv[1]
 raw = open(path, encoding="utf-8").read()
-for k in ("WAF_DOMAIN", "ALERT_DOMAIN", "WWW_DOMAIN", "ROOT_DOMAIN"):
+for k in ("WAF_DOMAIN", "ALERT_DOMAIN", "WWW_DOMAIN", "ROOT_DOMAIN", "GIT_DOMAIN"):
     raw = raw.replace("${%s}" % k, os.environ.get(k, ""))
 data = json.loads(raw)
 print(json.dumps(data["routes"], ensure_ascii=False))

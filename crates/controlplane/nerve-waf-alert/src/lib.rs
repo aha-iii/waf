@@ -223,7 +223,7 @@ impl Default for AlertConfig {
             enabled: false,
             webhooks: Vec::new(),
             min_severity: default_min_severity(),
-            categories: vec!["sqli".into(), "xss".into(), "l3_policy".into(), "cc".into()],
+            categories: Vec::new(),
             wecom: WeComConfig::default(),
             email: EmailConfig::default(),
             sms: SmsConfig::default(),
@@ -350,7 +350,11 @@ impl AlertDispatcher {
         if !has_any_channel(&cfg) {
             return Some("未配置通知通道".into());
         }
-        if severity_rank(&payload.severity) < severity_rank(&cfg.min_severity) {
+        let is_enforcement =
+            payload.action == "block" || payload.action == "challenge";
+        if !is_enforcement
+            && severity_rank(&payload.severity) < severity_rank(&cfg.min_severity)
+        {
             return Some(format!(
                 "严重级别 {} 低于阈值 {}",
                 payload.severity, cfg.min_severity

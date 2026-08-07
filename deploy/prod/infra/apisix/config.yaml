@@ -34,8 +34,10 @@ deployment:
     timeout: 30
 
 # 大静态资源（Console JS ~1.3MB）避免落盘缓冲；gzip 压缩出口带宽
+# client_max_body_size：GitLab GraphQL / 推送 / 工件上传；过小会 413（OpenResty）
 nginx_config:
   http:
+    client_max_body_size: 256m
     gzip: "on"
     gzip_vary: "on"
     gzip_min_length: 1024
