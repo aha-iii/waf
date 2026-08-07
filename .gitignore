@@ -58,3 +58,7 @@ Thumbs.db
 
 # Local blazehttp dataset symlink (/tmp); do not commit
 vendor/blazehttp
+# Local runtime / CRS import dumps (regenerate via import-crs / console)
+/data/*.json
+/data/rules/
+/data/rules-versions/
