@@ -9,7 +9,8 @@ use nerve_waf_api::trace_middleware;
 use nerve_waf_sdk::WafFileConfig;
 use std::net::SocketAddr;
 use std::path::PathBuf;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
+use axum::http::HeaderValue;
 use axum::middleware;
 use tracing_subscriber::EnvFilter;
 
@@ -26,6 +27,34 @@ struct Args {
     data_dir: Option<String>,
     #[arg(long, env = "DATABASE_URL")]
     database_url: Option<String>,
+}
+
+/// CORS：`NERVE_CORS_ORIGINS` 为逗号分隔白名单。
+/// - 未设置 / 空 / `off`：不反射任何 Origin（正式环境由 APISIX `cors` 插件负责）
+/// - `*`：允许任意 Origin（仅本地调试）
+/// - 其它：白名单列表（例：`https://waf.ahatec.com.cn`）
+fn build_cors_layer() -> CorsLayer {
+    let raw = std::env::var("NERVE_CORS_ORIGINS").unwrap_or_default();
+    let raw = raw.trim();
+    let layer = CorsLayer::new()
+        .allow_methods(Any)
+        .allow_headers(Any);
+    if raw == "*" {
+        return layer.allow_origin(Any);
+    }
+    if raw.is_empty() || raw.eq_ignore_ascii_case("off") {
+        return layer.allow_origin(AllowOrigin::list(Vec::<HeaderValue>::new()));
+    }
+    let origins: Vec<HeaderValue> = raw
+        .split(',')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .filter_map(|s| HeaderValue::from_str(s).ok())
+        .collect();
+    if origins.is_empty() {
+        return layer.allow_origin(AllowOrigin::list(Vec::<HeaderValue>::new()));
+    }
+    layer.allow_origin(AllowOrigin::list(origins))
 }
 
 #[tokio::main]
@@ -124,12 +153,7 @@ async fn main() {
             state.clone(),
             phase11_middleware::auth_enforce_middleware,
         ))
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods(Any)
-                .allow_headers(Any),
-        )
+        .layer(build_cors_layer())
         .with_state(state.clone());
 
     let attach_console = std::env::var("WAF_CONSOLE_ATTACH")

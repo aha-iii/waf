@@ -1,10 +1,6 @@
-# Nerve prod infra — 一次部署：Postgres / Redis / etcd / APISIX
+# Nerve prod infra — Postgres / Redis / etcd / APISIX / TLS 入口
 #
-#   cp .env.example .env
-#   docker compose up -d
-#   bash scripts/apply-apisix-routes.sh
-#
-# 业务栈见 ../app/（join 本文件创建的 external network nerve-prod）
+# 目标链路：Client → nerve-tls(:443) → ddos → waf-edge → apisix:9080 → 业务
 
 name: nerve-infra
 
@@ -21,9 +17,6 @@ services:
       - nerve-prod-pg:/var/lib/postgresql/data
     networks:
       - nerve-prod
-    # 默认不映射宿主机；调试时取消下一行注释
-    # ports:
-    #   - "${POSTGRES_HOST_PORT:-127.0.0.1:5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -42,8 +35,6 @@ services:
       - nerve-prod-redis:/data
     networks:
       - nerve-prod
-    # ports:
-    #   - "${REDIS_HOST_PORT:-127.0.0.1:6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -92,12 +83,8 @@ services:
     volumes:
       - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
     ports:
-      - "${APISIX_HTTP_PORT:-80}:9080"
-      # 大陆未备案机常拦 80/443；用 9080→9080 作临时公网入口
-      - "${APISIX_HTTP_ALT_PORT:-9080}:9080"
-      - "${APISIX_HTTPS_PORT:-443}:9443"
-      # Admin / 内嵌 Dashboard（/ui/）；外网需安全组放行 9180，建议仅授权办公 IP
       - "${APISIX_ADMIN_PORT:-9180}:9180"
+      - "${APISIX_HTTP_DEBUG_BIND:-127.0.0.1:9080}:9080"
     networks:
       - nerve-prod
     healthcheck:
@@ -106,6 +93,29 @@ services:
       timeout: 5s
       retries: 8
       start_period: 40s
+    restart: unless-stopped
+
+  nerve-tls:
+    image: nginx:1.27-alpine
+    container_name: nerve-prod-tls
+    depends_on:
+      - apisix
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - ./tls/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    ports:
+      - "${TLS_HTTP_PORT:-80}:80"
+      - "${TLS_HTTPS_PORT:-443}:443"
+    networks:
+      - nerve-prod
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t && wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
 
 volumes:

@@ -19,8 +19,42 @@ use super::block_page::{self, BlockPageFields};
 use super::events::report_block_event;
 use super::client_ip::resolve_client_ip;
 
-/// 人脸比对等接口可能上传较大图片；与前置 nginx `client_max_body_size` 对齐为 100m。
-const MAX_BODY: usize = 100 * 1024 * 1024;
+/// GitLab 推送 / 工件与前置 TLS `client_max_body_size` 对齐（256m）。
+fn max_body_bytes() -> usize {
+    static V: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    *V.get_or_init(|| {
+        std::env::var("WAF_EDGE_MAX_BODY_MB")
+            .ok()
+            .and_then(|s| s.parse::<usize>().ok())
+            .filter(|n| *n > 0)
+            .unwrap_or(256)
+            .saturating_mul(1024 * 1024)
+    })
+}
+
+/// 正式入口链：TLS → ddos → waf-edge → APISIX。设置后忽略站点 origins，统一回源内网 APISIX。
+fn force_upstream_base() -> Option<String> {
+    static V: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+    V.get_or_init(|| {
+        std::env::var("WAF_EDGE_FORCE_UPSTREAM")
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+    })
+    .clone()
+}
+
+fn passthrough_unmatched() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| {
+        matches!(
+            std::env::var("WAF_EDGE_PASSTHROUGH_UNMATCHED")
+                .ok()
+                .as_deref(),
+            Some("1") | Some("true") | Some("yes")
+        )
+    })
+}
 
 fn header_str(headers: &HeaderMap, name: &str) -> Option<String> {
     headers
@@ -155,7 +189,7 @@ pub async fn proxy_handler(
         .and_then(|v| v.to_str().ok())
         .unwrap_or("")
         .to_string();
-    let body = match axum::body::to_bytes(req.into_body(), MAX_BODY).await {
+    let body = match axum::body::to_bytes(req.into_body(), max_body_bytes()).await {
         Ok(b) => b,
         Err(_) => {
             return (StatusCode::PAYLOAD_TOO_LARGE, "body too large").into_response();
@@ -183,14 +217,39 @@ pub async fn proxy_handler(
         .unwrap_or("/")
         .to_string();
 
-    let (route, upstream_url) = {
+    let force_base = force_upstream_base();
+
+    // 未登记站点：全站入口链下仍转发到 APISIX（仅过进程，不做站点级 inspect）
+    let matched = {
         let rt = state.runtime.read().await;
-        let route = match rt.match_route(&host) {
-            Some(r) => r.clone(),
-            None => {
-                return (StatusCode::NOT_FOUND, format!("no route for Host: {host}")).into_response();
-            }
-        };
+        rt.match_route(&host).cloned()
+    };
+    if matched.is_none() {
+        let route_us = t_total.elapsed().as_micros() as u64 - body_us;
+        if let (true, Some(base)) = (passthrough_unmatched(), force_base.as_ref()) {
+            return forward_upstream(
+                &state,
+                &method,
+                &host,
+                &path_q,
+                &headers,
+                &body,
+                base,
+                body_us,
+                route_us,
+                0,
+                t_total,
+            )
+            .await;
+        }
+        return (StatusCode::NOT_FOUND, format!("no route for Host: {host}")).into_response();
+    }
+    let route = matched.expect("matched");
+
+    let upstream_url = if let Some(base) = force_base.clone() {
+        base
+    } else {
+        let rt = state.runtime.read().await;
         let up = match rt.upstream(&route.upstream_id) {
             Some(u) => u.clone(),
             None => {
@@ -203,7 +262,7 @@ pub async fn proxy_handler(
         };
         drop(rt);
         let mut rr = state.rr.lock().await;
-        let url = match pick_upstream_url(&up, &mut rr) {
+        match pick_upstream_url(&up, &mut rr) {
             Some(u) => u,
             None => {
                 return (
@@ -212,8 +271,7 @@ pub async fn proxy_handler(
                 )
                     .into_response();
             }
-        };
-        (route, url)
+        }
     };
     let route_us = t_total.elapsed().as_micros() as u64 - body_us;
 
@@ -329,13 +387,41 @@ pub async fn proxy_handler(
             .into_response();
     }
 
-    let target = join_upstream_url(&upstream_url, &path_q);
-    let mut fwd = state.client.request(method_to_reqwest(&method), target);
-    fwd = copy_forward_headers(fwd, &headers, &host);
+    forward_upstream(
+        &state,
+        &method,
+        &host,
+        &path_q,
+        &headers,
+        &body,
+        &upstream_url,
+        body_us,
+        route_us,
+        inspect_us,
+        t_total,
+    )
+    .await
+}
+
+async fn forward_upstream(
+    state: &EdgeState,
+    method: &Method,
+    host: &str,
+    path_q: &str,
+    headers: &HeaderMap,
+    body: &axum::body::Bytes,
+    upstream_base: &str,
+    body_us: u64,
+    route_us: u64,
+    inspect_us: u64,
+    t_total: Instant,
+) -> Response {
+    let target = join_upstream_url(upstream_base, path_q);
+    let mut fwd = state.client.request(method_to_reqwest(method), target);
+    fwd = copy_forward_headers(fwd, headers, host);
     if !body.is_empty() {
         fwd = fwd.body(body.to_vec());
     }
-
     let t_upstream = Instant::now();
     match fwd.send().await {
         Ok(upstream_resp) => {
@@ -344,9 +430,9 @@ pub async fn proxy_handler(
             let bytes = upstream_resp.bytes().await.unwrap_or_default();
             let upstream_us = t_upstream.elapsed().as_micros() as u64;
             log_edge_request_timing(
-                &method,
-                &path_q,
-                &host,
+                method,
+                path_q,
+                host,
                 false,
                 Some(status.as_u16()),
                 body_us,
@@ -354,20 +440,16 @@ pub async fn proxy_handler(
                 inspect_us,
                 upstream_us,
                 t_total.elapsed().as_micros() as u64,
-                inspect.timing.as_ref(),
+                None,
             );
-            let mut out = Response::builder().status(status);
-            if let Some(h) = out.headers_mut() {
-                copy_response_headers(h, &resp_headers);
-            }
-            out.body(Body::from(bytes))
-                .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
+            response_from_upstream(status, &resp_headers, bytes)
         }
         Err(e) => {
+            tracing::warn!(error = %e, host = %host, "upstream error");
             log_edge_request_timing(
-                &method,
-                &path_q,
-                &host,
+                method,
+                path_q,
+                host,
                 false,
                 Some(StatusCode::BAD_GATEWAY.as_u16()),
                 body_us,
@@ -375,15 +457,24 @@ pub async fn proxy_handler(
                 inspect_us,
                 t_upstream.elapsed().as_micros() as u64,
                 t_total.elapsed().as_micros() as u64,
-                inspect.timing.as_ref(),
+                None,
             );
-            (
-                StatusCode::BAD_GATEWAY,
-                format!("origin error: {e}"),
-            )
-                .into_response()
+            (StatusCode::BAD_GATEWAY, format!("upstream error: {e}")).into_response()
         }
     }
+}
+
+fn response_from_upstream(
+    status: reqwest::StatusCode,
+    resp_headers: &reqwest::header::HeaderMap,
+    bytes: axum::body::Bytes,
+) -> Response {
+    let mut out = Response::builder().status(status.as_u16());
+    if let Some(h) = out.headers_mut() {
+        copy_response_headers(h, resp_headers);
+    }
+    out.body(Body::from(bytes))
+        .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
 }
 
 pub async fn health_handler(State(state): State<EdgeState>) -> Json<serde_json::Value> {
@@ -395,6 +486,8 @@ pub async fn health_handler(State(state): State<EdgeState>) -> Json<serde_json::
         "routes": rt.snap.routes.len(),
         "upstreams": rt.snap.upstreams.len(),
         "site_inspect_sites": rt.snap.site_inspect.len(),
+        "force_upstream": force_upstream_base(),
+        "passthrough_unmatched": passthrough_unmatched(),
     }))
 }
 

@@ -109,7 +109,7 @@ docker compose down -v   # 同时删数据卷
 | 项 | 测试默认 | 生产建议 |
 |----|----------|----------|
 | `NERVE_AUTH_ENABLED` | `0` | `1` + Secret 管理 `NERVE_API_KEY` |
-| `NERVE_NATIVE_DEV_PACK` | `1` | sealed 包时设 `0`，`NERVE_EXPERT_PACK` 指向 `.sealed` |
+| `NERVE_NATIVE_DEV_PACK` | `1`（明文 baseline） | 明文目录必须为 `1`；仅当 `NERVE_EXPERT_PACK` 指向 `.sealed` + License 时设 `0` |
 | `DATABASE_URL` | 内网 PG | 生产库连接串 |
 | Console 时区 | 构建参数固定东八区 | 改时区需重建镜像 `--build-arg VITE_CONSOLE_TIME_ZONE=...` |
 

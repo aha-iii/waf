@@ -67,22 +67,10 @@ async fn topology_status(State(state): State<Arc<AppState>>) -> Json<Value> {
     }))
 }
 
-async fn health(State(state): State<Arc<AppState>>) -> Json<Value> {
-    let db = state.events.db_status().await.ok();
-    Json(json!({
-        "ok": true,
-        "nerveUrl": state.nerve_url,
-        "configBackend": state.config.backend_name(),
-        "configSource": state.config.config_source(),
-        "modulesSource": state.config.modules_source(),
-        "pluginsDir": state.plugin_host.read().unwrap().plugins_dir().display().to_string(),
-        "eventBackend": state.events.backend_name(),
-        "databaseConfigured": state
-            .database_url
-            .as_ref()
-            .is_some_and(|u| !u.trim().is_empty()),
-        "db": db,
-    }))
+/// 匿名健康探针：仅返回存活状态，不暴露库表/路径/上游等细节。
+/// 详细诊断见需鉴权的 `/api/db/status`。
+async fn health(State(_state): State<Arc<AppState>>) -> Json<Value> {
+    Json(json!({ "ok": true }))
 }
 
 async fn db_status(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {

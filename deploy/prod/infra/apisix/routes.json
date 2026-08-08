@@ -1,6 +1,33 @@
 {
   "routes": [
     {
+      "id": "ddos-host",
+      "name": "ddos-host",
+      "host": "${DDOS_DOMAIN}",
+      "uri": "/*",
+      "priority": 200,
+      "upstream": {
+        "type": "roundrobin",
+        "nodes": { "nerve-ddos-console:80": 1 },
+        "pass_host": "pass",
+        "scheme": "http"
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+              "Server": "Nerve"
+            }
+          }
+        }
+      }
+    },
+    {
       "id": "alert-host",
       "name": "alert-host",
       "host": "${ALERT_DOMAIN}",
@@ -11,6 +38,20 @@
         "nodes": { "nerve-alert:8790": 1 },
         "pass_host": "pass",
         "scheme": "http"
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+              "Server": "Nerve"
+            }
+          }
+        }
       }
     },
     {
@@ -26,8 +67,22 @@
         "scheme": "http",
         "retries": 2,
         "retry_timeout": 5,
-        "timeout": { "connect": 3, "send": 10, "read": 10 },
+        "timeout": { "connect": 5, "send": 30, "read": 30 },
         "keepalive_pool": { "size": 16, "idle_timeout": 60, "requests": 1000 }
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+              "Server": "Nerve"
+            }
+          }
+        }
       }
     },
     {
@@ -43,8 +98,65 @@
         "scheme": "http",
         "retries": 2,
         "retry_timeout": 5,
-        "timeout": { "connect": 3, "send": 10, "read": 10 },
+        "timeout": { "connect": 5, "send": 30, "read": 30 },
         "keepalive_pool": { "size": 16, "idle_timeout": 60, "requests": 1000 }
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+              "Server": "Nerve"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "waf-api-login",
+      "name": "waf-api-login",
+      "host": "${WAF_DOMAIN}",
+      "uri": "/api/auth/login",
+      "priority": 150,
+      "methods": ["POST", "OPTIONS"],
+      "upstream": {
+        "type": "roundrobin",
+        "nodes": { "nerve-waf-api:8781": 1 },
+        "pass_host": "pass",
+        "scheme": "http"
+      },
+      "plugins": {
+        "limit-count": {
+          "count": 20,
+          "time_window": 60,
+          "rejected_code": 429,
+          "key_type": "var",
+          "key": "remote_addr",
+          "policy": "local"
+        },
+        "cors": {
+          "allow_origins": "https://${WAF_DOMAIN}",
+          "allow_methods": "POST,OPTIONS",
+          "allow_headers": "Authorization,Content-Type,X-Api-Key,Accept,Origin",
+          "max_age": 600,
+          "allow_credential": true
+        },
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "Server": "Nerve",
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "DENY",
+              "Referrer-Policy": "no-referrer",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains"
+            },
+            "remove": ["Nerve-Trace-Id", "Nerve-Span-Id", "X-Trace-Id"]
+          }
+        }
       }
     },
     {
@@ -58,6 +170,29 @@
         "nodes": { "nerve-waf-api:8781": 1 },
         "pass_host": "pass",
         "scheme": "http"
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "Server": "Nerve",
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "DENY",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+            },
+            "remove": ["Nerve-Trace-Id", "Nerve-Span-Id", "X-Trace-Id", "tracestate"]
+          }
+        },
+        "cors": {
+          "allow_origins": "https://${WAF_DOMAIN}",
+          "allow_methods": "GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD",
+          "allow_headers": "Authorization,Content-Type,X-Api-Key,Accept,Origin",
+          "expose_headers": "Content-Length,Content-Type",
+          "max_age": 600,
+          "allow_credential": true
+        }
       }
     },
     {
@@ -75,6 +210,17 @@
       "plugins": {
         "proxy-rewrite": {
           "regex_uri": ["^/console/?(.*)", "/$1"]
+        },
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Server": "Nerve"
+            }
+          }
         }
       }
     },
@@ -89,6 +235,17 @@
         "nodes": { "nerve-waf-console:8782": 1 },
         "pass_host": "pass",
         "scheme": "http"
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Server": "Nerve"
+            }
+          }
+        }
       }
     },
     {
@@ -106,20 +263,42 @@
       "plugins": {
         "proxy-rewrite": {
           "regex_uri": ["^/engram/?(.*)", "/$1"]
+        },
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Server": "Nerve"
+            }
+          }
         }
       }
     },
     {
-      "id": "waf-edge",
-      "name": "waf-edge",
+      "id": "waf-fallback",
+      "name": "waf-fallback",
       "host": "${WAF_DOMAIN}",
       "uri": "/*",
       "priority": 1,
       "upstream": {
         "type": "roundrobin",
-        "nodes": { "nerve-waf-edge:8080": 1 },
+        "nodes": { "nerve-waf-console:8782": 1 },
         "pass_host": "pass",
         "scheme": "http"
+      },
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "SAMEORIGIN",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Server": "Nerve"
+            }
+          }
+        }
       }
     },
     {
@@ -137,6 +316,15 @@
       "plugins": {
         "client-control": {
           "max_body_size": 268435456
+        },
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "X-Content-Type-Options": "nosniff",
+              "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+              "Server": "Nerve"
+            }
+          }
         }
       }
     }

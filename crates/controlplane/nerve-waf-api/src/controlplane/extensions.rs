@@ -224,14 +224,19 @@ async fn export_siem(Json(body): Json<SiemExportBody>) -> Json<Value> {
     Json(json!({ "format": body.format, "records": lines }))
 }
 
+/// 登录前公开：只暴露登录方式开关，不展开 Keycloak/本地细节以外的运维信息。
 async fn auth_status(State(state): State<Arc<AppState>>) -> Json<Value> {
     let cfg = state.auth.auth_config_response();
     Json(json!({
         "enabled": cfg.enabled,
-        "method": state.auth.auth_method_label(),
         "mode": cfg.mode,
-        "local": cfg.local,
-        "keycloak": cfg.keycloak,
+        "local": { "enabled": cfg.local.enabled },
+        "keycloak": {
+            "enabled": cfg.keycloak.enabled,
+            "auth_server_url": cfg.keycloak.auth_server_url,
+            "realm": cfg.keycloak.realm,
+            "client_id": cfg.keycloak.client_id,
+        },
     }))
 }
 

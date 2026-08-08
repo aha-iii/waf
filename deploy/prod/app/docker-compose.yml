@@ -35,7 +35,11 @@ services:
       KEYCLOAK_CLIENT_ID: ""
       NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-on}
       NERVE_EXPERT_PACK: ${NERVE_EXPERT_PACK:-/opt/nerve/native/baseline}
-      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-0}
+      # 当前发版挂载明文 baseline；sealed+License 就绪前保持默认 1
+      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-1}
+      # CORS：正式由 APISIX cors 插件白名单；上游关闭，禁止回 *
+      NERVE_CORS_ORIGINS: ${NERVE_CORS_ORIGINS:-off}
+      NERVE_EXPOSE_TRACE_HEADERS: ${NERVE_EXPOSE_TRACE_HEADERS:-0}
       NERVE_URL: ${NERVE_URL:-}
       NERVE_GATEWAY_ADMIN_URL: ${NERVE_GATEWAY_ADMIN_URL:-}
       NERVE_GATEWAY_DASHBOARD_URL: ${NERVE_GATEWAY_DASHBOARD_URL:-}
@@ -113,10 +117,15 @@ services:
       TZ: ${TZ:-Asia/Shanghai}
       WAF_EDGE_PORT: "8080"
       WAF_EDGE_API: http://nerve-waf-api:8781
+      # 目标链：TLS→ddos→waf→apisix；edge 统一回源内网 APISIX
+      WAF_EDGE_FORCE_UPSTREAM: ${WAF_EDGE_FORCE_UPSTREAM:-http://apisix:9080}
+      WAF_EDGE_PASSTHROUGH_UNMATCHED: ${WAF_EDGE_PASSTHROUGH_UNMATCHED:-1}
+      WAF_EDGE_MAX_BODY_MB: ${WAF_EDGE_MAX_BODY_MB:-256}
       NERVE_WAF_PLUGINS_DIR: /opt/nerve-waf/plugins
       NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-on}
       NERVE_EXPERT_PACK: ${NERVE_EXPERT_PACK:-/opt/nerve/native/baseline}
-      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-0}
+      # 当前发版挂载明文 baseline；sealed+License 就绪前保持默认 1
+      NERVE_NATIVE_DEV_PACK: ${NERVE_NATIVE_DEV_PACK:-1}
       NERVE_NATIVE_EDGE_INLINE: ${NERVE_NATIVE_EDGE_INLINE:-1}
       NERVE_NATIVE_MAX_INSPECT_MS: ${NERVE_NATIVE_MAX_INSPECT_MS:-300}
       NERVE_NATIVE_SHADOW_DEEP: ${NERVE_NATIVE_SHADOW_DEEP:-1}
@@ -219,6 +228,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+    restart: unless-stopped
+
+  # WAF 联调回源：防护应用可统一指向本容器，验证 edge 检测/回源（非生产业务源）
+  # traefik/whoami 镜像为精简二进制，无 curl/wget，不做容器内 healthcheck
+  nerve-origin-test:
+    image: traefik/whoami:v1.10.2
+    pull_policy: if_not_present
+    container_name: nerve-origin-test
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      WHOAMI_NAME: nerve-origin-test
+      WHOAMI_PORT_NUMBER: "80"
+    networks:
+      - nerve-prod
     restart: unless-stopped
 
 volumes:

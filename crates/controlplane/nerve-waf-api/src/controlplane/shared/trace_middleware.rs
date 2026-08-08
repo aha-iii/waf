@@ -97,9 +97,20 @@ pub async fn trace_middleware(mut req: Request, next: Next) -> Response<Body> {
         })),
     );
 
-    for (name, value) in trace.outbound_http_headers() {
-        if let Ok(hv) = HeaderValue::from_str(&value) {
-            resp.headers_mut().insert(name, hv);
+    // 默认不把 Nerve-Trace-Id / traceparent 等写到对外响应（防信息泄露）。
+    // 排障：NERVE_EXPOSE_TRACE_HEADERS=1
+    let expose_trace = std::env::var("NERVE_EXPOSE_TRACE_HEADERS")
+        .ok()
+        .map(|v| {
+            let v = v.trim().to_ascii_lowercase();
+            matches!(v.as_str(), "1" | "true" | "yes" | "on")
+        })
+        .unwrap_or(false);
+    if expose_trace {
+        for (name, value) in trace.outbound_http_headers() {
+            if let Ok(hv) = HeaderValue::from_str(&value) {
+                resp.headers_mut().insert(name, hv);
+            }
         }
     }
     resp

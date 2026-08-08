@@ -20,13 +20,13 @@ fn is_auth_public(path: &str) -> bool {
     if is_dataplane_pull(path) {
         return true;
     }
+    // /api/inspect 必须鉴权（防规则预言机）；登录页仅放行 health/auth 公开面。
     matches!(
         path,
         "/api/health"
             | "/api/auth/status"
             | "/api/auth/config"
             | "/api/auth/login"
-            | "/api/inspect"
             | "/api/public/demo"
     )
 }
