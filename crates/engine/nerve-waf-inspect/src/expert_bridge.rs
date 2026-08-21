@@ -551,7 +551,7 @@ mod tests {
             user_agent: String::new(),
         };
         assert!(
-            inspect_nerve_antibody(&req, SemLevel::Medium).is_some(),
+            inspect_nerve_antibody(&req, SemLevel::Medium, &mut None).is_some(),
             "pack should block XSS sample"
         );
     }

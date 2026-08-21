@@ -1,0 +1,17 @@
+{
+  "global_rules": [
+    {
+      "id": 1,
+      "plugins": {
+        "response-rewrite": {
+          "headers": {
+            "set": {
+              "Server": "Nerve"
+            },
+            "remove": ["X-APISIX-Upstream-Status"]
+          }
+        }
+      }
+    }
+  ]
+}

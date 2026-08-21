@@ -22,3 +22,6 @@ pub fn rule_count() -> usize {
 }
 
 use nerve_waf_sdk::ProtectionModules;
+
+#[cfg(test)]
+mod test;

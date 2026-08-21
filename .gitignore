@@ -5,7 +5,7 @@
 /dist/
 *.tsbuildinfo
 
-# Local env & secrets (examples 可提交)
+# Local env & secrets（根目录 .env.example 可提交）
 .env
 .env.*
 !.env.example
@@ -19,14 +19,18 @@ deploy/**/.env
 !**/*.key.example
 deploy/**/certs/
 
-# Runtime / local data (源码里的示例与规则包按需保留时再放宽)
+# Runtime / local data
 /data/routes.json
 /data/events.json
 /data/waf-ai-dev/
 /data/waf-edge-stack/
 /data/nerve-waf-expert/
 /data/native-expert-test/
+/data/*.json
+/data/rules/
+/data/rules-versions/
 /logs/
+/gotestwaf-reports/
 *.log
 
 # IDE / OS
@@ -41,8 +45,45 @@ Thumbs.db
 .local/
 .deploy-stage/
 
-# Scripts（本地运维脚本，不入库）
-/scripts/
+# ---------------------------------------------------------------------------
+# 运维 / 私有部署脚本：本地可留，禁止入库（开源仓只保留开发与 CI 脚本）
+# ---------------------------------------------------------------------------
+scripts/.tmp-*
+scripts/_pack-*.txt
+scripts/_*.sh
+scripts/diag-*.sh
+scripts/deploy-prod*
+scripts/deploy-runtime*
+scripts/deploy-test*
+scripts/deploy-mars*
+scripts/emergency-*
+scripts/ensure-prod*
+scripts/migrate-prod*
+scripts/finish-tls*
+scripts/reload-prod*
+scripts/patch-ddos*
+scripts/point-prod*
+scripts/clear-prod*
+scripts/seed-prod*
+scripts/verify-public*
+scripts/ssh-smoke*
+scripts/tune-gitlab*
+scripts/attack-*
+scripts/fix-*-corruption.*
+scripts/fix-api-*.py
+scripts/fix-cargo-corruption.py
+scripts/fix-residual-corruption.py
+scripts/fix-edge-no-force-upstream.sh
+scripts/fix-gitlab-apisix-body-size.sh
+scripts/fix-vendor-proxy-wasm.py
+scripts/fix-waf-console-pipeline.sh
+scripts/fix-console-build.sh
+scripts/bench-edge-latency.sh
+scripts/diag-edge-latency.sh
+scripts/lib/deploy-*.sh
+scripts/lib/sync-pg-*.sh
+scripts/lib/deploy-mars-test-post.sh
+scripts/lib/deploy-prod-post.sh
 
 # Accidental / temp
 /cannot
@@ -56,9 +97,6 @@ Thumbs.db
 **/*.rlib
 **/flamegraph.svg
 
-# Local blazehttp dataset symlink (/tmp); do not commit
+# Local blazehttp dataset；CRS 上游嵌套 CI 不纳入本仓
 vendor/blazehttp
-# Local runtime / CRS import dumps (regenerate via import-crs / console)
-/data/*.json
-/data/rules/
-/data/rules-versions/
+vendor/coreruleset/.github/

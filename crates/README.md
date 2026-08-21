@@ -1,6 +1,7 @@
-# Nerve-waf Crate 分层
+# Nerve WAF Crate 分层
 
-顶层按产品边界分组，crate 名不变（`nerve-waf-*`），仅目录归类。
+产品名 **Nerve WAF**；crate 名 **`nerve-waf-*`**（见仓库根 [docs/NAMING.md](../docs/NAMING.md)）。
+顶层按产品边界分组，仅目录归类。
 
 ```text
 crates/
@@ -43,28 +44,15 @@ crates/
 │   └── …
 │
 └── dataplane/                 【数据面进程 / 内嵌运行时】
-    ├── nerve-waf-edge         src/dataplane（sync + proxy）
-    ├── nerve-waf-embed
-    └── nerve-waf-gateway      （占位，Gateway 独立仓库为主）
+    ├── nerve-waf-edge
+    └── nerve-waf-embed
 ```
 
-```mermaid
-flowchart LR
-  CP[controlplane/nerve-waf-api]
-  DP_API[api/src/dataplane]
-  CONTRACT[contract/nerve-waf-dataplane]
-  DP_EDGE[dataplane/nerve-waf-edge]
-
-  CP --> DP_API
-  DP_API --> CONTRACT
-  CONTRACT --> DP_EDGE
-```
-
-Workspace 路径见仓库根 `Cargo.toml` 的 `members` 与 `[workspace.dependencies]`。
+Workspace 路径见仓库根 `Cargo.toml`。同级依赖见 [docs/DEPENDENCIES.md](../docs/DEPENDENCIES.md)。
 
 ## 测试目录约定
 
-生产代码与测试 **物理分离**：每个 crate 在 `src/test/` 下放 `test_*.rs`，`lib.rs` 末尾仅保留一行挂载：
+生产代码与测试 **物理分离**：每个 crate 在 `src/test/` 下放 `test_*.rs`，`lib.rs` 末尾仅保留：
 
 ```rust
 #[cfg(test)]
@@ -75,16 +63,11 @@ mod test;
 crates/<layer>/<crate>/
 ├── src/
 │   ├── lib.rs              # 生产逻辑，不含 #[test]
-│   ├── snapshot.rs
 │   └── test/
-│       ├── mod.rs          # mod test_snapshot_contract; …
-│       ├── test_snapshot_contract.rs
-│       └── test_edge_dataplane_parity.rs
+│       ├── mod.rs
+│       └── test_<topic>.rs
 ```
 
-- 文件名：`test_<主题>.rs`（对应被测模块或场景）
 - 运行：`cargo test -p <crate-name>`
-- **不用** crate 根目录 `tests/` 与 `src/` 混放；旧 crate 根 `tests/*.rs` 逐步迁入 `src/test/`
-- 源码内 `#[cfg(test)] mod tests { … }` 块逐步迁出，避免与生产逻辑同文件
-
-已按此约定整理：`nerve-waf-dataplane`、`nerve-waf-embed`。其余 crate 后续迁移时沿用同一结构。
+- **参考实现**：`nerve-waf-dataplane`、`nerve-waf-embed`、`nerve-waf-l7`、`nerve-waf-core`
+- 旧 `#[cfg(test)] mod tests` 内联块逐步迁出（贡献新测试时请直接用 `src/test/`）

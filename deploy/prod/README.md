@@ -5,7 +5,7 @@
 ## 首次
 
 ```bash
-cd Nerve-waf/Nerve-defender
+cd Nerve-waf/Nerve-waf
 cp scripts/deploy-prod.local.env.example scripts/deploy-prod.local.env
 # 编辑：DEPLOY_*、POSTGRES_PASSWORD、NERVE_API_KEY、TEST_DATABASE_URL
 

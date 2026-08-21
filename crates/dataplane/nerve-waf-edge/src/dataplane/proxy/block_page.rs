@@ -56,15 +56,21 @@ pub fn render_html(fields: &BlockPageFields) -> String {
 }
 
 pub fn render_json(fields: &BlockPageFields, rule_name: Option<&str>) -> String {
+    // 与 Nerve DDoS edge 拦截 JSON 对齐的公共字段。
     serde_json::json!({
         "blocked": true,
-        "status": 403,
-        "message": "Blocked by Nerve WAF",
         "action": fields.action,
+        "product": "waf",
+        "layer": "l7",
+        "reason": "rule_hit",
+        "message": "Blocked by Nerve WAF",
+        "event_id": fields.event_id,
+        "retry_after_sec": 0,
+        "score": 0,
         "rule_id": fields.rule_id,
         "rule_name": rule_name,
         "site_id": fields.site_id,
-        "event_id": fields.event_id,
+        "status": 403,
     })
     .to_string()
 }
@@ -145,12 +151,15 @@ mod tests {
         let v: serde_json::Value = serde_json::from_str(&raw).unwrap();
         assert_eq!(v["blocked"], true);
         assert_eq!(v["status"], 403);
+        assert_eq!(v["product"], "waf");
+        assert_eq!(v["layer"], "l7");
+        assert_eq!(v["reason"], "rule_hit");
+        assert_eq!(v["retry_after_sec"], 0);
         assert_eq!(v["event_id"], "evt_1");
         assert_eq!(v["action"], "block");
         assert_eq!(v["rule_id"], "r1");
         assert_eq!(v["rule_name"], "demo-rule");
         assert_eq!(v["site_id"], "s1");
-        assert!(v["message"].as_str().unwrap().contains("Nerve"));
-        assert!(v["message"].as_str().unwrap().to_ascii_lowercase().contains("blocked"));
+        assert_eq!(v["message"], "Blocked by Nerve WAF");
     }
 }

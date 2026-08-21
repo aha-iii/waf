@@ -9,3 +9,6 @@ pub use journey::{build_waf_journey_hops, WafJourneyContext, WAF_PIPELINE_ID, WA
 pub use phase::InspectPhase;
 pub use transaction::WafTransaction;
 pub use verdict::{InspectHit, InspectVerdict, WafAction};
+
+#[cfg(test)]
+mod test;
