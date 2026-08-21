@@ -1,4 +1,4 @@
-//! Upstream 健康检查（对齐 APISIX / lua-resty-healthcheck 的 checks 结构）
+//! Upstream health checks (aligned with APISIX / lua-resty-healthcheck `checks`).
 
 use serde::{Deserialize, Serialize};
 

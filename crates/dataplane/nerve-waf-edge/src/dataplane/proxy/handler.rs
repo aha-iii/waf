@@ -19,7 +19,7 @@ use super::block_page::{self, BlockPageFields};
 use super::events::report_block_event;
 use super::client_ip::resolve_client_ip;
 
-/// GitLab 推送 / 工件与前置 TLS `client_max_body_size` 对齐（256m）。
+/// Align GitLab push / artifacts with front TLS `client_max_body_size` (256m).
 fn max_body_bytes() -> usize {
     static V: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
     *V.get_or_init(|| {
@@ -32,7 +32,7 @@ fn max_body_bytes() -> usize {
     })
 }
 
-/// 正式入口链：TLS → ddos → waf-edge → APISIX。设置后忽略站点 origins，统一回源内网 APISIX。
+/// Prod entry chain: TLS → ddos → waf-edge → APISIX. When set, ignore site origins; always origin to internal APISIX.
 fn force_upstream_base() -> Option<String> {
     static V: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
     V.get_or_init(|| {
@@ -219,7 +219,7 @@ pub async fn proxy_handler(
 
     let force_base = force_upstream_base();
 
-    // 未登记站点：全站入口链下仍转发到 APISIX（仅过进程，不做站点级 inspect）
+    // Unregistered site: under full-site entry chain still forward to APISIX (pass-through only; no per-site inspect).
     let matched = {
         let rt = state.runtime.read().await;
         rt.match_route(&host).cloned()
@@ -549,7 +549,7 @@ fn copy_response_headers(dst: &mut HeaderMap, src: &reqwest::header::HeaderMap) 
     }
 }
 
-/// 仅去掉 hop-by-hop；保留 Content-Type / Content-Length / Content-Encoding（client 已 no_gzip，上游多为明文 UTF-8）
+/// Strip hop-by-hop only; keep Content-Type / Content-Length / Content-Encoding (client already no_gzip; upstream usually plain UTF-8).
 fn should_skip_response_header(name: &str) -> bool {
     matches!(
         name,

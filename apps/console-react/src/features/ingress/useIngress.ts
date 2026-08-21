@@ -1,3 +1,4 @@
+/** ingress feature: Use Ingress. */
 import { useCallback, useEffect, useState } from "react";
 import { apiGet, apiPost, apiPut } from "../../api";
 import type { ProtectedSite } from "../../sites";

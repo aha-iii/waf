@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Bot view. */
 import { apiPost } from "./api.js";
 import { esc, pageHeader } from "./components/ui.js";
 

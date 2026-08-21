@@ -1,4 +1,4 @@
-//! 官网预约演示公开接口（免登录）。
+//! Public demo-booking API (no login).
 
 use axum::{
     extract::State,

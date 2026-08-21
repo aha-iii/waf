@@ -1,5 +1,4 @@
-/** 语义 NSP 配置 UI — 全局「语义设置」与应用「防护设置 → 语义设置」共用 */
-
+/** Legacy NSP semantic config UI (global / app / learning tabs). */
 import { esc, switchHtml } from "./components/ui.js";
 
 export type DecodePolicy = {
@@ -62,7 +61,7 @@ export type SemanticConfig = {
   performance: SemanticPerformance;
   auto_tune: SemanticAutoTune;
   intent_enabled: boolean;
-  /** 应用侧省略/undefined = 继承全局 */
+  /** Omitted/undefined on the app side = inherit global */
   expert_level?: "low" | "medium" | "high";
 };
 

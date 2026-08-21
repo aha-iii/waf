@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-license"
+description = "License / metering stubs for commercial builds"
 version.workspace = true
 edition.workspace = true
 

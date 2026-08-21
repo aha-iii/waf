@@ -1,4 +1,4 @@
-//! WAF Console 独立进程：静态 UI + `/api/*` 反代到 nerve-waf-api。
+//! Standalone process serving WAF Console static UI plus API reverse proxy.
 
 use axum::{
     body::Body,

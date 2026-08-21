@@ -43,7 +43,7 @@ pub struct LibInjectionRuleDef {
     pub detect_xss: bool,
 }
 
-/// 内置注入检测规则目录（对齐核心规则集 `@detectSQLi` / `@detectXSS`）
+/// Built-in injection rule catalog (aligned with core `@detectSQLi` / `@detectXSS`).
 pub fn libinjection_rule_catalog() -> &'static [LibInjectionRuleDef] {
     use ScanTarget::*;
     &[

@@ -1,3 +1,4 @@
+/** app-config feature: Ai Protection Panel. */
 import { NerveSwitch, NerveTag } from "@nerve/ui";
 import type { SemanticConfig } from "../../lib/semantic";
 import { normalizePipelineEnabled, normalizePipelineOrder } from "../../lib/pipeline";
@@ -22,7 +23,7 @@ export function applyAiProtectionEnabled(cfg: SemanticConfig, enabled: boolean):
   };
 }
 
-/** AI 防护：面向 AI 应用本身的威胁（Prompt 注入等）。 */
+/** AI protection: threats against the AI app itself (prompt injection, etc.). */
 export function AiProtectionPanel({ cfg, readonly, onChange }: Props) {
   const enabled = cfg.ai_protection?.enabled ?? false;
 

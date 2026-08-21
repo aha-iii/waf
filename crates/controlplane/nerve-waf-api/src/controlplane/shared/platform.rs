@@ -1,4 +1,4 @@
-//! 平台配置：CC / Geo / WAF 防护站点（文件持久化；告警见 Nerve-alert）
+//! Platform config: CC / Geo / WAF protected sites (file-persisted; alerts via Nerve-alert).
 use nerve_waf_api_sec::ApiSecConfig;
 use nerve_waf_behavior::{BehaviorConfig, BehaviorEngine};
 use nerve_waf_cc::{CcConfig, CcEngine};
@@ -42,7 +42,7 @@ fn default_xff_hops() -> u32 {
     1
 }
 
-/// 回源节点（CNAME 边缘模式）
+/// Origin nodes (CNAME edge mode).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IngressOrigin {
     pub address: String,
@@ -83,7 +83,7 @@ fn default_hc_interval() -> u64 {
     10
 }
 
-/// WAF 防护应用（域名/Host 与检测策略绑定；CNAME 模式下兼作边缘编排源）
+/// WAF protected app (domain/Host bound to detect policy; also edge orchestration source in CNAME mode).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProtectedSite {
     pub id: String,
@@ -102,7 +102,7 @@ pub struct ProtectedSite {
     pub tls_cert: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tls_key: Option<String>,
-    /// standalone | cname | agent | bypass（与 integration 对齐；cname 时优先）
+    /// standalone | cname | agent | bypass (aligned with integration; cname preferred when set).
     #[serde(default = "default_ingress_mode")]
     pub ingress_mode: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -129,12 +129,12 @@ pub struct ProtectedSite {
     pub origins: Vec<IngressOrigin>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub edge_pop_ids: Vec<String>,
-    /// 绑定 Gateway 已有 upstream；空则按 origins 自动创建 `up-{site_id}`
+    /// Bind existing Gateway upstream; empty auto-creates `up-{site_id}` from origins.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub gateway_upstream_id: Option<String>,
 }
 
-/// 校验 WAF 应用列表（Console PUT /api/sites）
+/// Validate WAF app list (Console PUT /api/sites).
 pub fn validate_sites(sites: &[ProtectedSite]) -> Result<(), String> {
     if sites.is_empty() {
         return Err("至少保留一个 WAF 应用".into());
@@ -179,10 +179,10 @@ pub fn validate_sites(sites: &[ProtectedSite]) -> Result<(), String> {
     Ok(())
 }
 
-/// 兼容旧字段名 gateway_sites / 旧 API
+/// Compat legacy field name gateway_sites / legacy API.
 pub type GatewaySite = ProtectedSite;
 
-/// L7 高危命中后自动 eBPF 封禁源 IP（经 Nerve Agent）
+/// After L7 high-severity hit, auto eBPF-ban src IP via Nerve Agent.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AutoDenyConfig {
     #[serde(default)]
@@ -291,7 +291,7 @@ pub struct PlatformServices {
     rules_dir: PathBuf,
     patches_dir: PathBuf,
     ai_rules_dir: PathBuf,
-    /// true：protected_sites 存 PostgreSQL，platform.json 不再写入站点列表
+    /// true: protected_sites in PostgreSQL; platform.json no longer stores site list.
     sites_persist_db: bool,
 }
 
@@ -430,7 +430,7 @@ impl PlatformServices {
             .or_else(|| sites.iter().find(|s| s.enabled && s.id == "default").cloned())
     }
 
-    /// 旁路 /api/inspect：优先 app_id；未传或未知则使用系统默认 `default`。
+    /// Bypass /api/inspect: prefer app_id; missing/unknown → system default `default`.
     pub fn resolve_inspect_site_id(&self, app_id: Option<&str>) -> String {
         let Some(id) = app_id.map(str::trim).filter(|s| !s.is_empty()) else {
             return "default".into();
@@ -503,7 +503,7 @@ impl PlatformServices {
         self.save()
     }
 
-    /// Console 防护模块同步到 CC / Bot 平台配置（含模块级阈值覆盖）
+    /// Sync Console protection modules into CC / Bot platform config (incl. module-level threshold overrides).
     pub fn sync_from_protection_modules(&self, modules: &nerve_waf_sdk::ProtectionModules) {
         let cc = modules.merge_cc_config(&self.cc.config());
         self.cc.update_config(cc);
@@ -701,7 +701,7 @@ impl PlatformServices {
         self.rules_dir.clone()
     }
 
-    /// 应用绑定的 CRS 版本规则；未绑定时使用系统当前活跃规则集。
+    /// CRS rules for the app-bound version; unbound uses current system active set.
     pub fn merged_l7_rules_for_binding(
         &self,
         binding: Option<&nerve_waf_store::AppCrsBinding>,
@@ -718,7 +718,7 @@ impl PlatformServices {
         self.merged_l7_rules()
     }
 
-    /// Edge dataplane 快照：可序列化 RawRule（与 merged_l7_rules_for_binding 同源）。
+    /// Edge dataplane snapshot: serializable RawRule (same source as merged_l7_rules_for_binding).
     pub fn raw_l7_rules_for_binding(
         &self,
         binding: Option<&nerve_waf_store::AppCrsBinding>,
@@ -929,7 +929,7 @@ fn nerve_waf_root(data_dir: &Path) -> PathBuf {
         .unwrap_or_else(|| data_dir.to_path_buf())
 }
 
-/// 仓库根目录（`Nerve-waf` 的上一级，如 `waf/`）
+/// Repo root (parent of `Nerve-waf`, e.g. `waf/`).
 fn workspace_root(data_dir: &Path) -> Option<PathBuf> {
     nerve_waf_root(data_dir).parent().map(|p| p.to_path_buf())
 }
@@ -1002,12 +1002,12 @@ fn severity_rank(s: &str) -> u8 {
     }
 }
 
-/// 确保本地有可用的 OWASP CRS 源码树（含 `rules/`）。
+/// Ensure a usable local OWASP CRS tree (with `rules/`).
 ///
-/// 生产容器通常不装 git：优先 HTTPS 拉取 release tarball 并解压。
-/// 可选环境变量：
-/// - `NERVE_CRS_VENDOR_DIR`：已挂载/预置的 CRS 目录（含 rules/），跳过下载
-/// - `NERVE_CRS_TARBALL_URL`：自定义 tarball URL，可含 `{version}` / `{tag}` 占位符
+/// Prod containers usually lack git: prefer HTTPS release tarball download + extract.
+/// Optional env vars:
+/// - `NERVE_CRS_VENDOR_DIR`: pre-mounted CRS dir (with rules/); skip download.
+/// - `NERVE_CRS_TARBALL_URL`: custom tarball URL; may include `{version}` / `{tag}` placeholders.
 fn ensure_crs_vendor(nerve_waf_root: &Path, version: &str) -> Result<PathBuf, String> {
     let version = version.trim();
     if version.is_empty() {
@@ -1069,7 +1069,7 @@ fn crs_tarball_urls(version: &str) -> Vec<String> {
             );
         }
     }
-    // codeload 比 github.com/archive 更稳定（部分环境访问后者会 SSL 中断）
+    // codeload is more stable than github.com/archive (some envs get SSL interrupts on the latter).
     urls.push(format!(
         "https://codeload.github.com/coreruleset/coreruleset/tar.gz/refs/tags/{version}"
     ));
@@ -1175,7 +1175,7 @@ fn download_crs_tarball(vendor: &Path, version: &str) -> Result<(), String> {
     }
 
     if let Err(e) = std::fs::rename(&extracted, vendor) {
-        // 跨设备时 rename 可能失败，回退为递归复制
+        // rename may fail across devices; fall back to recursive copy.
         if let Err(copy_err) = copy_dir_recursive(&extracted, vendor) {
             if backup.exists() {
                 let _ = std::fs::rename(&backup, vendor);
@@ -1228,7 +1228,7 @@ fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), String> {
     Ok(())
 }
 
-/// 本地开发机可选回退：系统已安装 git 时 clone/fetch。
+/// Optional local-dev fallback: clone/fetch when system git is installed.
 fn try_git_ensure_crs(vendor: &Path, version: &str) -> Result<(), String> {
     let git_ok = std::process::Command::new("git")
         .arg("--version")

@@ -1,3 +1,4 @@
+/** app-config feature: Custom Set Rules Modal. */
 import { useEffect, useState } from "react";
 import {
   NerveButton,

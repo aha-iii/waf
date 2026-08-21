@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Rules custom view. */
 import { apiDelete, apiGet, apiPost, apiPut } from "./api.js";
 import {
   actionTag,

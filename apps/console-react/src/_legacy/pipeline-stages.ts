@@ -1,6 +1,4 @@
-/** 检测流水线可选阶段（与后端 pipeline_order 一致；默认：专家 → 核心 → 自定义）
- * 语义是防护设置中的增强配置，不是本列表中的检测段。
- */
+/** Legacy selectable pipeline stages (expert → core → custom by default). */
 export const PIPELINE_STAGES: { id: string; label: string; desc: string }[] = [
   {
     id: "expert",
@@ -32,7 +30,7 @@ export function normalizePipelineEnabled(raw?: Partial<PipelineEnabledMap> | nul
   return base;
 }
 
-/** 历史 `crs` → `expert` + `core`；剥离 `semantic`/`plugin`；补齐默认三段 */
+/** Legacy `crs` → `expert` + `core`; strip `semantic`/`plugin`; fill the default three stages */
 export function normalizePipelineOrder(order: string[]): string[] {
   const ids = PIPELINE_STAGES.map((s) => s.id);
   const seen = new Set<string>();

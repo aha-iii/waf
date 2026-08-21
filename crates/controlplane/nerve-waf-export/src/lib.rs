@@ -1,4 +1,4 @@
-//! SIEM / CEF 导出
+//! SIEM/CEF export helpers for WAF events.
 
 use chrono::SecondsFormat;
 use nerve_waf_sdk::WafEventRecord;

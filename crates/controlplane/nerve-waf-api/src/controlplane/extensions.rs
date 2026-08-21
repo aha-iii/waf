@@ -224,7 +224,7 @@ async fn export_siem(Json(body): Json<SiemExportBody>) -> Json<Value> {
     Json(json!({ "format": body.format, "records": lines }))
 }
 
-/// 登录前公开：只暴露登录方式开关，不展开 Keycloak/本地细节以外的运维信息。
+/// Pre-login public: expose only login-method switches; no other Keycloak/local ops details.
 async fn auth_status(State(state): State<Arc<AppState>>) -> Json<Value> {
     let cfg = state.auth.auth_config_response();
     Json(json!({

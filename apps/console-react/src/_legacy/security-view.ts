@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Security view. */
 export type WafEvent = {
   id: string;
   ts: string;
@@ -534,7 +535,7 @@ export async function renderSecurityEvents(root: HTMLElement, toast: (m: string,
   function stageLabel(stage?: string): string {
     switch (stage) {
       case "semantic":
-        // 历史事件：语义曾是独立段，展示归入核心
+        // Legacy events: semantic was a separate stage; display under core
         return "核心";
       case "expert":
         return "专家";
@@ -549,10 +550,10 @@ export async function renderSecurityEvents(root: HTMLElement, toast: (m: string,
     }
   }
 
-  /** 旧事件兜底：从 plugin / category / message 推断防护段与规则集 */
+  /** Legacy-event fallback: infer protection stage and rule set from plugin / category / message */
   function inferProtectionOrigin(e: WafEvent): { stage?: string; ruleSet?: string } {
     if (e.protection_stage || e.rule_set) {
-      // 历史 protection_stage=semantic → 按核心展示
+      // Legacy protection_stage=semantic → display under core
       if (e.protection_stage === "semantic") {
         return { stage: "core", ruleSet: e.rule_set || "semantic" };
       }
@@ -588,7 +589,7 @@ export async function renderSecurityEvents(root: HTMLElement, toast: (m: string,
       : esc(name);
   }
 
-  /** 防护模块 = 流水线段（核心/专家/自定义）· 规则集（semantic 表示经语义增强） */
+  /** Protection module = pipeline stage (core/expert/custom) · rule set (semantic means semantically enhanced) */
   function moduleCell(e: WafEvent): string {
     const inferred = inferProtectionOrigin(e);
     const rawStage = e.protection_stage === "semantic" ? "core" : e.protection_stage || inferred.stage;
@@ -831,7 +832,7 @@ export async function renderProtectionModules(root: HTMLElement, toast: (m: stri
       if (base?.disabled_rules?.length) cfg.disabled_rules = [...base.disabled_rules];
       next.modules[key] = cfg;
     });
-    // 保留扩展模块（custom / plugin / crs）配置，不在本页展示
+    // Keep extension module (custom / plugin / crs) config; not shown on this page
     for (const key of ["custom", "plugin", "crs"] as const) {
       if (modules.modules[key]) {
         next.modules[key] = { ...modules.modules[key] };

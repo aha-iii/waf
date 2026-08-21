@@ -1,3 +1,4 @@
+/** events feature: Triage Detail Modal. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

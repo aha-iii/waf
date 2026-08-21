@@ -1,3 +1,4 @@
+/** ingress feature: Origin Pool Editor. */
 import { NerveButton, NerveFormItem, NerveInput, NerveSelect } from "@nerve/ui";
 import type { IngressOrigin } from "./ingress-types";
 import {

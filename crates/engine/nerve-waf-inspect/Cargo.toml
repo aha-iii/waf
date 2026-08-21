@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-inspect"
-description = "Nerve WAF 统一检测流水线"
+description = "Unified inspect pipeline (pre_access to expert to core to custom)"
 version.workspace = true
 edition.workspace = true
 

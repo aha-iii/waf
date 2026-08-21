@@ -1,3 +1,4 @@
+/** modules feature: Core Module Card. */
 import {
   NerveButton,
   NerveSelect,

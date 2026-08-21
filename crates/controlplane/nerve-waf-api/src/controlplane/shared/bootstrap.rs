@@ -80,8 +80,8 @@ pub async fn build_app_state(opts: BootstrapOptions) -> Arc<AppState> {
         .await
         .expect("open event store");
 
-    // Topology / Docker 库存已迁 Nerve-control (:8780)。WAF 不再持有拓扑 Store。
-    // 紧急回滚：WAF_ENABLE_LEGACY_TOPOLOGY=1 仍挂接 PG 拓扑（不推荐）。
+    // Topology / Docker inventory moved to Nerve-control (:8780). WAF no longer holds topology Store.
+    // Emergency rollback: WAF_ENABLE_LEGACY_TOPOLOGY=1 still attaches PG topology (not recommended).
     let topology = if matches!(
         std::env::var("WAF_ENABLE_LEGACY_TOPOLOGY").as_deref(),
         Ok("1") | Ok("true") | Ok("TRUE")

@@ -1,5 +1,4 @@
-/** Web 核心防护 → CRS 规则页跳转预设（sessionStorage 一次性消费） */
-
+/** CRS preset handoff from Web Core Protection to the CRS rules page (sessionStorage). */
 export type CrsViewPreset = {
   category: string;
   protect?: 1 | 2 | 3;
@@ -7,7 +6,7 @@ export type CrsViewPreset = {
 
 const PRESET_KEY = "nerve-crs-view-preset";
 
-/** 防护模块 key → CRS 规则分类 */
+/** Protection-module key → CRS rule category */
 export const MODULE_CRS_CATEGORY: Record<string, string | null> = {
   sqli: "sqli",
   xss: "xss",

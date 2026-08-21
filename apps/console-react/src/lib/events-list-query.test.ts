@@ -1,3 +1,4 @@
+/** Unit tests for Events list query helpers. */
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildEventsListQuery } from "./events-list-query.js";

@@ -1,4 +1,4 @@
-//! 安全扩展路由：CRS、API 安全、防篡改、RBAC、License、Challenge
+//! Security extension routes: CRS, API security, anti-tamper, RBAC, License, Challenge.
 
 use axum::{
     extract::{Query, State},

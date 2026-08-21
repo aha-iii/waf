@@ -52,10 +52,10 @@ pub struct InspectHit {
     pub semantic_score: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub engines: Option<Vec<String>>,
-    /// 流水线段：semantic / expert / core / custom / pre_access
+    /// Pipeline segment: semantic / expert / core / custom / pre_access.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub protection_stage: Option<String>,
-    /// 规则集：libinjection / expert-crs / l7-json / custom:{id} …
+    /// Rule set: libinjection / expert-crs / l7-json / custom:{id} …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rule_set: Option<String>,
 }

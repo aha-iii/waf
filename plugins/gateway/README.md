@@ -1,3 +1,3 @@
-# Gateway 插件已迁移至 Nerve-gateway/plugins/
+# Gateway plugins (moved)
 
-见 [../../Nerve-gateway/plugins/README.md](../../Nerve-gateway/plugins/README.md)
+Gateway plugins now live under `Nerve-gateway/plugins/`. See [../../Nerve-gateway/plugins/README.md](../../Nerve-gateway/plugins/README.md).

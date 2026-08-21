@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Advanced security view. */
 import { apiGet } from "./api.js";
 import { mountPaginatedTable } from "./components/ui.js";
 

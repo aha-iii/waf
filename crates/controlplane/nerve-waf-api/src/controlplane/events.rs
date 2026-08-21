@@ -34,13 +34,13 @@ pub struct EventsQueryParams {
     pub category: Option<String>,
     pub action: Option<String>,
     pub src_ip: Option<String>,
-    /// 按防护应用 ID 筛选
+    /// Filter by protected-app id.
     pub site_id: Option<String>,
-    /// l7 = WAF 攻击；l3 = 网络观测
+    /// l7 = WAF attack; l3 = network observation.
     pub layer: Option<String>,
-    /// 逗号分隔，排除的类型（攻击日志默认可在前端传 orphan_connect,anomaly）
+    /// Comma-separated excluded types (attack log UI may pass orphan_connect,anomaly).
     pub exclude_category: Option<String>,
-    /// 为每条事件自动附加智能研判结果
+    /// Attach intelligent triage result to each event automatically.
     #[serde(default)]
     pub triage: bool,
 }
@@ -145,7 +145,7 @@ pub struct StatsSinceQuery {
     pub since: Option<String>,
 }
 
-/// Nerve-alert 摘要 JOB 回调：返回与 SourceStatsOverview 兼容的 JSON
+/// Nerve-alert digest JOB callback: JSON compatible with SourceStatsOverview.
 pub async fn internal_stats(
     State(state): State<Arc<AppState>>,
     Query(q): Query<StatsSinceQuery>,
@@ -238,7 +238,7 @@ pub async fn put_global_modules(
     Ok(Json(json!({ "ok": true })))
 }
 
-/// 发布全局默认防护模块并同步运行时（CC/Bot platform、L7 热加载）
+/// Publish global default protection modules and sync runtime (CC/Bot platform, L7 hot reload).
 pub async fn publish_global_modules(
     State(state): State<Arc<AppState>>,
     Json(modules): Json<ProtectionModules>,
@@ -275,7 +275,7 @@ pub async fn put_modules(
 
 #[derive(Deserialize)]
 pub struct InspectBody {
-    /// 防护应用 ID（旁路 Gateway 必传；缺省为 `default`）
+    /// Protected-app id (required for bypass Gateway; defaults to `default`).
     #[serde(default)]
     pub app_id: Option<String>,
     pub method: Option<String>,
@@ -289,10 +289,10 @@ pub struct InspectBody {
     pub response_body: Option<String>,
     #[serde(default)]
     pub persist: bool,
-    /// inspect 入口来源：ebpf / http-bypass / agent-local 等
+    /// Inspect entry source: ebpf / http-bypass / agent-local, etc.
     #[serde(default)]
     pub source: Option<String>,
-    /// 关联 trace（缺省用 WAF 请求 trace）
+    /// Related trace (defaults to WAF request trace).
     #[serde(default)]
     pub trace_id: Option<String>,
     #[serde(default)]
@@ -472,7 +472,7 @@ fn pick_inspect_source(body: &InspectBody, fallback: &str) -> String {
         .to_string()
 }
 
-/// 与告警触发条件对齐。
+/// Aligned with alert trigger conditions.
 pub(crate) fn should_alert_waf_event(record: &WafEventRecord) -> bool {
     record.action == "block"
         || record.action == "challenge"
@@ -480,7 +480,7 @@ pub(crate) fn should_alert_waf_event(record: &WafEventRecord) -> bool {
         || record.severity == "critical"
 }
 
-/// 拦截/挑战/高危命中必须落库；显式 persist 时记录 detect 命中。
+/// Block/challenge/high-severity hits must persist; explicit persist also records detect hits.
 fn should_persist_inspect_hit(persist: bool, record: &WafEventRecord, blocked: bool) -> bool {
     persist || blocked || should_alert_waf_event(record)
 }
@@ -499,7 +499,7 @@ pub async fn execute_inspect(state: &AppState, req: InspectBody) -> Result<Value
     execute_inspect_traced(state, req, &trace, "agent-local").await
 }
 
-/// 统一 inspect 流水线。`inspect_backend` 标识入口：`http-bypass`（Gateway/APISIX → :8780）、`agent-local`（Unix Socket）。
+/// Unified inspect pipeline. `inspect_backend` marks entry: `http-bypass` (Gateway/APISIX → :8780), `agent-local` (Unix socket).
 pub async fn execute_inspect_traced(
     state: &AppState,
     req: InspectBody,
@@ -765,7 +765,7 @@ pub async fn execute_inspect_traced(
     }))
 }
 
-/// HTTP 旁路检测入口（Gateway / APISIX 插件默认调用 `:8780/api/inspect`）。
+/// HTTP bypass inspect entry (Gateway / APISIX plugins call `:8780/api/inspect` by default).
 pub async fn post_inspect(
     State(state): State<Arc<AppState>>,
     trace: NerveTrace,
@@ -840,7 +840,7 @@ fn audit_to_event(rec: &Value) -> WafEventRecord {
     let src_ip = rec.get("src_ip").and_then(|v| v.as_str()).map(str::to_string);
     let dst_ip = rec.get("dst_ip").and_then(|v| v.as_str()).map(str::to_string);
     let message = rec.get("message").and_then(|v| v.as_str()).map(str::to_string);
-    // policy_deny 历史数据可能只有 dst_ip；统一用于展示
+    // Legacy policy_deny rows may only have dst_ip; normalize for display.
     let display_ip = src_ip.clone().or(dst_ip.clone());
     let payload_sample = match kind {
         "policy_deny" => display_ip
@@ -1162,7 +1162,7 @@ pub(crate) fn spawn_alert_dispatch(
     });
 }
 
-/// L3 网络观测：仅组合信号 / 高危 / 拦截 才推送告警，plain orphan 不告警。
+/// L3 network observation: alert only on combined signals / high severity / block; plain orphan does not alert.
 pub fn should_alert_network_event(ev: &WafEventRecord) -> bool {
     if ev.layer != "l3" {
         return false;

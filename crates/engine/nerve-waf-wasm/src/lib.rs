@@ -1,10 +1,10 @@
-//! 进程内 **Coraza + OWASP CRS**（`coraza-proxy-wasm.wasm`，Proxy-Wasm ABI）。
+//! In-process Coraza/Proxy-WASM CRS engine bridge.
 //!
-//! Gateway `mode=edge` 单进程加载 WASM，无需 Go `coraza-engine` 伴生进程。
+//! Loads `coraza-proxy-wasm.wasm` in-process (no companion Go Coraza process).
 //!
-//! - `NERVE_WAF_CRS_ENGINE=wasm`（默认，当 wasm 文件存在）
-//! - `NERVE_WAF_WASM_CRS_PATH`：`.wasm` 路径（默认 `Nerve-waf/wasm/coraza-proxy-wasm.wasm`）
-//! - `NERVE_WAF_WASM_CRS_CONFIG`：Coraza 插件 JSON 配置文件（可选）
+//! - `NERVE_WAF_CRS_ENGINE=wasm` (default when the wasm file is present)
+//! - `NERVE_WAF_WASM_CRS_PATH` - path to the `.wasm` (default under `Nerve-waf/wasm/`)
+//! - `NERVE_WAF_WASM_CRS_CONFIG` - optional Coraza plugin JSON config
 
 mod runtime;
 mod engine;

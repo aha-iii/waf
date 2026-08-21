@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Crs runtime ui. */
 import { apiGet, apiPut } from "./api.js";
 import { btn, esc, filterSelect } from "./components/ui.js";
 import { sanitizeProductText } from "./brand-sanitize.js";
@@ -22,7 +23,7 @@ export type CrsRuntimeStatus = {
   capabilities: CrsCapability[];
 };
 
-/** 对内引擎值 → 对外产品文案（页面禁止暴露实现名） */
+/** Internal engine value → product-facing copy (pages must not expose implementation names) */
 const ENGINE_LABEL: Record<CrsEnginePreference, string> = {
   auto: "自动",
   wasm: "专家防护（默认）",
@@ -153,7 +154,7 @@ export async function mountCrsRuntimeHost(
   return status;
 }
 
-/** 专家防护整包路径下，核心模块开关不作用于专家段 */
+/** On the expert whole-pack path, core module toggles do not apply to the expert stage */
 export function crsModuleControlsLimited(status: CrsRuntimeStatus): boolean {
   return status.effective_engine === "wasm";
 }

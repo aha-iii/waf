@@ -46,9 +46,19 @@ Thumbs.db
 .local/
 .deploy-stage/
 
-# 发版 / 部署脚本：仅本机保留，不上 GitLab
+# 发版 / 部署脚本：仅本机保留，不上 GitLab（内容在 ops/）
+# /ops/* 已覆盖 ops/prod、ops/mars-test、ops/scripts 等（仅 README 例外）
+/ops/*
+!/ops/README.md
 /scripts/*
 !/scripts/README.md
+/deploy/scripts/*
+!/deploy/scripts/README.md
+# stub 目录：仅保留指向 ops/ 的 README
+/deploy/prod/*
+!/deploy/prod/README.md
+/deploy/mars-test/*
+!/deploy/mars-test/README.md
 
 # Accidental / temp
 /cannot

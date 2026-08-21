@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-l7"
-description = "L7 OWASP detectioe engine for Nerve WAF"
+description = "L7 regex/OWASP rule engine (embedded + JSON packs)"
 version.workspace = true
 edition.workspace = true
 

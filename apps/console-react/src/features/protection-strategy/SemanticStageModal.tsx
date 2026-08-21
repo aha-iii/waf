@@ -1,3 +1,4 @@
+/** protection-strategy feature: Semantic Stage Modal. */
 import { useCallback, useEffect, useState } from "react";
 import { NerveButton, NerveModal, nerveConfirm, nerveResult } from "@nerve/ui";
 import { apiGet, apiPut } from "../../api";

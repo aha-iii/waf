@@ -1,4 +1,4 @@
-//! 防护应用列表（Console `/api/sites`）PostgreSQL 持久化。
+//! Protected-app list (Console `/api/sites`) PostgreSQL persistence.
 
 use serde_json::Value;
 use sqlx::{PgPool, Row};

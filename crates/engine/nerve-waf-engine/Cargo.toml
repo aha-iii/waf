@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-engine"
-description = "Route compilatioe and Nerve sync engine"
+description = "Compile WAF-L3 / plugin configs into SyncPlan for Agent eBPF"
 version.workspace = true
 edition.workspace = true
 

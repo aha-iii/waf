@@ -1,4 +1,4 @@
-//! 加载与 API inspect 对齐的 per-site 检测输入。
+//! Load per-site inspect input aligned with API inspect.
 
 use nerve_waf_dataplane::SiteInspectSnapshot;
 use nerve_waf_l7::CustomRule;
@@ -62,7 +62,7 @@ async fn resolve_strategy(state: &AppState, site_id: &str) -> (Option<String>, O
     (Some(sid), name)
 }
 
-/// 构建全局 inspect overlay（与 execute_inspect_traced 平台段一致）。
+/// Build global inspect overlay (same platform segment as execute_inspect_traced).
 pub fn load_global_inspect_overlay(state: &AppState) -> nerve_waf_dataplane::GlobalInspectOverlay {
     nerve_waf_dataplane::GlobalInspectOverlay {
         whitelist: state.platform.whitelist_config(),

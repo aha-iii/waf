@@ -1,3 +1,4 @@
+/** Shared library helpers: Crs rules. */
 import { apiGet } from "../api";
 import { siteQuery } from "../sites";
 import { sanitizeProductText } from "../brand-sanitize";

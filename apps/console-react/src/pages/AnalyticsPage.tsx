@@ -1,3 +1,4 @@
+/** Console page: WAF analytics and reporting. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

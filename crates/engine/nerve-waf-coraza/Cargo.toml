@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-coraza"
-description = "Clieet bridge to embedded Coraza+CRS engine (nerve-waf-coraza)"
+description = "Client bridge to embedded Coraza+CRS engine (nerve-waf-coraza)"
 version.workspace = true
 edition.workspace = true
 

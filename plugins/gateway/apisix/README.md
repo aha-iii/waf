@@ -1,34 +1,34 @@
-# APISIX + Nerve WAF 联调
+# APISIX + Nerve WAF integration
 
-将 `nerve-waf.lua` 复制到 APISIX 插件目录，路由挂载后，每个请求会 `POST` 到 WAF `:8780/api/inspect`（**HTTP 旁路入口，与 Agent 本地 Unix Socket 路径并存**）。
+Copy `nerve-waf.lua` into the APISIX plugins directory. After the route mounts the plugin, each request `POST`s to WAF `:8781/api/inspect` (HTTP bypass path; coexists with the Agent Unix socket path). Change admin keys and WAF URLs before use.
 
-## 1. 安装插件
+## 1. Install the plugin
 
 ```bash
-# 假设 APISIX 在 /usr/local/apisix
+# Assuming APISIX at /usr/local/apisix
 cp nerve-waf.lua /usr/local/apisix/apisix/plugins/nerve-waf.lua
 ```
 
-编辑 `conf/config.yaml`，在 `plugins:` 列表增加：
+Edit `conf/config.yaml` and add to the `plugins:` list:
 
 ```yaml
 plugins:
   - nerve-waf
-  # ... 其他插件
+  # ... other plugins
 ```
 
-重载：
+Reload:
 
 ```bash
 apisix reload
-# 或 docker: docker exec apisix apisix reload
+# or docker: docker exec apisix apisix reload
 ```
 
-## 2. 创建测试路由
+## 2. Create a test route
 
 ```bash
 ADMIN=http://127.0.0.1:9180
-KEY=edd1c9f034335f136f87ad84b625c8f1   # 改成你的 admin key
+KEY=change-me-apisix-admin-key   # must match your APISIX admin key
 
 curl -s "$ADMIN/apisix/admin/routes/nerve-waf-demo" \
   -H "X-API-KEY: $KEY" -X PUT -d '{
@@ -39,7 +39,7 @@ curl -s "$ADMIN/apisix/admin/routes/nerve-waf-demo" \
   },
   "plugins": {
     "nerve-waf": {
-      "waf_api": "http://127.0.0.1:8780",
+      "waf_api": "http://127.0.0.1:8781",
       "api_key": "",
       "app_id": "default",
       "block_on_hit": true,
@@ -51,52 +51,52 @@ curl -s "$ADMIN/apisix/admin/routes/nerve-waf-demo" \
 }'
 ```
 
-**Docker 注意：** APISIX 容器内访问宿主机 WAF 时用 `http://host.docker.internal:8780` 或 `--network host`。
+**Docker note:** From an APISIX container to host WAF, use `http://host.docker.internal:8780` or `--network host`.
 
-## 3. 攻击测试
+## 3. Attack tests
 
-APISIX 数据面默认 `:9080`（视安装而定）：
+APISIX data plane defaults to `:9080` (depends on install):
 
 ```bash
 GW=http://127.0.0.1:9080
 
-# SQL 注入 — 期望 403
+# SQL injection — expect 403
 curl -i "$GW/search?q=1+or+1%3D1"
 
 # XSS
 curl -i "$GW/x?q=%3Cscript%3Ealert(1)%3C/script%3E"
 
-# 路径穿越
+# Path traversal
 curl -i "$GW/file?p=../../../etc/passwd"
 
-# 正常请求 — 不应 403
+# Benign request — should not be 403
 curl -i "$GW/api/health"
 ```
 
-## 4. 验证入库（Console 大盘）
+## 4. Verify persistence (Console)
 
 ```bash
 curl -s 'http://127.0.0.1:8780/api/events?limit=5&category=sqli' | jq '.events[0]'
 ```
 
-Console → 安全运营 → 攻击日志 → 刷新，筛选「SQL 注入」。
+In Console: Security ops → Attack logs → refresh, filter SQL injection.
 
-## 5. 插件配置项
+## 5. Plugin options
 
-| 字段 | 默认 | 说明 |
-|------|------|------|
+| Field | Default | Meaning |
+|-------|---------|---------|
 | `waf_api` | `http://127.0.0.1:8780` | WAF Control API |
-| `api_key` | 空 | 若 WAF 开启 API Key 鉴权 |
-| `app_id` | `default` | 防护应用 ID（对应 Console 应用 ID；缺省走系统默认规则） |
-| `block_on_hit` | `true` | 命中则拦截 |
-| `fail_open` | `false` | WAF 不可用时是否放行 |
-| `persist_on_hit` | `true` | 命中写入事件库（大盘可见） |
-| `timeout` | `2000` | inspect 超时 ms |
-| `block_status` | `403` | 拦截 HTTP 状态码 |
-| `block_body` | `Blocked by Nerve WAF` | 响应正文前缀 |
+| `api_key` | empty | Required if WAF API Key auth is enabled |
+| `app_id` | `default` | Protected app id (Console app id; default uses system rules) |
+| `block_on_hit` | `true` | Block on hit |
+| `fail_open` | `false` | Allow traffic when WAF is unavailable |
+| `persist_on_hit` | `true` | Persist hits to the event store (visible in Console) |
+| `timeout` | `2000` | inspect timeout (ms) |
+| `block_status` | `403` | Block HTTP status |
+| `block_body` | `Blocked by Nerve WAF` | Response body prefix |
 
-## 6. 前置条件
+## 6. Prerequisites
 
-- Nerve WAF Control API `:8780` 已启动
-- `plugins/l7/` 规则已加载（`POST /api/plugins/reload`）
-- APISIX 能访问 WAF 地址（网络互通）
+- Nerve WAF Control API on `:8780` is running
+- `plugins/l7/` rules are loaded (`POST /api/plugins/reload`)
+- APISIX can reach the WAF address

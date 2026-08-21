@@ -1,4 +1,4 @@
-//! CRS 规则包加载、灰度 rollout、与 L7 引擎合并
+//! Load/merge CRS and custom rule packs with rollout helpers.
 
 mod crs_versions;
 
@@ -50,7 +50,7 @@ pub enum RulesOpsError {
     Invalid(String),
 }
 
-/// 从目录加载所有 `*.json` 规则包（跳过 sample 若 disabled）
+/// Load all `*.json` rule packs from a directory (skip sample when disabled).
 pub fn load_packs_from_dir(dir: &Path) -> Result<Vec<LoadedPack>, RulesOpsError> {
     let mut packs = Vec::new();
     if !dir.is_dir() {
@@ -65,7 +65,7 @@ pub fn load_packs_from_dir(dir: &Path) -> Result<Vec<LoadedPack>, RulesOpsError>
     Ok(packs)
 }
 
-/// 从目录加载 RawRule（不 compile，供 Edge dataplane 快照序列化）。
+/// Load RawRule from directory (no compile; for Edge dataplane snapshot serialization).
 pub fn load_raw_rules_from_dir(dir: &Path) -> Result<Vec<RawRule>, RulesOpsError> {
     let mut out = Vec::new();
     if !dir.is_dir() {
@@ -103,7 +103,7 @@ pub fn load_pack_file(path: &Path) -> Result<LoadedPack, RulesOpsError> {
     })
 }
 
-/// 合并 embedded + 外挂包；rollout_pct 按 pack 裁剪（简化：全量或 0）
+/// Merge embedded + external packs; rollout_pct trims per pack (simplified: full or 0).
 pub fn merge_rules(base: Vec<CompiledRule>, packs: &[LoadedPack]) -> Vec<CompiledRule> {
     let mut out = base;
     for pack in packs {
@@ -118,7 +118,7 @@ pub fn merge_rules(base: Vec<CompiledRule>, packs: &[LoadedPack]) -> Vec<Compile
     out
 }
 
-/// 合并规则；patches 同 id 覆盖 packs
+/// Merge rules; patches with same id override packs.
 pub fn merge_rules_with_patches(
     base: Vec<CompiledRule>,
     packs: &[LoadedPack],

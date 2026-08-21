@@ -1,6 +1,6 @@
-//! HTTP 载荷解码/归一化原语（Antibody DSL 与 Semantic 共用）。
+//! HTTP payload decode/normalize primitives (shared by Antibody DSL and Semantic).
 
-/// 单步 decode 操作（与 DSL `Transform` 一一对应）。
+/// Single-step decode op (1:1 with DSL `Transform`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DecodeOp {
     Lowercase,
@@ -12,7 +12,7 @@ pub enum DecodeOp {
     HtmlNumericDecode,
 }
 
-/// Stage-0 浅层 canonical：单层 URL 解码 + 小写。
+/// Stage-0 shallow canonical: single URL-decode + lowercase.
 pub fn canonical_shallow(input: &str) -> String {
     url_decode_uni(input, 1).to_ascii_lowercase()
 }
@@ -33,7 +33,7 @@ pub fn strip_null(s: &str) -> String {
     s.replace('\0', "")
 }
 
-/// 迭代 URL 解码，直到稳定或达到 `max_rounds`。
+/// Iterative URL-decode until stable or `max_rounds`.
 pub fn url_decode_uni(s: &str, max_rounds: usize) -> String {
     let mut cur = s.to_string();
     for _ in 0..max_rounds {
@@ -46,7 +46,7 @@ pub fn url_decode_uni(s: &str, max_rounds: usize) -> String {
     cur
 }
 
-/// 百分号 URL 解码；非法 `%` 序列原样保留。`+` 视为空格。
+/// Percent URL-decode; keep illegal `%` sequences as-is. `+` means space.
 pub fn url_decode(s: &str) -> String {
     let mut bytes: Vec<u8> = Vec::with_capacity(s.len());
     let b = s.as_bytes();

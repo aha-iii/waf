@@ -1,4 +1,4 @@
-//! 内置 WAF Console 静态资源（Docker 镜像内 `/opt/nerve-waf/console`）。
+//! Built-in WAF Console static assets (`/opt/nerve-waf/console` in Docker images).
 
 use axum::Router;
 use std::path::PathBuf;

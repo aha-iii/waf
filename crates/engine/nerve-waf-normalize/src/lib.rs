@@ -1,4 +1,4 @@
-//! HTTP 参数定位 + 递归解码 — Nerve Semantic Pipeline 第一阶段。
+//! HTTP parameter locate + recursive decode for inspection.
 
 mod decode;
 mod locate;

@@ -1,4 +1,4 @@
-/** 构建 L7 攻击事件列表的查询参数（服务端分页）。 */
+/** Query builders for the L7 security events list (server-side pagination filters). */
 export type EventsListQueryInput = {
   page: number;
   pageSize: number;

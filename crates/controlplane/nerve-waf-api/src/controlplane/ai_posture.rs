@@ -1,4 +1,4 @@
-//! 防护 posture 巡检 — 各站点配置健康度、FP 率、模块覆盖
+//! Protection posture scan — per-site config health, FP rate, module coverage.
 
 use axum::{
     extract::{Query, State},

@@ -1,3 +1,4 @@
+/** ingress feature: Ingress Apply Summary. */
 import { NerveCard } from "@nerve/ui";
 import { ingressModeLabel } from "./ingress-display";
 import type { IngressMode, IngressOrigin, SiteIngress } from "./ingress-types";

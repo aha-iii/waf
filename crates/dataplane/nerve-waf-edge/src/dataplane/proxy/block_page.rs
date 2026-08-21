@@ -1,4 +1,4 @@
-//! Edge 拦截页：浏览器 HTML，API 客户端 JSON（内容协商）。
+//! Edge block page: HTML for browsers, JSON for API clients (content negotiation).
 
 use axum::http::HeaderMap;
 
@@ -12,7 +12,7 @@ pub struct BlockPageFields {
     pub site_id: String,
 }
 
-/// `Accept` 含 `application/json` 且不含 `text/html` → JSON；否则 HTML。
+/// `Accept` has `application/json` and not `text/html` → JSON; else HTML.
 pub fn prefers_json(headers: &HeaderMap) -> bool {
     let Some(raw) = headers
         .get(axum::http::header::ACCEPT)
@@ -56,7 +56,7 @@ pub fn render_html(fields: &BlockPageFields) -> String {
 }
 
 pub fn render_json(fields: &BlockPageFields, rule_name: Option<&str>) -> String {
-    // 与 Nerve DDoS edge 拦截 JSON 对齐的公共字段。
+    // Shared fields aligned with Nerve DDoS edge block JSON.
     serde_json::json!({
         "blocked": true,
         "action": fields.action,

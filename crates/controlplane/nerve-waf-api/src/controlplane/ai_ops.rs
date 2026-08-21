@@ -1,4 +1,4 @@
-//! AI 运维探针、Engram 状态、审计只读聚合
+//! AI ops probes, Engram status, read-only audit aggregates.
 
 use axum::{
     extract::{Query, State},
@@ -212,7 +212,7 @@ fn read_jsonl_tail(path: &std::path::Path, limit: usize) -> Vec<Value> {
         .collect()
 }
 
-/// 供 policy_sim / incident 入口调用
+/// Invoked by policy_sim / incident entry points.
 pub fn guard_expensive_ai(
     kind: AiRateLimitKind,
 ) -> Result<(), (StatusCode, Json<Value>)> {

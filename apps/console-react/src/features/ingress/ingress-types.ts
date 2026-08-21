@@ -1,4 +1,4 @@
-/** UI：WAF 边缘回源 | Gateway 穿透 */
+/** UI types for WAF edge origin / Gateway reverse-proxy ingress. */
 export type IngressMode = "waf-edge" | "nerve-gateway";
 
 export type IngressOrigin = {
@@ -125,7 +125,7 @@ export function defaultOrigin(): IngressOrigin {
   };
 }
 
-/** upstream 级参数（UI 从首条 origin 读写，保存时同步到全部节点） */
+/** Upstream-level params (UI reads/writes the first origin; save syncs to all nodes) */
 export type UpstreamSettings = {
   scheme: string;
   host_header?: string;
@@ -193,7 +193,7 @@ export function defaultPlatformIngress(): PlatformIngress {
   };
 }
 
-/** 后端 ingress API 不可用时，从 /api/sites 条目构造初始视图 */
+/** When ingress API is unavailable, build the initial view from /api/sites entries */
 export function siteToIngress(site: {
   id: string;
   hosts: string[];

@@ -1,3 +1,4 @@
+/** ingress feature: Ingress steps. */
 import type { UpstreamOriginKind } from "../upstreams/upstream-types";
 
 export function ingressStepsForUpstreamKind(_kind: UpstreamOriginKind): readonly string[] {

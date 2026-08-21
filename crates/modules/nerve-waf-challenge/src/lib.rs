@@ -1,4 +1,4 @@
-//! 人机挑战 token + 挑战页 HTML
+//! Human challenge tokens plus challenge-page HTML.
 
 use std::collections::HashMap;
 use std::sync::RwLock;
@@ -41,7 +41,7 @@ impl ChallengeStore {
         false
     }
 
-    /// 从 Cookie / Header 字符串中提取已验证 token（仅格式校验，verify 在 API 层）
+    /// Extract verified token from Cookie / Header string (format check only; verify is API-layer).
     pub fn extract_token(headers: &str, cookie_header: Option<&str>) -> Option<String> {
         if let Some(h) = headers.lines().find(|l| l.to_lowercase().starts_with(&format!("{CHALLENGE_HEADER}:"))) {
             let t = h.splitn(2, ':').nth(1)?.trim();
@@ -62,7 +62,7 @@ impl ChallengeStore {
         None
     }
 
-    /// 返回可嵌入 Gateway 403 响应的 JS 挑战页
+    /// Return JS challenge page embeddable in Gateway 403 responses.
     pub fn challenge_html(waf_api: &str, return_url: &str, client_key: &str) -> String {
         format!(
             r#"<!DOCTYPE html><html><head><meta charsett="utf-8"><title>Security Check</title></head>

@@ -1,6 +1,6 @@
-//! WAF 文件日志（结构化 JSON 行）
+//! WAF file logging (structured JSON lines).
 //!
-//! 配置：`config.yml` 顶层 `logging:`
+//! Config: top-level `logging:` in `config.yml`.
 
 use chrono::{Local, Utc};
 use nerve_waf_sdk::WafLoggingConfig;
@@ -285,7 +285,7 @@ pub fn log_server(fields: Value) {
     write_json("server", "server", fields);
 }
 
-/// topology/flows 等后台流量用 DEBUG，WAF 检测（/api/inspect 等）用 INFO
+/// Background topology/flows traffic at DEBUG; WAF inspect (/api/inspect etc.) at INFO.
 pub fn log_server_at(level: tracing::Level, fields: Value) {
     write_json_at("server", "server", fields, level);
 }

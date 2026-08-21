@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 use uuid::Uuid;
 
-/// 侧边栏「自定义规则」系统库 scope（`waf_custom_*` 表，与应用 `waf_app_custom_*` 分离）
+/// Sidebar 'Custom rules' system-library scope (`waf_custom_*` tables; separate from app `waf_app_custom_*`).
 pub const GLOBAL_CUSTOM_SITE_ID: &str = "global";
 
 #[derive(Debug, Error)]
@@ -66,7 +66,7 @@ impl CustomRulesStore {
         self.save_global(&seeded).await
     }
 
-    /// 系统级自定义规则库（侧边栏「自定义规则」）
+    /// System-level custom rule library (sidebar 'Custom rules').
     pub async fn load_global(&self) -> Result<CustomRulesFile, CustomRulesError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {
@@ -84,7 +84,7 @@ impl CustomRulesStore {
         self.save_to_file(&self.global_file_path, data)
     }
 
-    /// 应用级副本；未 provision 时返回系统模板（只读继承，不落库）
+    /// Per-app copy; if not provisioned, return system template (read-only inherit, not persisted).
     pub async fn load_all_for(&self, site_id: &str) -> Result<CustomRulesFile, CustomRulesError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {
@@ -100,7 +100,7 @@ impl CustomRulesStore {
         self.load_global().await
     }
 
-    /// 全量写入应用级自定义规则副本
+    /// Full write of per-app custom-rule copy.
     pub async fn save_all_for(&self, site_id: &str, data: &CustomRulesFile) -> Result<(), CustomRulesError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {

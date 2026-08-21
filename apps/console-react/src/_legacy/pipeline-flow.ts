@@ -1,6 +1,4 @@
-/**
- * 检测流水线可视化编排（LogicFlow）
- */
+/** Legacy protection pipeline flow visualization (LogicFlow). */
 import LogicFlow, {
   CircleNode,
   CircleNodeModel,
@@ -182,7 +180,7 @@ export function defaultPipelineEditor(): PipelineEditorState {
   return { mode: "list", layout: { ...DEFAULT_LAYOUT }, graph: null };
 }
 
-/** 按列表顺序重建 LogicFlow 图，保证 graph 与 pipeline_order 一致 */
+/** Rebuild the LogicFlow graph in list order so graph matches pipeline_order */
 export function rebuildPipelineGraph(
   order: string[],
   enabled: PipelineEnabledMap,
@@ -285,7 +283,7 @@ function resolveGraph(
   return buildDefaultGraph(order, enabled);
 }
 
-/** 画布链路上的顺序（不自动补全已删除的段） */
+/** Order along the canvas chain (do not auto-fill deleted stages) */
 export function extractChainOrderFromGraph(data: GraphData | PipelineGraphData): string[] {
   const nodes = data.nodes ?? [];
   const edges = data.edges ?? [];
@@ -312,7 +310,7 @@ export function extractChainOrderFromGraph(data: GraphData | PipelineGraphData):
   return order;
 }
 
-/** 列表模式用：画布顺序 + 未出现在画布上的段排到末尾 */
+/** List mode: canvas order, then stages not on the canvas appended */
 export function mergePipelineOrderForList(chainOrder: string[]): string[] {
   const seen = new Set(chainOrder);
   const tail = PIPELINE_STAGES.map((s) => s.id).filter((id) => !seen.has(id));
@@ -494,7 +492,7 @@ export function bindPipelineFlowEditor(
     if (data.type === "pipeline-start" || data.type === "pipeline-end") {
       const same = lf.getGraphData().nodes.filter((n) => n.type === data.type);
       if (same.length > 1) {
-        // 已有开始/结束时，丢弃新拖入的重复节点
+        // When start/end already exist, drop newly dragged duplicates
         const keep =
           same.find((n) => n.id === (data.type === "pipeline-start" ? "lf-start" : "lf-end")) ??
           same.find((n) => n.id !== data.id) ??
@@ -579,7 +577,7 @@ export function bindPipelineFlowEditor(
   lfStore.set(container, lf);
 }
 
-/** 去掉 LogicFlow 运行时字段（如 pointsList），减小写入体积。 */
+/** Strip LogicFlow runtime fields (e.g. pointsList) to shrink persisted size. */
 export function compactPipelineGraph(graph: PipelineGraphData | null | undefined): PipelineGraphData | null {
   if (!graph?.nodes?.length) return graph ?? null;
   const stripNode = ({ id, type, x, y, text, properties }: NodeData): NodeData => ({

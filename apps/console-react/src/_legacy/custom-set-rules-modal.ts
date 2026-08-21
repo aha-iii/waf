@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Custom set rules modal. */
 import { apiGet, apiPut } from "./api.js";
 import {
   actionTag,
@@ -37,13 +38,13 @@ function ruleTypeLabel(t?: string): string {
   return t === "plugin" ? "自定义插件" : "签名规则";
 }
 
-/** 查看 / 编辑规则集内已绑定的规则（应用级可启用停用） */
+/** View / edit rules bound in a rule set (app-level enable/disable) */
 export async function showCustomSetRulesModal(opts: {
   setId: string;
   setName: string;
   siteId?: string;
   moduleEnabled?: boolean;
-  /** 显式指定；默认有 siteId 则可编辑 */
+  /** Explicit flag; editable by default when siteId is present */
   editable?: boolean;
   onSaved?: () => void;
 }): Promise<void> {

@@ -1,4 +1,4 @@
-//! Phase 11 — RBAC 强制 + License 计量中间件
+//! Phase 11 — RBAC enforcement + License metering middleware.
 
 use axum::{
     body::Body,
@@ -20,7 +20,7 @@ fn is_auth_public(path: &str) -> bool {
     if is_dataplane_pull(path) {
         return true;
     }
-    // /api/inspect 必须鉴权（防规则预言机）；登录页仅放行 health/auth 公开面。
+    // /api/inspect must authenticate (anti rule-oracle); login page only allows health/auth public surface.
     matches!(
         path,
         "/api/health"
@@ -31,7 +31,7 @@ fn is_auth_public(path: &str) -> bool {
     )
 }
 
-/// 边缘数据面拉取配置（Gateway / nerve-waf-edge），不走 Console 登录态。
+/// Edge dataplane pulls config (Gateway / nerve-waf-edge); not Console login session.
 fn is_dataplane_pull(path: &str) -> bool {
     matches!(
         path,

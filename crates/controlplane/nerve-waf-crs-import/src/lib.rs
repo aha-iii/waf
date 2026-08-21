@@ -1,8 +1,7 @@
-//! OWASP ModSecurity CRS `.conf` → Nerve WAF JSON 规则包转换器。
+//! Import OWASP ModSecurity CRS into JSON rule packs.
 //!
-//! 导入带 `@rx` 的正则规则，并解析 ModSecurity 变量目标（scan_targets）。
-//! 支持 ModSecurity `chain`（多步 AND；子步 `MATCHED_VARS` → `on_matched`）。
-//! 仍跳过：`@detectSQLi` / `@lt`/`@gt` / `TX:` 变量 / 无法提取 `@rx` 的链。
+//! Converts `@rx` rules and ModSecurity scan targets (including `chain` steps);
+//! skips operators such as `@detectSQLi` / comparisons and unsupported `TX:` vars.
 
 use nerve_waf_l7::{compile_rules, RawChainStep, RawRule, RuleCompileError, ScanTarget};
 use regex::Regex;
@@ -32,7 +31,7 @@ pub struct ImportStats {
     pub rules_seen: usize,
     pub rules_imported: usize,
     pub rules_skipped: usize,
-    /// ModSecurity `chain` 语义未实现，跳过的规则数（生产缺口指标）
+    /// Count of rules skipped because ModSecurity `chain` semantics are unimplemented (prod gap metric).
     pub rules_skipped_chain: usize,
     pub compile_failed: usize,
     pub packs_written: usize,
@@ -56,7 +55,7 @@ pub struct ImportOptions {
     pub version: String,
     pub paranoia_max: u8,
     pub dry_run: bool,
-    /// 导入前清空 out_dir 下已有 JSON 规则包
+    /// Clear existing JSON rule packs under out_dir before import.
     pub clean: bool,
 }
 
@@ -94,7 +93,7 @@ pub fn import_crs(opts: &ImportOptions) -> Result<ImportStats, ImportError> {
                 let start = i;
                 i += 1;
                 while i < chunks.len() {
-                    // 下一条带 id: 的是新规则
+                    // Next line with id: starts a new rule.
                     if extract_kv(&chunks[i], "id:").is_some() {
                         break;
                     }
@@ -205,7 +204,7 @@ fn split_secrule_chunks(joined: &str) -> Vec<String> {
 
 fn actions_has_chain(chunk: &str) -> bool {
     let lower = chunk.to_lowercase();
-    // 动作串里的 chain 令牌（避免误伤变量名）
+    // `chain` token inside action string (avoid false hits on variable names).
     lower.contains(",chain")
         || lower.contains("chain,")
         || lower.contains(",chain\"")
@@ -280,7 +279,7 @@ fn parse_chain_group(chunks: &[String], paranoia_max: u8) -> Option<RawRule> {
             Vec::new()
         } else {
             let t = collect_scan_targets(chunk);
-            // 子步既非 MATCHED_VARS 又无法映射目标 → 无法安全求值
+            // Child step is neither MATCHED_VARS nor a mappable target → cannot evaluate safely.
             if idx > 0 && t.is_empty() {
                 return None;
             }
@@ -318,13 +317,13 @@ fn parse_chain_group(chunks: &[String], paranoia_max: u8) -> Option<RawRule> {
 fn parse_secrule(chunk: &str, paranoia_max: u8) -> Option<RawRule> {
     let lower = chunk.to_lowercase();
     if lower.contains("pass,") && !lower.contains("block,") && !lower.contains("deny,") {
-        // 仅导入 block/deny 类检测规则
+        // Import only block/deny-class detection rules.
         if !lower.contains("severity:") {
             return None;
         }
     }
 
-    // 单块含 chain 但未走分组 → 不完整，跳过
+    // Block contains chain but was not grouped → incomplete; skip.
     if actions_has_chain(chunk) {
         return None;
     }
@@ -368,7 +367,7 @@ fn extract_scan_target_tokens(chunk: &str) -> Vec<String> {
         Some(r) => r.trim_start(),
         None => return Vec::new(),
     };
-    // 引号目标：SecRule "ARGS|REQUEST_COOKIES" "@rx ..."
+    // Quoted targets: SecRule "ARGS|REQUEST_COOKIES" "@rx ...".
     let quote = rest.chars().next();
     let inner = if quote == Some('"') || quote == Some('\'') {
         let q = quote.unwrap();
@@ -384,7 +383,7 @@ fn extract_scan_target_tokens(chunk: &str) -> Vec<String> {
             }
         }
     } else {
-        // 无引号目标（CRS 常见）：SecRule REQUEST_HEADERS:Referer "@rx ..."
+        // Unquoted targets (common in CRS): SecRule REQUEST_HEADERS:Referer "@rx ...".
         let end = rest
             .find(" \"@")
             .or_else(|| rest.find(" '@"))
@@ -410,7 +409,7 @@ fn parse_regex_quoted(s: &str) -> Option<(String, usize)> {
     let mut i = 1;
     while i < bytes.len() {
         match bytes[i] {
-            // ModSecurity 引号层只解开 \"；@rx 正则里的 \[ \] \$ 等须保留给 Rust regex
+            // ModSecurity quote layer only unescapes \"; keep \[ \] \$ etc. for Rust regex.
             b'\\' if i + 1 < bytes.len() && bytes[i + 1] == b'"' => {
                 out.push('"');
                 i += 2;
@@ -459,8 +458,8 @@ fn parse_regex_single_quoted(s: &str) -> Option<(String, usize)> {
 }
 
 fn extract_rx_pattern(chunk: &str) -> Option<String> {
-    // ModSecurity 标准格式：SecRule TARGETS "@rx <pattern>" "actions"
-    // @rx 与正则位于同一对引号内，而非 @rx 后单独再起引号。
+    // ModSecurity standard form: SecRule TARGETS "@rx <pattern>" "actions".
+    // @rx and regex share one quote pair; not a separate quote after @rx.
     for needle in ["\"@rx ", "\"@rx", "'@rx ", "'@rx"] {
         if let Some(idx) = chunk.find(needle) {
             let quote = needle.chars().next().unwrap();
@@ -478,7 +477,7 @@ fn extract_rx_pattern(chunk: &str) -> Option<String> {
         }
     }
 
-    // 兼容 "@rx" "pattern" 分体写法
+    // Compat split form: "@rx" "pattern".
     let idx = chunk.find(RX_OP)?;
     let after = &chunk[idx + RX_OP.len()..].trim_start();
     if after.starts_with('"') {
@@ -490,12 +489,12 @@ fn extract_rx_pattern(chunk: &str) -> Option<String> {
     }
 }
 
-/// 将 ModSecurity/PCRE 常见写法转为 Rust `regex` 可编译形式（无法转换则原样返回）
+/// Convert common ModSecurity/PCRE forms to Rust `regex`-compilable (else return as-is).
 fn normalize_crs_pattern(pat: &str) -> String {
     let mut s = pat.to_string();
-    // PCRE 字符类内 \_ 常表示字面 _；Rust 中 _ 无需转义
+    // PCRE `\_` inside char class often means literal `_`; Rust needs no escape for `_`.
     s = s.replace("\\_", "_");
-    // 去掉 PCRE 条件/递归等 Rust 不支持的片段（整条规则会在 compile 阶段跳过）
+    // Strip PCRE conditionals/recursion unsupported by Rust (whole rule skipped at compile).
     s
 }
 

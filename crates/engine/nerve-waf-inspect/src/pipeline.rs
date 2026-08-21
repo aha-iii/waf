@@ -60,7 +60,7 @@ pub struct InspectPipeline<'a> {
     pub semantic_stats: Option<SemanticStatsHandle<'a>>,
     pub modules: &'a ProtectionModules,
     pub hosted: &'a HostedL7,
-    /// 应用级 CRS 引擎（含本应用 modules + 绑定版本规则）；缺省走 hosted 全局单例。
+    /// Per-app CRS engine (app modules + bound version rules); default uses hosted global singleton.
     pub site_l7: Option<&'a nerve_waf_l7::L7Engine>,
     pub response_body: Option<&'a str>,
     pub custom_rules: &'a [nerve_waf_l7::CustomRule],
@@ -285,7 +285,7 @@ impl<'a> InspectPipeline<'a> {
             tx_to_l7_request(&tx)
         });
 
-        // 无语义配置时（极少）：仍跑 plain libinjection，避免完全裸奔
+        // Without semantic config (rare): still run plain libinjection to avoid going fully bare.
         if self.semantic.is_none() {
             if let Some(hit) =
                 maybe_trace(&mut trace, "defender.core.libinjection", |trace| {
@@ -538,7 +538,7 @@ impl<'a> InspectPipeline<'a> {
         None
     }
 
-    /// 专家段：Nerve-waf-expert 优先，未加载/未命中再回退 WASM/Coraza。
+    /// Expert segment: Nerve-waf-expert first; if unloaded/miss, fall back to WASM/Coraza.
     fn run_expert_stage(
         &self,
         req: &InspectRequest,
@@ -662,9 +662,9 @@ impl<'a> InspectPipeline<'a> {
                 hit.action = WafAction::Log;
             }
         }
-        // 全局检测模式：仅记录、不拦截。核心 CRS / libinjection 已在各自 resolve 里降级；
-        // 专家 Antibody、pre_access（CC/Bot/Geo/Intel）、api_sec 等须在此统一软化，
-        // 否则「检测模式（仅记录）」只对核心生效，专家仍会 block/challenge。
+        // Global detect mode: log only, do not block. Core CRS / libinjection already softens in their resolve;
+        // expert Antibody, pre_access (CC/Bot/Geo/Intel), api_sec etc. must soften here too,
+        // else 'detect mode (log only)' would apply only to core while expert still block/challenge.
         hit.action = soften_action_for_detect_mode(&self.modules.mode, hit.action);
         let mut verdict = InspectVerdict::from_hit(hit);
         verdict.phases = tx.phases_run;
@@ -672,7 +672,7 @@ impl<'a> InspectPipeline<'a> {
     }
 }
 
-/// `modules.mode == detect` 时将 block/challenge 降为 log（只记录不拦截）。
+/// When `modules.mode == detect`, downgrade block/challenge to log (record only).
 fn soften_action_for_detect_mode(mode: &str, action: WafAction) -> WafAction {
     if mode.eq_ignore_ascii_case("detect")
         && matches!(action, WafAction::Block | WafAction::Challenge)
@@ -740,7 +740,7 @@ fn infer_rule_set(hit: &InspectHit, fallback: &str) -> String {
         }
         Some(other) => other.into(),
         None => {
-            // 嵌入式 L7 JSON（xss-001 等）通常无 plugin_name
+            // Embedded L7 JSON (xss-001 etc.) usually has no plugin_name.
             if hit.rule_id.chars().next().is_some_and(|c| c.is_ascii_digit()) {
                 fallback.into()
             } else {

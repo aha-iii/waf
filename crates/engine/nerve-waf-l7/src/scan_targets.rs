@@ -1,7 +1,7 @@
 use crate::InspectRequest;
 use serde::{Deserialize, Serialize};
 
-/// 与 ModSecurity CRS 变量对齐的扫描目标（不含原始 headers 全文）。
+/// Scan targets aligned with ModSecurity CRS variables (excludes raw full headers).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ScanTarget {
@@ -48,7 +48,7 @@ impl ScanTarget {
             "BODY" | "REQUEST_BODY" => Some(Self::Body),
             "REQUEST_URI" | "REQUEST_LINE" => Some(Self::Args),
             _ if t.starts_with("REQUEST_HEADERS:") => {
-                // 仅支持明确映射的 header；其余 REQUEST_HEADERS:Foo 不纳入通用扫描
+                // Only explicitly mapped headers; other REQUEST_HEADERS:Foo are not in generic scan.
                 None
             }
             _ => None,
@@ -56,7 +56,7 @@ impl ScanTarget {
     }
 }
 
-/// 无 scan_targets 时：对齐 CRS 常见 @rx 目标（ARGS/COOKIE），不扫 UA/Referer/路径。
+/// Without scan_targets: align CRS common @rx targets (ARGS/COOKIE); do not scan UA/Referer/path.
 pub const DEFAULT_SCAN_TARGETS: &[ScanTarget] = &[
     ScanTarget::Args,
     ScanTarget::ArgsNames,
@@ -65,7 +65,7 @@ pub const DEFAULT_SCAN_TARGETS: &[ScanTarget] = &[
     ScanTarget::Body,
 ];
 
-/// 历史兼容：曾跳过无 chain 引擎下会误报的规则 ID。现已支持 chain，恒为 false。
+/// Historical compat: rule IDs once skipped for FP under non-chain engine. Chain supported now; always false.
 pub const CHAIN_ONLY_RULE_IDS: &[&str] = &[];
 
 pub fn is_chain_only_rule(_id: &str) -> bool {

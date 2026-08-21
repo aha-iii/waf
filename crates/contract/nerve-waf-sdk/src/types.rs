@@ -38,7 +38,7 @@ pub struct L7Upstream {
     pub transport: Option<L7UpstreamTransport>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub checks: Option<L7UpstreamChecks>,
-    /// 旧字段，加载后由 normalize_checks 迁移到 checks
+    /// Legacy field; migrated into checks by normalize_checks on load.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub health_check: Option<L7HealthCheck>,
 }
@@ -186,7 +186,7 @@ pub struct RouteMatch {
     pub dst_port: Option<u16>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pod: Option<String>,
-    /// L7 HTTP 匹配（配置预留，当前数据面以 L3/L4 eBPF 为主）
+    /// L7 HTTP match (config reserved; dataplane today is mainly L3/L4 eBPF).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub l7: Option<L7Match>,
 }
@@ -215,14 +215,14 @@ pub struct WafRoute {
     pub priority: i32,
     #[serde(default = "default_enabled")]
     pub enabled: bool,
-    /// 路由层级：`l3` 网络策略 / `l7` HTTP 路由
+    /// Route layer: `l3` network policy / `l7` HTTP route.
     #[serde(default = "default_layer")]
     pub layer: String,
     #[serde(default, rename = "match")]
     pub match_: RouteMatch,
     #[serde(default)]
     pub plugins: Vec<RoutePluginRef>,
-    /// L7 路由绑定的 upstream（后端池）
+    /// Upstream pool bound to an L7 route.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub upstream_id: Option<String>,
 }

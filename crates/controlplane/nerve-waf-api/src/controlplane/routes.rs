@@ -67,8 +67,8 @@ async fn topology_status(State(state): State<Arc<AppState>>) -> Json<Value> {
     }))
 }
 
-/// 匿名健康探针：仅返回存活状态，不暴露库表/路径/上游等细节。
-/// 详细诊断见需鉴权的 `/api/db/status`。
+/// Anonymous health probe: liveness only; no DB/path/upstream details.
+/// Detailed diagnosis via authenticated `/api/db/status`.
 async fn health(State(_state): State<Arc<AppState>>) -> Json<Value> {
     Json(json!({ "ok": true }))
 }
@@ -106,7 +106,7 @@ async fn reload_plugins(State(state): State<Arc<AppState>>) -> Json<Value> {
     }))
 }
 
-/// 热更新 Nerve-waf-expert 规则包（`NERVE_EXPERT_PACK` 或默认候选路径）。
+/// Hot-reload Nerve-waf-expert pack (`NERVE_EXPERT_PACK` or default candidates).
 async fn expert_reload() -> Result<Json<Value>, StatusCode> {
     match nerve_waf_inspect::reload_engine(None) {
         Ok(()) => {
@@ -450,16 +450,16 @@ struct PolicyIpBody {
     source: Option<String>,
     #[serde(default)]
     reason: Option<String>,
-    /// `temporary` 仅运行时封禁；`permanent` 写入 ip-blacklist 插件配置
+    /// `temporary` = runtime ban only; `permanent` writes ip-blacklist plugin config.
     #[serde(default)]
     kind: Option<String>,
-    /// 解封时是否同时从插件配置移除（永久封禁）
+    /// On unban, also remove from plugin config (permanent bans).
     #[serde(default)]
     remove_from_config: Option<bool>,
-    /// 临时封禁到期时间（RFC3339）；与 `ttl_secs` 二选一，优先本字段
+    /// Temporary ban expiry (RFC3339); mutually exclusive with `ttl_secs` (this wins).
     #[serde(default)]
     expires_at: Option<String>,
-    /// 临时封禁时长（秒）；未传 `expires_at` 时可用
+    /// Temporary ban TTL (seconds); usable when `expires_at` is omitted.
     #[serde(default)]
     ttl_secs: Option<u64>,
 }

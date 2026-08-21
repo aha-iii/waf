@@ -1,4 +1,6 @@
-//! 告警：企业微信 / 邮件 / 短信 / Webhook 多通道扇出
+//! Alert dispatch helpers (legacy/local multi-channel fan-out).
+//!
+//! Prefer the Nerve-alert product for production messaging.
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -52,7 +54,7 @@ impl Default for EmailConfig {
 pub struct SmsConfig {
     #[serde(default)]
     pub enabled: bool,
-    /// webhook：HTTP 网关；aliyun：阿里云短信（需 access_key/secret/template）
+    /// webhook: HTTP gateway; aliyun: Aliyun SMS (needs access_key/secret/template).
     #[serde(default = "default_sms_provider")]
     pub provider: String,
     #[serde(default)]
@@ -71,13 +73,13 @@ pub struct SmsConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertTemplateConfig {
-    /// 邮件主题 / 告警标题，支持 ${severity} 等变量
+    /// Email subject / alert title; supports `${varname}` placeholders.
     #[serde(default = "default_tpl_title")]
     pub title: String,
-    /// 邮件正文、短信、Webhook 文本
+    /// Email body, SMS, or Webhook plain text.
     #[serde(default = "default_tpl_body")]
     pub body: String,
-    /// 企业微信 Markdown 消息体
+    /// WeCom Markdown message body.
     #[serde(default = "default_tpl_wecom")]
     pub wecom_markdown: String,
 }
@@ -149,7 +151,7 @@ fn default_tpl_wecom() -> String {
 pub struct AlertConfig {
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// 通用 Webhook（兼容旧配置）
+    /// Generic webhook (legacy-config compatible).
     #[serde(default)]
     pub webhooks: Vec<String>,
     #[serde(default = "default_min_severity")]
@@ -164,7 +166,7 @@ pub struct AlertConfig {
     pub sms: SmsConfig,
     #[serde(default)]
     pub template: AlertTemplateConfig,
-    /// 同一 攻击类型+源IP 在冷却期内不重复推送（秒，0=不限制）
+    /// Do not re-push same attack-type+src-IP within cooldown (seconds; 0 = unlimited).
     #[serde(default = "default_cooldown_sec")]
     pub cooldown_sec: u32,
     #[serde(default)]
@@ -173,30 +175,30 @@ pub struct AlertConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertDigestConfig {
-    /// 每日安全摘要
+    /// Daily security digest.
     #[serde(default = "default_true")]
     pub daily_enabled: bool,
-    /// UTC 小时 0-23（默认 0 = 北京时间 08:00）
+    /// UTC hour 0–23 (default 0 = 08:00 Beijing time).
     #[serde(default)]
     pub daily_hour_utc: u8,
-    /// 每周安全摘要
+    /// Weekly security digest.
     #[serde(default)]
     pub weekly_enabled: bool,
-    /// 0=周一 … 6=周日
+    /// 0 = Monday … 6 = Sunday.
     #[serde(default)]
     pub weekly_weekday: u8,
     #[serde(default = "default_weekly_hour")]
     pub weekly_hour_utc: u8,
-    /// 未 ACK 告警复查
+    /// Re-check for un-ACKed alerts.
     #[serde(default = "default_true")]
     pub unack_enabled: bool,
-    /// 发送超过 N 分钟未确认则提醒
+    /// Remind if still unacked after N minutes.
     #[serde(default = "default_unack_after")]
     pub unack_after_minutes: u32,
-    /// 复查扫描间隔（秒）
+    /// Re-check scan interval (seconds).
     #[serde(default = "default_unack_interval")]
     pub unack_interval_sec: u32,
-    /// 单条告警最多提醒次数
+    /// Max reminders per alert.
     #[serde(default = "default_unack_max")]
     pub unack_remind_max: u32,
 }
@@ -245,10 +247,10 @@ pub struct AlertPayload {
     pub uri: Option<String>,
     pub message: String,
     pub site_id: Option<String>,
-    /// Nerve-Trace-Id，用于跨组件日志关联
+    /// Nerve-Trace-Id for cross-component log correlation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub trace_id: Option<String>,
-    /// Nerve-Span-Id，标识本次检测 span
+    /// Nerve-Span-Id for this inspect span.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub span_id: Option<String>,
 }
@@ -390,7 +392,7 @@ impl AlertDispatcher {
         result
     }
 
-    /// 摘要 / 复查推送：跳过策略与冷却，要求 enabled + 通道
+    /// Digest / recheck push: skip policy & cooldown; requires enabled + channel.
     pub async fn dispatch_digest(&self, payload: &AlertPayload) -> DispatchResult {
         let cfg = self.config();
         if !cfg.enabled {
@@ -421,7 +423,7 @@ impl AlertDispatcher {
         result
     }
 
-    /// 测试告警：跳过 enabled / 类型 / 严重度 / 冷却，仅验证通道连通性
+    /// Test alert: skip enabled / type / severity / cooldown; only verify channel reachability.
     pub async fn dispatch_test(&self, payload: &AlertPayload) -> DispatchResult {
         let cfg = self.config();
         if !has_any_channel(&cfg) {
@@ -555,7 +557,7 @@ fn has_any_channel(cfg: &AlertConfig) -> bool {
         || (cfg.sms.enabled && !cfg.sms.phones.is_empty())
 }
 
-/// 旧配置里企业微信 Webhook 迁入 wecom 段
+/// Migrate legacy WeCom webhook into the wecom section.
 fn normalize_config(mut cfg: AlertConfig) -> AlertConfig {
     if cfg.wecom.webhook_url.is_empty() {
         let mut wecom_urls: Vec<String> = cfg

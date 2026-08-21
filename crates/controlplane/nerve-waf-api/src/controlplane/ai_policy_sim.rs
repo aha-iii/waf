@@ -1,4 +1,4 @@
-//! Dream — 策略变更影响预演（不下发，仅估算）
+//! Dream — policy-change impact preview (estimate only; not pushed).
 
 use axum::{
     extract::State,

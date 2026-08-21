@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-intel"
+description = "Threat-intelligence feed helpers"
 version.workspace = true
 edition.workspace = true
 

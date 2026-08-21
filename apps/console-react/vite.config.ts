@@ -20,7 +20,7 @@ function apiProxy(target: string, apiKey: string): ProxyOptions {
   return proxy;
 }
 
-/** React Console：5177，避免与原 Console :5174 冲突 */
+/** React Console on :5177 to avoid clashing with legacy Console :5174 */
 export default defineConfig(({ mode }) => {
   const envDir = path.resolve(__dirname, "../..");
   const env = loadEnv(mode, envDir, "");
@@ -41,11 +41,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5177,
       strictPort: true,
-      // 绑定所有网卡，宿主机可访问；不要乱改 HMR，否则会整页死循环刷新
+      // Bind all interfaces so the host can reach the app; do not casually change HMR or full-page refresh loops ensue
       host: "0.0.0.0",
       allowedHosts: true,
       watch: {
-        // WSL /mnt/* 上 inotify 易 EMFILE；polling 略耗 CPU 但稳定
+        // inotify on WSL /mnt/* often hits EMFILE; polling uses more CPU but is stable
         usePolling: onWslDrvfs,
         interval: onWslDrvfs ? 1000 : undefined,
         ignored: [

@@ -1,3 +1,4 @@
+/** semantic feature: Semantic Console. */
 import { useEffect, useState, type ReactNode } from "react";
 import {
   NerveButton,
@@ -63,7 +64,7 @@ export type SemanticConsoleProps = {
     note?: string;
   }) => void | Promise<void>;
   onFeedbackConfigUpdated?: (cfg: SemanticConfig) => void;
-  /** 限定左侧导航项（策略弹窗等场景） */
+  /** Restrict left-nav items (strategy modal and similar) */
   visibleTabs?: SemanticTab[];
 };
 

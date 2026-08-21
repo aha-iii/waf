@@ -1,3 +1,4 @@
+/** Console page: live attack traffic dashboard. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,

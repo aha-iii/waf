@@ -1,3 +1,4 @@
+/** ingress feature: Certificate Panel. */
 import {
   NerveButton,
   NerveCheckbox,

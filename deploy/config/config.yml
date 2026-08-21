@@ -1,5 +1,6 @@
-# Nerve WAF API — 测试环境配置
-# 挂载路径：/etc/nerve-waf/config.yml
+# Nerve WAF API — sample config mounted into the container at /etc/nerve-waf/config.yml.
+# Change placeholders (especially database.url); DATABASE_URL env overrides this file.
+# 示例配置：请将 database.url 改成你的 PostgreSQL；也可用环境变量 DATABASE_URL 覆盖。
 
 waf:
   api:
@@ -8,7 +9,7 @@ waf:
   plugins_dir: "/opt/nerve-waf/plugins"
   nerve_url: "http://host.docker.internal:8766"
   database:
-    url: "postgres://postgres:p%40ssw0rd@192.168.10.16:5432/nerve"
+    url: "postgres://postgres:CHANGE_ME@127.0.0.1:5432/nerve"
   console:
     port: 5174
 

@@ -39,10 +39,10 @@ pub struct WafEventRecord {
     pub uri: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user_agent: Option<String>,
-    /// 原始请求头，入库时截断到 4KB
+    /// Raw request headers; truncated to 4KB on persist.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub headers: Option<String>,
-    /// 原始请求体，入库时截断到 8KB
+    /// Raw request body; truncated to 8KB on persist.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub body: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -59,18 +59,18 @@ pub struct WafEventRecord {
     pub trace_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub span_id: Option<String>,
-    /// inspect 入口：ebpf / http-bypass / agent-local 等
+    /// Inspect entry: ebpf / http-bypass / agent-local, etc.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub inspect_source: Option<String>,
-    /// 命中时应用绑定的防护策略
+    /// Protection strategy bound to the app at hit time.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub strategy_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub strategy_name: Option<String>,
-    /// 流水线段：semantic / expert / core / custom / pre_access
+    /// Pipeline segment: semantic / expert / core / custom / pre_access.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub protection_stage: Option<String>,
-    /// 规则集标识：libinjection / expert-crs / l7-json / custom:{id} …
+    /// Rule-set id: libinjection / expert-crs / l7-json / custom:{id} …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rule_set: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -99,10 +99,10 @@ pub struct EventQuery {
     pub src_ip: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub site_id: Option<String>,
-    /// l7 = WAF 攻击日志；l3 = Agent 网络观测
+    /// l7 = WAF attack log; l3 = Agent network observation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub layer: Option<String>,
-    /// 排除的类型（如 orphan_connect）
+    /// Excluded types (e.g. orphan_connect).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub exclude_categories: Option<Vec<String>>,
 }

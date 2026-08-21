@@ -1,6 +1,7 @@
+/** Shared library helpers: Temp deny. */
 import { formatDateTimeZh } from "./datetime";
 
-/** datetime-local 值（本地时区）→ ISO UTC；空则 undefined */
+/** datetime-local value (local TZ) → ISO UTC; empty → undefined */
 export function localDatetimeToIso(local: string): string | undefined {
   const v = local.trim();
   if (!v) return undefined;
@@ -9,7 +10,7 @@ export function localDatetimeToIso(local: string): string | undefined {
   return d.toISOString();
 }
 
-/** 默认到期：当前本地时间 + hours 小时，格式适配 datetime-local */
+/** Default expiry: now (local) + hours, formatted for datetime-local */
 export function defaultExpiresLocal(hours = 24): string {
   const d = new Date(Date.now() + hours * 3600_000);
   const pad = (n: number) => String(n).padStart(2, "0");

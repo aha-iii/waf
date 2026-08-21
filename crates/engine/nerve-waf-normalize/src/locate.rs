@@ -17,7 +17,7 @@ pub enum ParamKind {
     Raw,
 }
 
-/// 检测范围：query / body / header / cookie / path
+/// Detect scope: query / body / header / cookie / path.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DetectionScope {
     #[serde(default = "default_true")]

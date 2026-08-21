@@ -97,8 +97,8 @@ pub async fn trace_middleware(mut req: Request, next: Next) -> Response<Body> {
         })),
     );
 
-    // 默认不把 Nerve-Trace-Id / traceparent 等写到对外响应（防信息泄露）。
-    // 排障：NERVE_EXPOSE_TRACE_HEADERS=1
+    // By default do not write Nerve-Trace-Id / traceparent onto external responses (anti info-leak).
+    // Debug: NERVE_EXPOSE_TRACE_HEADERS=1.
     let expose_trace = std::env::var("NERVE_EXPOSE_TRACE_HEADERS")
         .ok()
         .map(|v| {

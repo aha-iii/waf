@@ -1,4 +1,4 @@
-//! 控制面 — 应用 ingress、Gateway dataplane、Upstreams（Console 写路径）
+//! Control plane — app ingress, Gateway dataplane, Upstreams (Console write path).
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -163,7 +163,7 @@ fn host_matches_site(route_host: &str, site_hosts: &[String]) -> bool {
     })
 }
 
-/// 查询 Gateway 路由上 nerve-waf 插件是否已挂载各应用的 app_id
+/// Check whether Gateway routes have nerve-waf plugin mounted with each app's app_id.
 async fn list_gateway_bindings(State(state): State<Arc<AppState>>) -> Json<Value> {
     let sites = match state.platform.sites.read() {
         Ok(g) => g.clone(),
@@ -233,7 +233,7 @@ async fn list_gateway_bindings(State(state): State<Arc<AppState>>) -> Json<Value
             }
             let host = route_host(r).unwrap_or_else(|| "*".into());
             if !host_matches_site(&host, &s.hosts) && s.hosts.iter().any(|h| h.trim() != "*") {
-                // app_id 匹配即可视为已挂载；域名仅作覆盖提示
+                // app_id match is enough to treat as mounted; hostnames are coverage hints only.
             }
             if !covered.iter().any(|c| c == &host) {
                 covered.push(host.clone());
@@ -443,14 +443,14 @@ struct IngressUpdateBody {
     edge_pop_ids: Option<Vec<String>>,
     #[serde(default)]
     gateway_upstream_id: Option<String>,
-    /// true = 清空绑定，改用本页手填 origins
+    /// true = clear binding and use manually filled origins on this page.
     #[serde(default)]
     clear_gateway_upstream: Option<bool>,
     #[serde(default)]
     tls_cert: Option<String>,
     #[serde(default)]
     tls_key: Option<String>,
-    /// 保存后是否推送到 Gateway Admin（回源已改由 Gateway 配置，默认 false）
+    /// Whether to push to Gateway Admin after save (origin is now Gateway-owned; default false).
     #[serde(default)]
     apply_gateway: Option<bool>,
 }
@@ -655,7 +655,7 @@ async fn push_site_to_gateway(site: &ProtectedSite) -> Result<Value, String> {
         uid
     };
 
-    // 移除本应用旧自动路由，再按 Host 重建
+    // Remove this app's old auto routes, then rebuild by Host.
     let auto_prefix = format!("waf-{}", site.id);
     routes.retain(|r| {
         r.get("id")
@@ -774,13 +774,13 @@ async fn dns_check_site(
     })))
 }
 
-/// 尽力解析：若 Host 能解析到与边缘 IP 相同的地址，或 CNAME 目标字符串匹配（需系统解析器）。
+/// Best-effort resolve: Host resolves to same address as edge IP, or CNAME target string matches (needs system resolver).
 fn check_host_points_to(host: &str, expected_cname: &str) -> Result<bool, String> {
     let expected = expected_cname.trim_end_matches('.').to_lowercase();
     if expected.is_empty() {
         return Err("未分配 cname_fqdn".into());
     }
-    // 解析业务域名与接入名的 A 记录，若有交集则视为已指向边缘（兼容 CNAME 链）
+    // Resolve A records for business domain and ingress name; intersection means pointed at edge (CNAME-chain friendly).
     let edge: Vec<_> = edge_ips();
     let host_addrs = resolve_ips(host)?;
     let cname_addrs = resolve_ips(&expected).unwrap_or_default();
@@ -794,7 +794,7 @@ fn check_host_points_to(host: &str, expected_cname: &str) -> Result<bool, String
             return Ok(true);
         }
     }
-    // 本地开发：expected 含 localhost 时，允许 127.0.0.1
+    // Local dev: if expected contains localhost, allow 127.0.0.1.
     if expected.contains("localhost")
         && host_addrs.iter().any(|a| a == "127.0.0.1" || a == "::1")
     {
@@ -901,7 +901,7 @@ fn build_dataplane(state: &AppState) -> Result<DataplaneSnapshot, StatusCode> {
                 "hosts": s.hosts,
                 "source": "upload",
                 "has_cert": true,
-                // 私钥不下发到日志；dataplane 仅标记有证，边缘侧另通道取密文
+                // Private keys are not logged; dataplane only marks cert present; edge fetches ciphertext via another channel.
                 "certificate_ref": s.certificate_id.clone().unwrap_or_else(|| format!("upload:{}", s.id)),
             }));
         } else {
@@ -946,7 +946,7 @@ async fn get_dataplane(State(state): State<Arc<AppState>>) -> Result<Json<Value>
 }
 
 async fn sync_dataplane(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {
-    // 确保所有 cname 应用已填 cname_fqdn
+    // Ensure every cname app has cname_fqdn filled.
     {
         let mut sites = state
             .platform

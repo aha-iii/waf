@@ -1,3 +1,5 @@
+//! Binary entry for `nerve-waf-api` (Axum server, config/env bootstrap).
+
 use axum::Router;
 use clap::Parser;
 use nerve_waf_api::controlplane;
@@ -29,10 +31,10 @@ struct Args {
     database_url: Option<String>,
 }
 
-/// CORS：`NERVE_CORS_ORIGINS` 为逗号分隔白名单。
-/// - 未设置 / 空 / `off`：不反射任何 Origin（正式环境由 APISIX `cors` 插件负责）
-/// - `*`：允许任意 Origin（仅本地调试）
-/// - 其它：白名单列表（例：`https://waf.ahatec.com.cn`）
+/// CORS: `NERVE_CORS_ORIGINS` is a comma-separated allowlist.
+/// - unset / empty / `off`: reflect no Origin (prod relies on APISIX `cors` plugin).
+/// - `*`: allow any Origin (local debug only).
+/// - otherwise: allowlist (e.g. `https://waf.example.com`).
 fn build_cors_layer() -> CorsLayer {
     let raw = std::env::var("NERVE_CORS_ORIGINS").unwrap_or_default();
     let raw = raw.trim();

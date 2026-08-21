@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: App config drawer. */
 import { apiGet, apiPost, apiPut, apiDelete } from "./api.js";
 import {
   bindAppCrsVersionBar,
@@ -88,7 +89,7 @@ function mergeSemanticConfig(raw: Partial<SemanticConfig> | undefined): Semantic
   const d = defaultSemanticConfig();
   if (!raw) return d;
   const merged = mergeSemanticBase(raw);
-  // 历史：pipeline_enabled.semantic=false → 关闭语义增强
+  // Legacy: pipeline_enabled.semantic=false → disable semantic enhancement
   const enabled =
     raw.engines?.pipeline_enabled && "semantic" in (raw.engines.pipeline_enabled as object)
       && (raw.engines.pipeline_enabled as PipelineEnabledMap).semantic === false
@@ -372,7 +373,7 @@ function renderModulesTabBody(
     readonly,
   );
   const customEntries = buildCustomModuleEntries(modules.modules, customSets, {
-    // 内置/全局只读：只显示策略快照已挂载的规则集
+    // Built-in/global read-only: show only rule sets mounted on the strategy snapshot
     onlyMounted: readonly,
   });
   const customHtml =
@@ -735,7 +736,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
       const data = await apiGet<{ sets: CustomRuleSetInfo[] }>(`/api/custom-rules${siteQuery(site.id)}`);
       customSets = data.sets ?? [];
     } catch {
-      /* 保留已加载列表 */
+      /* Keep the already-loaded list */
     }
   }
 
@@ -763,7 +764,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
   function readForm(): void {
     if (tab === "basic") site = collectSite(overlay, site);
     if (tab === "strategy") {
-      // 全局/内置策略只读：不从 DOM 回写，保留策略库预览数据
+      // Global/built-in strategies are read-only: do not write back from DOM; keep library preview data
       if (!modulesReadonly()) {
         modules = collectModules(overlay, modules);
         if (overlay.querySelector("#app-sem-console")) {
@@ -843,7 +844,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
     else strategyTemplates = [...strategyTemplates, tpl];
   }
 
-  /** 仅刷新策略芯片选中态 + 下方模块区，避免整抽屉重绘卡顿 */
+  /** Refresh only strategy-chip selection and the module pane below to avoid full-drawer redraw jank */
   function paintStrategyPanel(): void {
     if (tab !== "strategy") {
       render({ skipReadForm: true });
@@ -880,9 +881,9 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
   }
 
   /**
-   * 切换策略芯片。
-   * 内置/全局：只改绑定意图，不覆盖本应用 modules/semantic（隔离策略库与应用运行时）。
-   * 本应用私有：可编辑副本，切换时加载该策略快照到表单。
+   * Switch strategy chip.
+   * Built-in/global: change binding intent only; do not overwrite this app's modules/semantic (isolate library vs runtime).
+   * App-private: editable copy; load that strategy snapshot into the form on switch.
    */
   async function selectStrategy(id: string): Promise<void> {
     if (!id) return;
@@ -918,7 +919,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
     paintStrategyPanel();
   }
 
-  /** 打开抽屉后后台刷新策略库缓存（不写入本应用运行时） */
+  /** After opening the drawer, refresh strategy-library cache in background (do not write app runtime) */
   async function refreshStrategyCacheInBackground(id: string): Promise<void> {
     try {
       const tpl = await apiGet<StrategyTemplate>(`/api/protection-strategies/${encodeURIComponent(id)}`);
@@ -927,11 +928,11 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
         paintStrategyPanel();
       }
     } catch {
-      /* 静默 */
+      /* Silent */
     }
   }
 
-  /** @deprecated 保留给创建后调用 */
+  /** @deprecated kept for post-create callers */
   async function previewStrategyLocally(id: string): Promise<void> {
     await selectStrategy(id);
   }
@@ -1244,7 +1245,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
   }
 
   function bindExpertModPanel(): void {
-    /* 本应用专家档独立，无继承全局逻辑 */
+    /* This app's expert tier is independent; no global inheritance */
   }
 
   function bindSemanticModPanel(): void {
@@ -1490,7 +1491,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
         let semanticDirty = semanticSnapshot(semantic) !== initialSemanticJson;
         const bindingDirty = (selectedStrategyId ?? "") !== initialBoundStrategyId;
         const privateTpl = !modulesReadonly() && !!selectedStrategyId;
-        // 本应用私有策略：模块改动需回写策略库，否则下次点选会丢
+        // App-private strategy: module changes must write back to the library or the next selection loses them
         if (privateTpl && (modulesDirty || semanticDirty || bindingDirty)) {
           modulesDirty = true;
         }
@@ -1527,7 +1528,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
                   errors.push(`基础信息：${e instanceof Error ? e.message : String(e)}`);
                 }
               }
-              // 本应用私有策略：先回写策略四段，再写应用运行时
+              // App-private strategy: write back the four strategy sections first, then app runtime
               if (privateTpl && selectedStrategyId && (modulesDirty || semanticDirty)) {
                 try {
                   const resp = await apiPut<{ ok: boolean; template: StrategyTemplate }>(
@@ -1593,7 +1594,7 @@ export async function openAppConfigDrawer(opts: AppConfigDrawerOptions): Promise
               if (site.id === "default" && (modulesDirty || semanticDirty)) {
                 void apiPost("/api/sync").catch(() => null);
               }
-              // 保存后留在当前抽屉，不关闭
+              // Stay in the current drawer after save; do not close
               onSaved();
             },
           });

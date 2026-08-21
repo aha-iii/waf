@@ -1,4 +1,4 @@
-//! HTTP 旁路 / agent-local inspect 热路径：对齐 Edge 的 snapshot + PreparedSiteInspect 缓存。
+//! HTTP bypass / agent-local inspect hot path: align with Edge snapshot + PreparedSiteInspect cache.
 
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};

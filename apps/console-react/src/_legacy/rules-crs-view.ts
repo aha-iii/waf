@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Rules crs view. */
 import { apiGet, apiPost } from "./api.js";
 import { consumeCrsViewPreset } from "./crs-preset.js";
 import {

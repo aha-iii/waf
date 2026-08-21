@@ -1,4 +1,4 @@
-//! 数据面：拉控制面 snapshot → 检测 → 反代回源。
+//! Dataplane: pull control-plane snapshot → inspect → reverse-proxy to origin.
 
 pub mod inspect;
 pub mod proxy;

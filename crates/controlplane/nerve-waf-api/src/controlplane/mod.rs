@@ -1,4 +1,4 @@
-//! 控制面：Console HTTP + 进程基础设施。
+//! Control plane: Console HTTP + process infrastructure.
 
 pub mod shared;
 
@@ -35,7 +35,7 @@ use std::sync::Arc;
 
 use shared::AppState;
 
-/// 合并全部控制面路由（Console 调用的 `/api/*`，不含 `dataplane/`）。
+/// Merge all control-plane routes (Console `/api/*`, excluding `dataplane/`).
 pub fn controlplane_router() -> Router<Arc<AppState>> {
     Router::new()
         .merge(routes::router())
@@ -65,5 +65,5 @@ pub fn controlplane_router() -> Router<Arc<AppState>> {
         .merge(phase12::phase12_router())
 }
 
-// 兼容旧名
+// Legacy alias.
 pub use controlplane_router as control_router;

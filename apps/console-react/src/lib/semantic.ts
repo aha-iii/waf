@@ -1,5 +1,4 @@
-/** 语义配置类型与合并（自原 semantic-config-ui 抽出，无 DOM） */
-
+/** Semantic (NSP) config merge helpers (from legacy semantic-config-ui, no DOM). */
 import {
   defaultPipelineEditor,
   mergePipelineEditor,
@@ -72,9 +71,9 @@ export type SemanticConfig = {
   performance: SemanticPerformance;
   auto_tune: SemanticAutoTune;
   intent_enabled: boolean;
-  /** AI 防护：只观测不拦截 */
+  /** AI protection: observe only, do not block */
   ai_protection?: AiProtectionConfig;
-  /** 应用侧省略/undefined = 继承全局 */
+  /** Omitted/undefined on the app side = inherit global */
   expert_level?: "low" | "medium" | "high";
   pipeline_editor?: PipelineEditorState;
 };
@@ -241,7 +240,7 @@ export function listToLines(arr: string[] | undefined): string {
   return (arr ?? []).join("\n");
 }
 
-/** 策略模板语义配置：全局默认 + 模板覆盖 */
+/** Strategy-template semantic config: global defaults + template overrides */
 export function semanticFromStrategyTemplate(
   template: { semantic_mode?: string; semantic?: Record<string, unknown> },
   globalCfg: SemanticConfig,
@@ -263,7 +262,7 @@ export function semanticFromStrategyTemplate(
   });
 }
 
-/** 写入策略库 semantic 字段 */
+/** Write strategy-library semantic field */
 export function semanticToStrategyJson(cfg: SemanticConfig): Record<string, unknown> {
   return {
     enabled: cfg.enabled,

@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-export"
+description = "SIEM/CEF export helpers for WAF events"
 version.workspace = true
 edition.workspace = true
 

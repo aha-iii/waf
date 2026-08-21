@@ -1,4 +1,6 @@
-//! 形态 B 控制面 → 数据面快照契约（无 HTTP / DB）。
+//! Control-plane to data-plane snapshot contract (`WafEdgeSnapshot`) with checksum helpers.
+//!
+//! Pure types and builders only - no HTTP or database I/O.
 
 mod build;
 mod snapshot;
@@ -10,7 +12,7 @@ pub use snapshot::{
 
 use sha2::{Digest, Sha256};
 
-/// 对 snapshot 正文计算 SHA-256（不含 generation 字段，用于内容校验）。
+/// SHA-256 of snapshot body (excludes generation; used for content checks).
 pub fn snapshot_checksum(snapshot: &WafEdgeSnapshot) -> String {
     let mut body = snapshot.clone();
     body.generation = 0;

@@ -1,3 +1,4 @@
+/** traffic feature: Traffic charts. */
 import { Fragment } from "react";
 import type {
   TrafficSeriesPoint,

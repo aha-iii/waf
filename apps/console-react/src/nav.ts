@@ -1,3 +1,4 @@
+/** Console sidebar navigation definitions and hash routes. */
 export type PageId =
   | "dashboard"
   | "assets"
@@ -33,14 +34,14 @@ export type NavItem = {
   label: string;
   icon: string;
   group: string;
-  /** 可折叠分组标题（如「基础防护」），其下为并列子页 */
+  /** Collapsible group title (e.g. basic protection) with sibling sub-pages beneath */
   subgroup?: string;
-  /** @deprecated 子项已与分组标题同级展示，无需 nested */
+  /** @deprecated Children render as siblings of the group title; nested is unused */
   nested?: boolean;
   desc?: string;
 };
 
-/** Console 构建标识 — 侧边栏底部应显示此版本 */
+/** Console build id — sidebar footer should show this version */
 export const CONSOLE_BUILD = "2026.07.23-custom-protection-plugins";
 
 export const PROTECTION_SETTINGS_GROUP = "防护设置";
@@ -180,7 +181,7 @@ export const PAGE_META: Record<PageId, { title: string; subtitle: string }> = {
   advanced: { title: "高级安全", subtitle: "" },
 };
 
-/** 旧 hash `#/modules` 等兼容 */
+/** Legacy hash `#/modules` compatibility */
 export const LEGACY_PAGE_ALIASES: Partial<Record<string, PageId>> = {
   modules: "core-protection",
   "ai-llm": "ai-triage",
@@ -190,25 +191,25 @@ export const LEGACY_PAGE_ALIASES: Partial<Record<string, PageId>> = {
   "security-graph": "events",
 };
 
-/** 平台总控台壳 — 组网(CNI) / 网络观测(Observer) / L3 策略 */
+/** Platform console shell — CNI / Observer / L3 policy */
 export const PLATFORM_CONSOLE_URL = "http://127.0.0.1:5175";
-/** Nerve-alert Console（与 Platform 同机时可改端口） */
+/** Nerve-alert Console (change port when co-hosted with Platform) */
 export const ALERT_CONSOLE_URL = "http://127.0.0.1:5175";
 export const GATEWAY_DASHBOARD_URL = "http://127.0.0.1:5176";
 export const GATEWAY_DASHBOARD_LABEL = "Gateway";
 
-/** Platform 网络观测（拓扑）深链 */
+/** Platform network observation (topology) deep link */
 export const PLATFORM_OBSERVER_TOPOLOGY_URL = `${PLATFORM_CONSOLE_URL}/#/topology`;
-/** Platform 流量全链路 */
+/** Platform full traffic path */
 export const PLATFORM_PACKET_JOURNEY_URL = `${PLATFORM_CONSOLE_URL}/#/packet-journey`;
-/** Platform 组网（CNI）深链 */
+/** Platform CNI deep link */
 export const PLATFORM_CNI_URL = `${PLATFORM_CONSOLE_URL}/#/infrastructure`;
 
-/** 规则与插件 — legacy 壳注入（React Console 已并入防护设置） */
+/** Rules & plugins — legacy shell injection (React Console merged into protection settings) */
 export const RULES_NAV_GROUP = "规则与插件";
 export const RULES_NAV: NavItem[] = [];
 
-/** 研判与解释 — 若 NAV 未生效则由 main.ts 强制注入（不含语义增强） */
+/** Triage & explain — if NAV is inactive, main.ts injects forcibly (excludes semantic enhancement) */
 export const AI_NAV_GROUP = "研判与解释";
 export const AI_NAV: NavItem[] = [
   { id: "ai-triage", label: "智能研判", icon: "🧪", group: AI_NAV_GROUP },

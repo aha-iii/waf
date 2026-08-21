@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-bot"
-description = "Bot detectioe scorieg for Nerve WAF"
+description = "Bot detection scoring for Nerve WAF"
 version.workspace = true
 edition.workspace = true
 

@@ -1,3 +1,4 @@
+/** Shared library helpers: Events display. */
 import { sanitizeProductText } from "../brand-sanitize";
 import type { WafEvent } from "./waf-types";
 
@@ -68,7 +69,7 @@ export function stageLabel(stage?: string): string {
   }
 }
 
-/** 旧事件兜底：从 plugin / category / message 推断防护段与规则集 */
+/** Legacy-event fallback: infer protection stage and rule set from plugin / category / message */
 export function inferProtectionOrigin(e: WafEvent): { stage?: string; ruleSet?: string } {
   if (e.protection_stage || e.rule_set) {
     if (e.protection_stage === "semantic") {

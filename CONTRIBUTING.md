@@ -1,68 +1,66 @@
-# Contributing to Nerve WAF
+# Contributing
 
-感谢贡献。本仓库产品名为 **Nerve WAF**；Rust crate 仍使用稳定前缀 **`nerve-waf-*`**（见 [docs/NAMING.md](./docs/NAMING.md)）。
+Thanks for contributing. The product name is **Nerve WAF**; Rust crates keep the stable prefix **`nerve-waf-*`** (see [docs/NAMING.md](./docs/NAMING.md)).
 
-## 开发前准备
+## Before you start
 
-1. 阅读 [README.md](./README.md) 与 [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md)
-2. 按 DEPENDENCIES 放好同级仓（Antibody / Alert）
-3. Rust：见 `rust-toolchain.toml`；Node 20+（Console）
+1. Read [README.md](./README.md) and [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md)
+2. Place sibling repos per DEPENDENCIES (Antibody / Alert)
+3. Rust: see `rust-toolchain.toml`; Node 20+ (Console)
 
 ```bash
-cp .env.example .env          # 按需修改，勿提交 .env
-cargo build -p nerve-waf-api
-cargo test -p nerve-waf-core -p nerve-waf-l7 -p nerve-waf-dataplane
+cp .env.example .env          # edit as needed; do not commit .env
 ```
 
-## 质量门槛（PR 必过）
+## Quality bar (required for PRs)
 
-| 检查 | 命令 / 约定 |
-|------|-------------|
-| 编译 | `cargo build -p nerve-waf-api` |
-| 相关单测 | `cargo test -p <changed-crate>` |
-| 格式 | `cargo fmt --all -- --check` |
-| Clippy（改动 crate） | `cargo clippy -p <crate> -- -D warnings`（尽量） |
+| Check | Command / convention |
+|-------|----------------------|
+| Build | `cargo build -p nerve-waf-api` |
+| Related unit tests | `cargo test -p <changed-crate>` |
+| Format | `cargo fmt --all -- --check` |
+| Clippy (touched crates) | `cargo clippy -p <crate> -- -D warnings` (preferred) |
 
-CI 入口参考仓库根（monorepo）`.github/workflows/waf-ai-ci.yml`；本地至少跑与改动相关的 crate 测试。
+CI entrypoint: monorepo-root `.github/workflows/waf-ai-ci.yml`. Locally, at least run tests for crates you changed.
 
-## 测试目录约定
+## Test layout
 
-生产代码与测试 **物理分离**：
+Keep production code and tests **physically separated**:
 
 ```text
-crates/<layer>/<crate>/src/
-├── lib.rs                 # 不含 #[test]
+src/
+├── lib.rs                 # no #[test]
 └── test/
     ├── mod.rs
-    └── test_<topic>.rs
+    └── test_*.rs
 ```
 
-`lib.rs` 末尾仅：
+End of `lib.rs` should only have:
 
 ```rust
 #[cfg(test)]
 mod test;
 ```
 
-- 新测试请写入 `src/test/test_*.rs`，**不要**在业务文件里新增 `#[cfg(test)] mod tests`
-- 旧内联测试可逐步迁出；参考 `nerve-waf-dataplane`、`nerve-waf-l7`
+- Put new tests in `src/test/test_*.rs`; **do not** add `#[cfg(test)] mod tests` inside business files
+- Migrate old inline tests gradually; see `nerve-waf-dataplane`, `nerve-waf-l7`
 
-## 目录与脚本
+## Paths and scripts
 
-| 路径 | 是否面向贡献者 |
-|------|----------------|
-| `crates/`、`apps/console-react/` | ✅ 主战场 |
-| `scripts/deploy-*`、`pack-dist-runtime*` | ✅ 测试/正式上传（见 `scripts/README.md`） |
-| `vendor/coreruleset` | 上游 CRS 快照；见 `vendor/README.md` |
-| `dist/`、`data/`、`logs/` | ❌ 本地产物，勿提交 |
+| Path | For contributors? |
+|------|-------------------|
+| `crates/`, `apps/console-react/` | Yes — main work areas |
+| `ops/` (local release/deploy scripts) | No — **not on GitLab** (see `ops/README.md`) |
+| `vendor/coreruleset` | Upstream CRS snapshot; see `vendor/README.md` |
+| `dist/`, `data/`, `logs/` | No — local artifacts; do not commit |
 
-## PR 建议
+## PR tips
 
-1. 小步提交；一次 PR 一件事
-2. 用户可见行为变更请更新 README 或 `docs/`
-3. 安全相关改动请同步看 [SECURITY.md](./SECURITY.md)
-4. 不要提交密钥、证书私钥、真实生产主机清单
+1. Small commits; one concern per PR
+2. Update README or `docs/` for user-visible behavior changes
+3. For security-sensitive changes, also read [SECURITY.md](./SECURITY.md)
+4. Do not commit secrets, private keys, or real production host inventories
 
-## 行为准则
+## Code of conduct
 
-保持专业、就事论事。骚扰与恶意利用相关贡献一律拒绝。
+Stay professional and on-topic. Harassment and contributions that enable abuse will be rejected.

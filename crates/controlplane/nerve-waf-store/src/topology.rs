@@ -36,7 +36,7 @@ fn default_cluster() -> String {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkloadRecord {
-    /// 可省略：由 batch.cluster_id 在 sync 时覆盖
+    /// Optional: overwritten by batch.cluster_id at sync time.
     #[serde(default)]
     pub cluster_id: String,
     pub namespace: String,
@@ -424,7 +424,7 @@ impl TopologyStore {
         Ok(())
     }
 
-    /// 聚合全部节点 Docker 库存；可选按 node_id 过滤
+    /// Aggregate Docker inventory across nodes; optional node_id filter.
     pub async fn docker_inventory_aggregate(
         &self,
         node_id: Option<&str>,
@@ -603,7 +603,7 @@ impl TopologyStore {
             self.list_workloads(None, 200).await.unwrap_or_default()
         };
 
-        // IP → 命名空间/工作负载，把「IP · x.x.x.x」抬升为人读名
+        // IP → namespace/workload: lift 'IP · x.x.x.x' to a human-readable name.
         let mut ip_to_wl: HashMap<String, (String, String, Option<String>)> = HashMap::new();
         for w in &workloads {
             let ns = w.get("namespace").and_then(|v| v.as_str()).unwrap_or("");
@@ -684,7 +684,7 @@ fn flow_endpoint_key(f: &FlowIngestRecord, is_src: bool, node_id: &str) -> Strin
         }
         if let Some(pod) = &f.pod {
             if !is_synthetic_pod(pod) {
-                // pod:uid 短码仍比裸 cgroup 可读
+                // pod:uid short codes are still more readable than raw cgroup.
                 return pod.clone();
             }
         }
@@ -696,7 +696,7 @@ fn flow_endpoint_key(f: &FlowIngestRecord, is_src: bool, node_id: &str) -> Strin
         return format!("node:{node_id}");
     }
     if !f.dst_ip.is_empty() {
-        // 目的侧若已有业务 Pod/工作负载名，优先生用（避免永远只显示 IP）
+        // Prefer existing business Pod/workload name on destination (avoid forever showing only IP).
         if let Some(ns) = &f.namespace {
             if !ns.is_empty() {
                 if let Some(wl) = &f.workload {
@@ -777,7 +777,7 @@ fn merge_network(dst: &mut serde_json::Value, src: &serde_json::Value) {
     }
 }
 
-/// 拓扑节点展示名：禁止把裸 cgroup hex 当「服务名」甩给用户。
+/// Topology node display name: never present raw cgroup hex as a 'service name' to users.
 fn classify_topology_id(id: &str) -> (&'static str, String, Option<String>) {
     if let Some(rest) = id.strip_prefix("ext:") {
         let label = match rest {
@@ -806,7 +806,7 @@ fn classify_topology_id(id: &str) -> (&'static str, String, Option<String>) {
     }
     if id.contains('/') {
         let ns = id.split('/').next().map(str::to_string);
-        // namespace/name → 展示缩短为 name（title 仍用 id）
+        // namespace/name → shorten display to name (title still uses id).
         let name = id.rsplit('/').next().unwrap_or(id);
         return ("workload", name.to_string(), ns);
     }

@@ -1,4 +1,4 @@
-//! Phase 8 — CNI eBPF datapath + NP 强制执行 API
+//! Phase 8 — CNI eBPF datapath + NP enforcement API.
 
 use axum::{
     extract::State,
@@ -22,7 +22,7 @@ pub fn phase8_router() -> Router<Arc<AppState>> {
         .route("/api/np/enforce", post(np_enforce))
 }
 
-/// 代理 Agent `GET /api/cni/endpoints` — 组网拓扑用 Pod IP 元数据
+/// Proxy Agent `GET /api/cni/endpoints` — Pod IP metadata for topology.
 async fn cni_endpoints(State(state): State<Arc<AppState>>) -> Json<Value> {
     match state.nerve.get("/api/cni/endpoints").await {
         Ok(v) => Json(v),
@@ -33,7 +33,7 @@ async fn cni_endpoints(State(state): State<Arc<AppState>>) -> Json<Value> {
     }
 }
 
-/// 集群网络 / 子网（P2 CRD 聚合；未就绪时 empty，Console 用 Agent cluster_cidrs 降级）
+/// Cluster networks / subnets (P2 CRD aggregate; empty when not ready; Console falls back to Agent cluster_cidrs).
 async fn cni_network(State(state): State<Arc<AppState>>) -> Json<Value> {
     match state.nerve.get("/api/cni/network").await {
         Ok(v) => Json(v),

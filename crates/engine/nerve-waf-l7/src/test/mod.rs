@@ -1,4 +1,4 @@
-//! L7 引擎与规则编译测试（与生产 `engine.rs` / `rules.rs` 分离）。
+//! L7 engine and rule-compile tests (separated from production `engine.rs` / `rules.rs`).
 
 mod test_engine;
 mod test_rules;

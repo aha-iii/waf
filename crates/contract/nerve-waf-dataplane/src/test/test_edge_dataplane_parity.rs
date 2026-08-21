@@ -1,4 +1,4 @@
-//! Edge dataplane 与 embed inspect 裁决一致性（fixture 级）。
+//! Edge dataplane vs embed inspect verdict parity (fixture-level).
 
 use crate::{
     build_waf_edge_snapshot, GlobalInspectOverlay, SiteInspectSnapshot, WafEdgeBuildInput,

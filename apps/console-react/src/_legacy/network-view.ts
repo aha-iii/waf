@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Network view. */
 import type { WafEvent } from "./security-view.js";
 import { apiBaselineAllow, apiGet, apiNetworkGeoip, apiPost, apiTempAllow, apiTempDeny } from "./api.js";
 import {
@@ -34,7 +35,7 @@ import {
   type TopologyGraph,
 } from "./network-topology.js";
 
-/** Agent 实时观测（经 8780 → NERVE_URL 代理） */
+/** Agent live observation (via 8780 → NERVE_URL proxy) */
 type NerveCounts = Record<string, number>;
 
 type FlowSession = {

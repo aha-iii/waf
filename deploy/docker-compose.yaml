@@ -1,10 +1,12 @@
-# 形态 B 单机部署：控制面 API + 数据面 Edge（同一镜像，不同 entrypoint）
-# Console Dashboard 内置于 nerve-waf-api:8781，不单独起容器。
+# Nerve WAF — topology B (single host): control-plane API + data-plane Edge
+# (same image, different entrypoints). Console is served from nerve-waf-api:8781 (no separate container).
+# Copy deploy/.env.example → .env and change placeholders before use.
 #
 #   docker load -i ../dist/nerve-waf-api-1.0.0.tar
-#   cd Nerve-waf/deploy && docker compose up -d
+#   cd Nerve-waf/deploy && docker compose -f docker-compose.yaml up -d
 #
-# 业务域名 → EDGE_PORT(8080)；管理 Console → PORT(8781，建议内网)
+# Traffic: business → EDGE_PORT(8080); Console/API → PORT(8781, prefer intranet for admin)
+# 形态 B 单机部署：控制面 API + 数据面 Edge；Console 内置于 API 端口。
 
 name: nerve-waf-test
 

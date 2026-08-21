@@ -1,3 +1,5 @@
+//! Persistence for WAF config and events (JSON / Postgres).
+
 mod file_store;
 mod migrations;
 mod network_stats;
@@ -157,7 +159,7 @@ impl EventStore {
         }
     }
 
-    /// PostgreSQL 连接池（仅 PG 后端可用）。
+    /// PostgreSQL pool (PG backend only).
     #[cfg(feature = "postgres")]
     pub fn postgres_pool(&self) -> Option<sqlx::PgPool> {
         match self {
@@ -209,7 +211,7 @@ pub async fn open_event_store(
     Ok(Arc::new(EventStore::File(FileEventStore::new(path))))
 }
 
-/// 若事件库为 PostgreSQL，复用同一连接池创建拓扑存储。
+/// If event DB is PostgreSQL, reuse the same pool for topology store.
 pub fn topology_from_events(events: &EventStore) -> Option<Arc<TopologyStore>> {
     #[cfg(feature = "postgres")]
     {

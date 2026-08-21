@@ -1,3 +1,4 @@
+/** Console page: IP allow/deny lists and temporary bans. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

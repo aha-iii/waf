@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Access view. */
 import { apiGet, apiPost, apiPut, apiTempAllow, apiTempDeny, apiListRuntimeDenies } from "./api.js";
 import { btn, card, esc, formField, formStack, input, mountPaginatedTable, pageHeader, tabBar } from "./components/ui.js";
 

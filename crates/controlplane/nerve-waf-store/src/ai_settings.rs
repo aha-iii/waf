@@ -107,7 +107,7 @@ pub struct AiSettingsStore {
     pool: Option<sqlx::PgPool>,
     default_site_id: String,
     cache: RwLock<HashMap<String, AiSettings>>,
-    /// 串行化 pipeline 写入，避免并发 PUT /api/semantic/config 在 PG 上互等锁。
+    /// Serialize pipeline writes to avoid concurrent PUT /api/semantic/config lock waits on PG.
     save_lock: tokio::sync::Mutex<()>,
 }
 
@@ -212,7 +212,7 @@ impl AiSettingsStore {
         self.save_site(site_id, &snapshot).await
     }
 
-    /// 从持久化层刷新单应用语义配置缓存（provision 或外部写入后调用）。
+    /// Refresh single-app semantic config cache from persistence (after provision or external writes).
     pub async fn refresh_site_from_store(&self, site_id: &str) -> Result<(), AiSettingsError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {

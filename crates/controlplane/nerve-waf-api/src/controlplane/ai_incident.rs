@@ -1,4 +1,4 @@
-//! Autonomous SOC L2 — 跨信号 incident 报告（只读聚合 + 处置建议，写操作需 confirm）
+//! Autonomous SOC L2 — cross-signal incident report (read-only aggregate + advice; writes need confirm).
 
 use axum::{
     extract::State,

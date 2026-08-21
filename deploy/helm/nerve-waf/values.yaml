@@ -1,3 +1,7 @@
+# Nerve WAF Helm chart values — publishable defaults for Kubernetes install.
+# Change placeholders (image tag, DATABASE_URL, auth secrets) before production use.
+# 生产务必设 Secret；示例仅占位。
+
 replicaCount: 2
 
 image:
@@ -8,21 +12,23 @@ image:
 service:
   port: 8781
 
-# 生产务必设 Secret；示例仅占位
+# Production: set a Secret; samples are placeholders only.
 auth:
   enabled: true
+  # Prefer existingSecret; otherwise set apiKey (do not commit real keys).
   # 推荐用 existingSecret；否则用 apiKey（勿提交真实密钥）
   apiKey: ""
   existingSecret: ""
   existingSecretKey: NERVE_API_KEY
 
 env:
-  DATABASE_URL: "postgres://postgres:p%40ssw0rd@postgres:5432/nerve"
+  DATABASE_URL: "postgres://postgres:CHANGE_ME@postgres:5432/nerve"
   NERVE_URL: "http://nerve-agent:8766"
   TZ: "Asia/Shanghai"
   NERVE_EXPERT_ENGINE: "on"
   NERVE_EXPERT_PACK: "/opt/nerve/native/baseline"
   NERVE_NATIVE_DEV_PACK: "1"
+  # Topology/NP moved to Control; keep off in production.
   # 拓扑/NP 已迁 Control；勿在生产打开
   WAF_ENABLE_LEGACY_TOPOLOGY: "0"
   WAF_ENABLE_LEGACY_NP: "0"

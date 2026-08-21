@@ -1,3 +1,4 @@
+/** protection-strategy feature: Expert Stage Modal. */
 import { useEffect, useState } from "react";
 import { NerveButton, NerveModal, nerveResult } from "@nerve/ui";
 import { apiPut } from "../../api";

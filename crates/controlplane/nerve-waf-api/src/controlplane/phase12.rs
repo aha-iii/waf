@@ -1,4 +1,4 @@
-//! Phase 12 — ClickHouse 导出 + AI 规则 + Mesh 状态 API
+//! Phase 12 — ClickHouse export + AI rules + Mesh status API.
 
 use axum::{
     extract::State,

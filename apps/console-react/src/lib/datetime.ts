@@ -1,4 +1,4 @@
-/** Console 展示时区；开发/测试默认东八区，可用 VITE_CONSOLE_TIME_ZONE 覆盖。 */
+/** Console display timezone helpers; default Asia/Shanghai, override via VITE_CONSOLE_TIME_ZONE. */
 export const CONSOLE_TIME_ZONE =
   (import.meta.env.VITE_CONSOLE_TIME_ZONE as string | undefined)?.trim() || "Asia/Shanghai";
 
@@ -37,26 +37,26 @@ function partsInZone(ts: string, timeZone: string = CONSOLE_TIME_ZONE): ZonePart
   };
 }
 
-/** 完整时间：YYYY-MM-DD HH:mm:ss（指定时区） */
+/** Full timestamp: YYYY-MM-DD HH:mm:ss (given timezone) */
 export function formatTs(ts: string, timeZone: string = CONSOLE_TIME_ZONE): string {
   const p = partsInZone(ts, timeZone);
   if (!p) return ts.slice(0, 19).replace("T", " ");
   return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}`;
 }
 
-/** 攻击日志表格：YYYY-MM-DD HH:mm:ss（指定时区） */
+/** Attack-log table time: YYYY-MM-DD HH:mm:ss (given timezone) */
 export function formatTsEvent(ts: string, timeZone: string = CONSOLE_TIME_ZONE): string {
   return formatTs(ts, timeZone);
 }
 
-/** 按 Console 时区取小时（0–23），用于趋势图分桶 */
+/** Hour-of-day (0–23) in Console timezone for trend chart buckets */
 export function hourInConsoleZone(ts: string, timeZone: string = CONSOLE_TIME_ZONE): number {
   const p = partsInZone(ts, timeZone);
   if (!p) return new Date(ts).getHours();
   return Number(p.hour);
 }
 
-/** 中文 locale 日期时间（指定时区） */
+/** zh-CN locale date-time (given timezone) */
 export function formatDateTimeZh(iso: string, timeZone: string = CONSOLE_TIME_ZONE): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;

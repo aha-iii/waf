@@ -1,4 +1,4 @@
-//! API 安全：OpenAPI 路径/schema 基线、鉴权端点滥用、请求体敏感字段
+//! API security: OpenAPI path/schema baselines, auth-endpoint abuse, sensitive body fields.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -13,12 +13,12 @@ pub struct ApiSecConfig {
     pub block_unknown_paths: bool,
     #[serde(default)]
     pub schemas: Vec<ApiSchema>,
-    /// 鉴权相关路径前缀（如 /api/login），用于频率限制
+    /// Auth-related path prefixes (e.g. /api/login) for rate limiting.
     #[serde(default)]
     pub auth_paths: Vec<String>,
     #[serde(default = "default_auth_rpm")]
     pub auth_requests_per_minute: u32,
-    /// 请求体敏感字段正则（如 password、token）
+    /// Sensitive body-field regex (e.g. password, token).
     #[serde(default = "default_sensitive_patterns")]
     pub sensitive_patterns: Vec<String>,
     #[serde(default = "default_true")]

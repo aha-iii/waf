@@ -3,7 +3,7 @@
   "layer": "l7",
   "type": "json",
   "version": "1.0.0",
-  "description": "SQL 注入规则包",
+  "description": "SQL injection rule pack / SQL 注入规则包",
   "category": "sqli",
   "priority": 100,
   "rules": ["rules/*.json"],

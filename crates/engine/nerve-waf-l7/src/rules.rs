@@ -6,11 +6,11 @@ fn default_paranoia_level() -> u8 {
     1
 }
 
-/// ModSecurity chain 的一步（父规则之后的子规则）。
+/// One step of a ModSecurity chain (child after parent).
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct RawChainStep {
     pub pattern: String,
-    /// 为空且 `on_matched=true` 时，在上一步命中样本上继续匹配（MATCHED_VARS）。
+    /// Empty with `on_matched=true` continues matching on prior hit sample (MATCHED_VARS).
     #[serde(default)]
     pub scan_targets: Vec<String>,
     #[serde(default)]
@@ -26,10 +26,10 @@ pub struct RawRule {
     pub severity: String,
     #[serde(default = "default_paranoia_level")]
     pub paranoia_level: u8,
-    /// ModSecurity 变量列表，如 ["ARGS", "REQUEST_FILENAME"]（chain 父规则 / 单规则）
+    /// ModSecurity variables, e.g. ["ARGS", "REQUEST_FILENAME"] (chain parent / single rule).
     #[serde(default)]
     pub scan_targets: Vec<String>,
-    /// 子规则步骤；全部与父规则 AND。空 = 单条规则（兼容旧 JSON）。
+    /// Child steps; all AND with parent. Empty = single rule (legacy JSON compatible).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub chain_steps: Vec<RawChainStep>,
 }
@@ -41,13 +41,13 @@ pub struct CompiledRule {
     pub category: String,
     pub severity: String,
     pub paranoia_level: u8,
-    /// 首步 pattern（展示 / 兼容）
+    /// First-step pattern (display / compat).
     pub pattern: String,
-    /// 首步 regex（兼容旧调用方）
+    /// First-step regex (legacy callers).
     pub re: Regex,
     pub source: String,
     pub scan_targets: Vec<crate::scan_targets::ScanTarget>,
-    /// 完整链：steps[0] = 父规则，其余为 chain 子步
+    /// Full chain: steps[0] = parent; rest are chain children.
     pub steps: Vec<CompiledStep>,
 }
 

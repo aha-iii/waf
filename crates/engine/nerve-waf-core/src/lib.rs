@@ -1,3 +1,5 @@
+//! Core transaction model: phases, verdicts, timing, and journey hops.
+
 mod inspect_timing;
 mod journey;
 mod phase;

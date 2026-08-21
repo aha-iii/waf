@@ -1,9 +1,9 @@
 use axum::http::HeaderMap;
 use std::net::SocketAddr;
 
-/// 从反代链解析客户端 IP，供检测与攻击日志使用。
+/// Resolve client IP from proxy chain for inspect and attack logs.
 ///
-/// 优先级：`X-Forwarded-For` 最左段 → `X-Real-IP` → TCP 对端。
+/// Priority: leftmost `X-Forwarded-For` → `X-Real-IP` → TCP peer.
 pub fn resolve_client_ip(headers: &HeaderMap, peer: &SocketAddr) -> String {
     if let Some(xff) = header_value(headers, "x-forwarded-for") {
         if let Some(ip) = first_forwarded_ip(&xff) {
@@ -43,7 +43,7 @@ fn normalize_ip_token(token: &str) -> Option<String> {
         }
         return Some(inner.to_string());
     }
-    // IPv4:port（单冒号）；纯 IPv6 含多冒号不在此分支截断
+    // IPv4:port (single colon); pure IPv6 with many colons is not truncated here.
     if t.contains('.') && t.matches(':').count() == 1 {
         return Some(t.split(':').next()?.trim().to_string());
     }

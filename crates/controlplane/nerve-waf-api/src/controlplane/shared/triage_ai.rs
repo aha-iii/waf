@@ -1,4 +1,4 @@
-//! L2：结构化研判结果 → LLM 自然语言解释（或模板回退）。
+//! L2: structured triage → LLM natural-language explanation (or template fallback).
 
 use nerve_waf_sdk::WafEventRecord;
 use nerve_waf_store::{AiSettingsStore, TriageLlmConfig};

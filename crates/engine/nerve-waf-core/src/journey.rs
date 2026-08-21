@@ -1,4 +1,4 @@
-//! 将 WAF 检测裁决映射为 Nerve Packet Journey hop（见 docs/PACKET-JOURNEY-STANDARD.md §5.2）
+//! Map WAF inspect verdict to Nerve Packet Journey hops (see docs/PACKET-JOURNEY-STANDARD.md §5.2).
 
 use crate::{InspectHit, InspectPhase, InspectVerdict, WafAction};
 use chrono::Utc;
@@ -249,7 +249,7 @@ fn hit_metadata(hit: &InspectHit) -> HashMap<String, String> {
     m
 }
 
-/// 由检测流水线结果生成 security 层 hop 列表（规则匹配链路，动态步骤）。
+/// Build security-layer hop list from pipeline results (rule-match chain; dynamic steps).
 pub fn build_waf_journey_hops(ctx: &WafJourneyContext, verdict: &InspectVerdict) -> Vec<Value> {
     let hit = verdict.hits.first();
     let hit_phase = hit.map(|h| h.phase);

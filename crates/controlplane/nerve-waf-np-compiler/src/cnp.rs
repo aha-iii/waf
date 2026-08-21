@@ -1,4 +1,4 @@
-//! NerveClusterNetworkPolicy — 自研 CNP（非 Cilium CRD 拷贝）(P5)
+//! NerveClusterNetworkPolicy — first-party CNP (not a Cilium CRD copy) (P5).
 
 use crate::l4::L4Rule;
 use crate::selector::labels_match_full;
@@ -6,7 +6,7 @@ use crate::PodSnapshot;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// Nerve CNPolicy：在 K8s NP 之上增加 app 级语义与 L7 路径 hint。
+/// Nerve CNPolicy: app-level semantics and L7 path hints on top of K8s NP.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NerveCNPolicySpec {
     pub id: String,

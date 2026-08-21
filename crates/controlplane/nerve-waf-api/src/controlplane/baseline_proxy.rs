@@ -1,4 +1,4 @@
-//! 基线学习 → NP 草案（创新套件 ②）
+//! Baseline learning → NP draft (innovation suite ②).
 
 use axum::{
     extract::{Query, State},

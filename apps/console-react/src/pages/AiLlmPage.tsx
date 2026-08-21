@@ -1,3 +1,4 @@
+/** Console page: LLM provider and model settings for triage. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

@@ -1,3 +1,4 @@
+/** Console page: attack event log with detail and path graph. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,

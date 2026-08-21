@@ -25,7 +25,7 @@ pub struct ModuleConfig {
     pub action: String,
     #[serde(default = "default_sensitivity")]
     pub sensitivity: String,
-    /// 应用级关闭的单条规则 ID（全局规则库仍保留，仅本应用不命中）
+    /// Per-app disabled rule IDs (global pack kept; this app skips them).
     #[serde(default)]
     pub disabled_rules: Vec<String>,
     #[serde(default, flatten)]
@@ -37,7 +37,7 @@ impl ModuleConfig {
         self.disabled_rules.iter().any(|id| id == rule_id)
     }
 
-    /// 比较模块生效配置（含本应用关闭的规则列表与扩展参数）。
+    /// Compare effective module config (incl. app-disabled rules and extensions).
     pub fn equals_effective(&self, other: &Self) -> bool {
         self.enabled == other.enabled
             && self.action == other.action
@@ -92,7 +92,7 @@ impl ProtectionModules {
             .unwrap_or(false)
     }
 
-    /// 合并全局 CC 引擎配置与模块级覆盖（策略 / 应用 modules.cc）。
+    /// Merge global CC engine config with module overrides (strategy / app modules.cc).
     pub fn merge_cc_config(&self, global: &nerve_waf_cc::CcConfig) -> nerve_waf_cc::CcConfig {
         let mut out = global.clone();
         let Some(m) = self.modules.get("cc") else {
@@ -113,7 +113,7 @@ impl ProtectionModules {
         out
     }
 
-    /// 合并全局 Bot 配置与模块级覆盖。
+    /// Merge global Bot config with module overrides.
     pub fn merge_bot_config(&self, global: &nerve_waf_bot::BotConfig) -> nerve_waf_bot::BotConfig {
         let mut out = global.clone();
         let Some(m) = self.modules.get("bot") else {
@@ -129,7 +129,7 @@ impl ProtectionModules {
         out
     }
 
-    /// 将 CC/Bot 生效参数写入 modules 快照（新建策略 / 套用前固化，与全局运行时隔离）。
+    /// Write effective CC/Bot params into modules snapshot (freeze before new strategy / apply; isolate from global runtime).
     pub fn materialize_basic_module_params(
         &mut self,
         cc: &nerve_waf_cc::CcConfig,
@@ -153,7 +153,7 @@ impl ProtectionModules {
             .insert("score_threshold".into(), serde_json::json!(bot.score_threshold));
     }
 
-    /// 将应用级覆盖合并到全局默认模板上，得到生效配置。
+    /// Merge app overrides onto the global default template for effective config.
     pub fn merge_with_overrides(base: &Self, overrides: &Self) -> Self {
         let mut out = base.clone();
         if overrides.mode != base.mode {
@@ -168,7 +168,7 @@ impl ProtectionModules {
         out
     }
 
-    /// 相对全局默认计算应用级差异；无差异时返回 `None`（不应落库）。
+    /// Diff against global defaults; return `None` when identical (do not persist).
     pub fn diff_as_overrides(base: &Self, effective: &Self) -> Option<Self> {
         let mut modules = HashMap::new();
         let mut keys: std::collections::HashSet<_> = base.modules.keys().collect();

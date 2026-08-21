@@ -1,3 +1,4 @@
+/** app-config feature: Pipeline List. */
 import { useCallback, useRef, useState } from "react";
 import { NerveButton, NerveSwitch } from "@nerve/ui";
 import {

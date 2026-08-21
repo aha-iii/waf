@@ -1,6 +1,6 @@
-//! 可解释的多信号融合研判 — 不依赖黑盒 LLM，对标 SOC 事件分级（非 inline 拦截）。
+//! Explainable multi-signal triage for WAF events (SOC-style grading, not inline blocking).
 //!
-//! 云 WAF 的「AI」多数是：行为评分 + 规则置信度 + 运营反馈闭环；LLM 仅用于事后分析。
+//! Combines behavior scores, rule confidence, and operator feedback; LLM is optional post-hoc only.
 
 use nerve_waf_bot::{score_with_config, BotConfig};
 use nerve_waf_sdk::WafEventRecord;
@@ -9,13 +9,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum TriageVerdict {
-    /// 多信号一致，建议按真实攻击处置
+    /// Multiple signals agree; treat as real attack.
     ConfirmedAttack,
-    /// 较大概率为攻击，建议拦截/告警
+    /// Likely attack; recommend block/alert.
     LikelyAttack,
-    /// 信号冲突或证据不足，需人工确认
+    /// Conflicting signals or weak evidence; needs human review.
     NeedsReview,
-    /// 较大概率为误报（静态资源、业务参数等）
+    /// Likely false positive (static assets, business params, etc.).
     LikelyFalsePositive,
 }
 
@@ -29,20 +29,20 @@ pub struct TriageEvidence {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TriageResult {
     pub verdict: TriageVerdict,
-    /// 0–100，表示对 verdict 的确信度
+    /// 0–100 confidence in the verdict.
     pub confidence: u8,
-    /// 0–100，攻击风险分（与 verdict 相关但独立）
+    /// 0–100 attack risk score (related to but independent of verdict).
     pub risk_score: u8,
     pub summary: String,
     pub evidence: Vec<TriageEvidence>,
     pub recommendations: Vec<String>,
-    /// 引擎标识，便于审计
+    /// Engine id for audit.
     pub engine: String,
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct TriageContext {
-    /// 该 IP 近期同类事件数（如 1h 内）
+    /// Recent similar-event count for this IP (e.g. within 1h).
     pub ip_event_count: u32,
     pub ip_blocked_count: u32,
     pub intel_malicious: bool,
@@ -76,7 +76,7 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
     let method = event.method.as_deref().unwrap_or("GET");
     let ua = event.user_agent.as_deref().unwrap_or("");
 
-    // --- 规则/动作信号 ---
+    // --- Rule/action signals ---
     if action == "block" {
         score += 35;
         attack_signals += 1;
@@ -127,7 +127,7 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
         _ => {}
     }
 
-    // --- 载荷特征 ---
+    // --- Payload features ---
     if payload_has_attack_markers(payload, uri, &category) {
         score += 20;
         attack_signals += 1;
@@ -138,7 +138,7 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
         ));
     }
 
-    // --- 上下文 ---
+    // --- Context ---
     if ctx.intel_malicious {
         score += 28;
         attack_signals += 1;
@@ -176,7 +176,7 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
         ));
     }
 
-    // --- 误报信号 ---
+    // --- FP signals ---
     if is_static_asset(uri) {
         score -= 30;
         fp_signals += 1;

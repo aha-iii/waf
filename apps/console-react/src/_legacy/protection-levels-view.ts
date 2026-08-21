@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Protection levels view. */
 import { apiDelete, apiGet, apiPost, apiPut } from "./api.js";
 import {
   btn,
@@ -19,7 +20,7 @@ import {
 import { bindModuleCardStyles } from "./module-display.js";
 import { loadSites } from "./sites.js";
 
-/** 当前生效策略（全局默认 / 应用快照） */
+/** Currently effective strategy (global default / app snapshot) */
 export type ProtectionStrategy = {
   scope: string;
   name?: string;
@@ -32,7 +33,7 @@ export type ProtectionStrategy = {
   custom?: { mode: string; hint: string };
 };
 
-/** 命名模板（策略库）：含四段快照 */
+/** Named template (strategy library): includes four-section snapshot */
 export type StrategyTemplate = {
   id: string;
   name: string;
@@ -41,10 +42,10 @@ export type StrategyTemplate = {
   expert_level: string;
   builtin: boolean;
   sort_order: number;
-  /** 有值 = 应用私有策略；缺省 = 全局 */
+  /** Set = app-private strategy; omitted = global */
   site_id?: string | null;
   scope?: "global" | "app";
-  /** 应用私有策略可禁用；缺省 true */
+  /** App-private strategy may be disabled; default true */
   enabled?: boolean;
   expert?: { level?: string };
   semantic?: Record<string, unknown>;
@@ -65,7 +66,7 @@ export function strategyScopeLabel(t: StrategyTemplate): string {
   return "全局";
 }
 
-/** 仅本应用私有（自定义）策略可编辑下方模块；全局/内置只读预览策略库 */
+/** Only app-private (custom) strategies can edit modules below; global/built-in are read-only library previews */
 export function isAppPrivateStrategy(t: StrategyTemplate | null | undefined): boolean {
   return !!(t?.site_id && String(t.site_id).trim());
 }
@@ -246,7 +247,7 @@ function renderTemplateCards(templates: StrategyTemplate[], selectedId: string |
 }
 
 function renderStrategyModuleEditor(tpl: StrategyTemplate): string {
-  // 防护设置（语义）+ 防护模块（专家 / 核心 / 自定义）
+  // Protection settings (semantic) + modules (expert / core / custom)
   const settings = [
     {
       key: "semantic",
@@ -869,7 +870,7 @@ export async function renderProtectionLevelsView(
   paint();
 }
 
-/** 应用配置抽屉「防护策略」面板 */
+/** App-config drawer protection-strategy panel */
 export function renderAppProtectionLevelsPanel(
   levels: ProtectionStrategy,
   templates: StrategyTemplate[] = [],

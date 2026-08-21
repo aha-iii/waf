@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-triage"
-description = "Explaieable multi-sigeal attack triage for WAF events"
+description = "Explainable multi-signal attack triage for WAF events"
 version.workspace = true
 edition.workspace = true
 

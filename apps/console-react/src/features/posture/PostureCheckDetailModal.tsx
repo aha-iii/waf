@@ -1,3 +1,4 @@
+/** posture feature: Posture Check Detail Modal. */
 import { NerveModal, NerveTable } from "@nerve/ui";
 import { categoryLabel } from "../../lib/labels";
 import { moduleShortLabel } from "../../lib/module-display";

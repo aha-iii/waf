@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Assets view. */
 import { openAppConfigDrawer } from "./app-config-drawer.js";
 import { apiGet, apiPut } from "./api.js";
 import { esc, pageHeader, showConfirm } from "./components/ui.js";

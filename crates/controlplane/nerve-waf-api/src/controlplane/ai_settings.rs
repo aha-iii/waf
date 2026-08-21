@@ -136,13 +136,13 @@ async fn put_global_semantic_config(
 struct ProtectionLevelsBody {
     #[serde(default)]
     semantic_mode: Option<String>,
-    /// 全局必填；应用侧一律写入本应用（不再支持继承全局）
+    /// Required globally; app side always writes this app (no longer inherits global).
     #[serde(default)]
     expert_level: Option<String>,
-    /// 兼容旧字段，忽略
+    /// Legacy field; ignored.
     #[serde(default)]
     expert_level_override: Option<bool>,
-    /// 应用绑定的策略库模板 id（仅应用侧）
+    /// Strategy-library template id bound to the app (app side only).
     #[serde(default)]
     bound_strategy_id: Option<String>,
 }
@@ -228,7 +228,7 @@ async fn get_app_protection_levels(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let _ = state.ai_settings.refresh_site_from_store(&site_id).await;
     let mut cfg = state.ai_settings.semantic_config_for(&site_id);
-    // 应用快照独立：缺省专家档时落盘为 medium，不再运行时跟全局联动
+    // App snapshot is independent: default expert tier persists as medium; no runtime follow of global.
     if cfg.expert_level.is_none() {
         cfg.expert_level = Some(ExpertLevel::Medium);
         let _ = state.ai_settings.set_semantic_for(&site_id, cfg.clone()).await;
@@ -269,7 +269,7 @@ async fn put_app_protection_levels(
         touched_semantic = true;
     }
     if body.expert_level.is_some() || body.semantic_mode.is_some() {
-        // 应用侧始终写入本应用专家档，不再支持「继承全局」
+        // App side always writes this app's expert tier; no 'inherit global'.
         let level = body
             .expert_level
             .as_deref()
@@ -346,7 +346,7 @@ fn template_json(t: &ProtectionStrategyTemplate) -> Value {
 
 #[derive(Deserialize)]
 struct StrategyListQuery {
-    /// 不传：仅全局策略（侧栏）。传 site_id：全局 + 该应用私有策略。
+    /// Omit: global strategies only (sidebar). With site_id: global + that app's private strategies.
     #[serde(default)]
     site_id: Option<String>,
 }
@@ -356,10 +356,10 @@ struct StrategyCreateBody {
     name: String,
     #[serde(default)]
     description: Option<String>,
-    /// 有值则写入应用私有策略表，仅该应用可见
+    /// When set, write into app-private strategy table (visible only to that app).
     #[serde(default)]
     site_id: Option<String>,
-    /// 可选：从该策略深拷贝四段；缺省从当前全局运行时拷贝
+    /// Optional: deep-copy four sections from that strategy; default copies current global runtime.
     #[serde(default)]
     source_id: Option<String>,
 }
@@ -384,7 +384,7 @@ struct StrategyUpdateBody {
     custom: Option<Value>,
     #[serde(default)]
     sort_order: Option<i32>,
-    /// 仅应用私有策略可改；全局忽略
+    /// Only app-private strategies are editable; global ignored.
     #[serde(default)]
     enabled: Option<bool>,
 }
@@ -601,7 +601,7 @@ async fn apply_protection_strategy(
                     StatusCode::INTERNAL_SERVER_ERROR
                 })?;
             let cfg = tpl.to_pipeline_patch();
-            // 刷新内存缓存与 L7（DB 已由 apply 写入全局表）
+            // Refresh in-memory cache and L7 (DB already written to global tables by apply).
             let _ = state.ai_settings.refresh_site_from_store("default").await;
             state.refresh_l7_from_store().await;
             Ok(Json(json!({
@@ -664,7 +664,7 @@ async fn apply_protection_strategy(
                     tracing::error!("apply strategy modules to app: {e}");
                     StatusCode::INTERNAL_SERVER_ERROR
                 })?;
-            // 应用级绑定：应用 → 该策略（下方模块均属本应用快照）
+            // App binding: app → this strategy (modules below belong to this app snapshot).
             let _ = state
                 .config
                 .set_app_bound_strategy(&site_id, &tpl.id, "console")

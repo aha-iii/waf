@@ -1,20 +1,20 @@
-# 内置 L3 策略插件（Rust）
+# Built-in L3 policy plugins (Rust)
 
-通过 `WafPlugin` trait 注册，在 `routes.json` 中按名称引用。
+Registered via the `WafPlugin` trait and referenced by name in `routes.json`.
 
-| 插件 | 配置示例 |
-|------|----------|
+| Plugin | Config example |
+|--------|----------------|
 | `ip-blacklist` | `{ "ips": ["1.2.3.4"] }` |
 | `ip-whitelist` | `{ "ips": ["10.0.0.1"] }` |
 | `port-block` | `{ "ports": [4444], "deny_dst": true }` |
 | `baseline-allow` | `{ "pod": "frontend", "ip": "8.8.8.8" }` |
 
-## 新增插件
+## Add a plugin
 
-1. 新建 `src/my_plugin.rs`，实现 `WafPlugin`
-2. 在 `registry.rs` 的 `plugin_registry()` 注册
+1. Create `src/my_plugin.rs` implementing `WafPlugin`
+2. Register it in `plugin_registry()` in `registry.rs`
 3. `cargo build -p nerve-waf-api`
-4. 在 `data/routes.json` 引用插件名
-5. `POST /api/sync` 下发 Agent
+4. Reference the plugin name in `data/routes.json`
+5. `POST /api/sync` to push to the Agent
 
-L7 JSON/Lua 插件见仓库根目录 `plugins/l7/`，无需改本 crate。
+L7 JSON/Lua plugins live under repo-root `plugins/l7/`; no changes to this crate required.

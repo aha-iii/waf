@@ -1,4 +1,5 @@
--- Header / URI 自定义检查111
+-- Sample Lua L7 plugin: custom Header / URI checks (inspect returns nil or hit table).
+-- Sample custom Header / URI checks
 
 function inspect(req)
   local headers = req.headers or ""

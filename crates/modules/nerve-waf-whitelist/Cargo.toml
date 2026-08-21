@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-whitelist"
-description = "WAF 白名单 / 误报调优"
+description = "Whitelist / false-positive tuning for Nerve WAF"
 version.workspace = true
 edition.workspace = true
 

@@ -3,7 +3,7 @@ use crate::scan_targets::RequestSamples;
 use nerve_waf_sdk::ProtectionModules;
 use serde::Serialize;
 
-/// ModSecurity-style chain：每一步 AND；`on_matched` 步在上一步命中样本上继续匹配。
+/// ModSecurity-style chain: each step AND; `on_matched` continues on prior hit sample.
 fn match_rule_chain(rule: &CompiledRule, samples: &RequestSamples) -> Option<(String, String)> {
     let mut matched_value: Option<String> = None;
     let mut first_field: Option<String> = None;
@@ -63,13 +63,13 @@ pub struct InspectResult {
     pub plugin_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub plugin_type: Option<String>,
-    /// 语义管线：参数路径 query.id / body.field 等
+    /// Semantic pipeline: param paths like query.id / body.field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub param_path: Option<String>,
-    /// 解码链 op:depth 序列
+    /// Decode-chain op:depth sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub decode_chain: Option<Vec<String>>,
-    /// 融合风险分 0–100
+    /// Fusion risk score 0–100.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub semantic_score: Option<u8>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -160,7 +160,7 @@ impl L7Engine {
         None
     }
 
-    /// 恶意上传检测：危险扩展名 / 双扩展名
+    /// Malicious upload detect: dangerous / double extensions.
     pub fn inspect_upload(&self, req: &InspectRequest) -> Option<InspectResult> {
         if !self.module_enabled("file_upload") {
             return None;
@@ -193,7 +193,7 @@ impl L7Engine {
         None
     }
 
-    /// 信息泄露：响应体敏感模式
+    /// Info leak: sensitive patterns in response body.
     pub fn inspect_response(&self, body: &str) -> Option<InspectResult> {
         if !self.module_enabled("info_leak") {
             return None;

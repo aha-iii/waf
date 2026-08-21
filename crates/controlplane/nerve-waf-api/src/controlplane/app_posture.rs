@@ -1,4 +1,4 @@
-//! 应用安全档案 — 单应用 posture 聚合与周报
+//! App security profile — single-app posture aggregate and weekly report.
 
 use axum::{
     extract::{Path, Query, State},

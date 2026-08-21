@@ -1,3 +1,5 @@
+/** Console page: local username/password login (optional ?demo=1 prefill). */
+
 import { NerveLoginPage } from "@nerve/ui";
 import { loginLocal } from "../auth";
 
@@ -5,10 +7,9 @@ type Props = {
   onSuccess: () => void;
 };
 
-// Demo 模式预填账号；部署时需保证后端存在同名账号。
-// mars-test 通过 NERVE_AUTH_BOOTSTRAP_USER/PASSWORD 自动创建（见 deploy/mars-test/.env.example）。
-const DEMO_USERNAME = "lucongming_0108";
-const DEMO_PASSWORD = "@Lucongming0108";
+// Demo prefill when visiting /login?demo=1 (backend must have the same user, or use bootstrap).
+const DEMO_USERNAME = "admin";
+const DEMO_PASSWORD = "change-me";
 
 function demoPrefill(): { username: string; password: string } | null {
   if (typeof window === "undefined") return null;

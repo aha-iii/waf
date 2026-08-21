@@ -1,3 +1,4 @@
+/** Shared library helpers: Strategy. */
 import {
   CUSTOM_MODULE_KEY_PREFIX,
   customModuleKey,
@@ -86,7 +87,7 @@ export function expertLevelLabel(v: string): string {
   return EXPERT_OPTS.find((o) => o.value === v)?.label ?? v;
 }
 
-/** 基础防护模块（CC / Bot / 信息泄露）启用摘要 */
+/** Basic protection modules (CC / Bot / info-leak) enablement summary */
 export function strategyPreAccessSummary(tpl: StrategyTemplate): string {
   const mods = tpl.core?.modules ?? {};
   const keys = [...PRE_ACCESS_MODULE_KEYS, ...RESPONSE_MODULE_KEYS] as string[];
@@ -95,7 +96,7 @@ export function strategyPreAccessSummary(tpl: StrategyTemplate): string {
   return `${enabled} 项已启用`;
 }
 
-/** 核心攻击检测模块启用摘要 */
+/** Core attack-detection modules enablement summary */
 export function strategyCoreAttackSummary(tpl: StrategyTemplate): string {
   const mods = tpl.core?.modules ?? {};
   const attackKeys = [
@@ -155,7 +156,7 @@ function strategyPipelineStageEnabled(tpl: StrategyTemplate, stage: string): boo
   return true;
 }
 
-/** 策略语义 / NSP 总开关 */
+/** Strategy semantic / NSP master switch */
 export function strategySemanticEnabled(tpl: StrategyTemplate): boolean {
   const sem = tpl.semantic;
   if (sem && typeof sem.enabled === "boolean") return sem.enabled;
@@ -190,7 +191,7 @@ export function strategyCustomEnabled(tpl: StrategyTemplate): boolean {
   return strategyCustomSetIds(tpl).length > 0;
 }
 
-/** 策略挂载的自定义规则集 ID（优先 custom.set_ids，回退 core.modules 的 custom: 前缀键） */
+/** Custom rule-set IDs mounted on the strategy (prefer custom.set_ids; fall back to custom: keys in core.modules) */
 export function strategyCustomSetIds(tpl: StrategyTemplate): string[] {
   const raw = tpl.custom as { set_ids?: unknown } | undefined;
   if (Array.isArray(raw?.set_ids) && raw.set_ids.length) {
@@ -202,7 +203,7 @@ export function strategyCustomSetIds(tpl: StrategyTemplate): string[] {
     .map((k) => k.slice(CUSTOM_MODULE_KEY_PREFIX.length));
 }
 
-/** 将 set_ids 同步进 core.modules 的 custom:{id} 键（保存自定义检测时一并提交） */
+/** Sync set_ids into core.modules custom:{id} keys (submit together when saving custom detection) */
 export function buildCoreWithCustomSets(
   core: StrategyTemplate["core"] | undefined,
   setIds: string[],

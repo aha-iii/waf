@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-/// 插件类型：rust 内置 / json 规则包 / lua 脚本
+/// Plugin type: rust built-in / json rule pack / lua script.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PluginKind {
@@ -19,7 +19,7 @@ impl PluginKind {
     }
 }
 
-/// API 返回的插件描述（含外置 JSON/Lua）
+/// Plugin descriptor returned by API (incl. external JSON/Lua).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PluginDescriptor {
@@ -39,7 +39,7 @@ pub struct PluginDescriptor {
     pub enabled: bool,
 }
 
-/// plugin.json 清单（plugins/l3|l7/<name>/plugin.json）
+/// plugin.json manifest (plugins/l3|l7/<name>/plugin.json).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PluginManifest {
     pub name: String,

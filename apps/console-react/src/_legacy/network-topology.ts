@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Network topology. */
 import { esc } from "./components/ui.js";
 
 export type TopologyNode = {
@@ -34,7 +35,7 @@ const KIND_COLOR: Record<string, string> = {
   unknown: "#8c8c8c",
 };
 
-/** 按方向与 TopN 裁剪，并按 Workloads / Services 两侧各保留最多 maxPerSide 个高流量节点 */
+/** Trim by direction and TopN; keep at most maxPerSide high-traffic nodes on each of Workloads / Services sides */
 export function pruneServiceMapGraph(
   graph: TopologyGraph,
   direction: "all" | "east_west" | "north_south",
@@ -138,7 +139,7 @@ export function renderTopologySvg(graph: TopologyGraph, direction = "all"): stri
   return `<svg viewBox="0 0 ${w} ${h}" class="topology-svg">${lines}${circles}</svg>`;
 }
 
-/** 从实时会话构建简易 Service Map（无 topology store 时回退） */
+/** Build a simple Service Map from live sessions (fallback when topology store is unavailable) */
 export function sessionsToGraph(
   sessions: { pod?: string; dst_ip?: string; dport?: number }[],
 ): TopologyGraph {

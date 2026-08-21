@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-api-sec"
+description = "API security: OpenAPI baselines, auth abuse, sensitive body fields"
 version.workspace = true
 edition.workspace = true
 

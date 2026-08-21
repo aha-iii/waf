@@ -1,13 +1,10 @@
 --
--- APISIX 插件：HTTP 旁路调用 Nerve WAF POST /api/inspect（:8780）
--- Agent eBPF L7 走 Unix Socket，与此插件路径独立并存。
+-- APISIX plugin: HTTP bypass to Nerve WAF POST /api/inspect.
+-- Agent eBPF L7 uses Unix socket; this path is independent and coexists.
+-- Install: copy into apisix/plugins/, add "nerve-waf" to conf plugins list, reload.
+-- Change waf_api / api_key placeholders before production use. See README.md.
+-- APISIX plugin: HTTP bypass to Nerve WAF (coexists with Agent Unix socket path)
 --
--- 安装:
---   cp nerve-waf.lua /path/to/apisix/apisix/plugins/nerve-waf.lua
---   在 conf/config.yaml 的 plugins 列表中加入: nerve-waf
---   apisix reload
---
--- 路由示例见 README.md
 
 local core = require("apisix.core")
 local http = require("resty.http")
@@ -429,7 +426,7 @@ function _M.access(conf, ctx)
         return core.response.exit(conf.block_status or 403, html)
     end
 
-    -- WAF 响应 trace 优先（新生成或规范化后的 ID）
+    -- Prefer WAF response trace (newly generated or normalized ID)
     local waf_trace = data.trace
     if waf_trace and type(waf_trace) == "table" then
         trace_id = waf_trace.trace_id or trace_id

@@ -1,3 +1,4 @@
+/** upstreams feature: Upstream Node Table. */
 import { NerveButton, NerveInput } from "@nerve/ui";
 import type { UpstreamNode } from "./upstream-types";
 

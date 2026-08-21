@@ -1,3 +1,4 @@
+/** protection-strategy feature: Core Stage Modal. */
 import { useEffect, useMemo, useState } from "react";
 import {
   NerveButton,

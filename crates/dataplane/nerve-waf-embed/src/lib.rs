@@ -1,6 +1,6 @@
-//! 进程内嵌 WAF：同进程调用 `InspectPipeline`，无 HTTP / Unix 跳转。
+//! In-process WAF inspect (same process as host, no HTTP hop).
 //!
-//! 供 Nerve Gateway `mode=edge` 与 `nerve-waf-edge` 使用。
+//! Used by Nerve Gateway `mode=edge` and `nerve-waf-edge`.
 
 use nerve_waf_api_sec::ApiSecConfig;
 use nerve_waf_behavior::BehaviorEngine;
@@ -47,7 +47,7 @@ pub struct EmbedInspectPolicy {
     pub semantic: SemanticConfig,
 }
 
-/// 预编译站点 CRS + 模块（edge 按 snapshot generation 缓存，避免每请求 compile_rules）。
+/// Precompile site CRS + modules (edge caches by snapshot generation; avoid compile_rules per request).
 pub struct PreparedSiteInspect {
     pub site_l7: L7Engine,
     pub site: SiteInspectSnapshot,
@@ -67,7 +67,7 @@ pub struct EmbedInspectResponse {
     pub protection_stage: Option<String>,
     pub rule_set: Option<String>,
     pub plugin_name: Option<String>,
-    /// Per-node inspect timing（仅 `NERVE_INSPECT_TRACE=1` 时填充）。
+    /// Per-node inspect timing (filled only when `NERVE_INSPECT_TRACE=1`).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timing: Option<nerve_waf_core::InspectTimingReport>,
 }
@@ -109,12 +109,12 @@ pub struct EmbeddedWaf {
     inner: RwLock<EmbeddedInner>,
 }
 
-/// 旁路 / Edge 热路径可选参数。
+/// Optional params for bypass / Edge hot path.
 #[derive(Debug, Clone, Default)]
 pub struct InspectPreparedOptions {
-    /// Bot 挑战已通过时跳过 bot 模块。
+    /// Skip bot module when bot challenge already passed.
     pub bot_challenge_verified: bool,
-    /// 可选 trace id（写入 inspect_node_trace 日志）。
+    /// Optional trace id (written into inspect_node_trace logs).
     pub trace_id: Option<String>,
 }
 
@@ -227,7 +227,7 @@ impl EmbeddedWaf {
         _global: &GlobalInspectOverlay,
         opts: InspectPreparedOptions,
     ) -> InspectVerdict {
-        // 复用 apply_global_overlay / dataplane sync 已构建的全局引擎，避免每请求重建 Cc/Geo/Behavior。
+        // Reuse global engines built by apply_global_overlay / dataplane sync; avoid rebuilding Cc/Geo/Behavior per request.
         let global_rt = &g.global;
         let mut bot = prepared
             .site

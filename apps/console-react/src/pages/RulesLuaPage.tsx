@@ -1,3 +1,4 @@
+/** Console page: Lua L7 plugin management. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NERVE_COL_ACTIONS,

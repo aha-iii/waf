@@ -1,3 +1,4 @@
+/** Console layout shell: Console Layout. */
 import type { ReactNode } from "react";
 import { useMemo } from "react";
 import { NerveSider, buildSiderMenuGroups } from "@nerve/ui";

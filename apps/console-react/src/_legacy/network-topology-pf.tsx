@@ -1,6 +1,4 @@
-/**
- * PatternFly Topology · Kiali 同款 Graph 组件
- */
+/** PatternFly Topology graph component (Kiali-style). */
 import * as React from "react";
 import {
   Divider,

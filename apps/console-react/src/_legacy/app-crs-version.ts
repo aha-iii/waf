@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: App crs version. */
 import { apiGet, apiPost } from "./api.js";
 import {
   btn,

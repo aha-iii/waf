@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Rules ai view. */
 import { apiGet, apiPost } from "./api.js";
 import { bindPaginationBar, categoryLabel, defaultPaginationState, esc, renderPaginatedSection, type PaginationState } from "./components/ui.js";
 

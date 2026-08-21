@@ -1,3 +1,4 @@
+/** Console page: geo / region block lists. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

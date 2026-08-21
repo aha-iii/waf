@@ -1,3 +1,4 @@
+/** Shared library helpers: App crs. */
 import { apiGet } from "../api";
 import { formatDateTimeZh } from "./datetime";
 import type { CrsVersion } from "./crs-rules";

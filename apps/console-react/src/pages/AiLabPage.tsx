@@ -1,3 +1,4 @@
+/** Console page: AI lab experiments and tooling. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

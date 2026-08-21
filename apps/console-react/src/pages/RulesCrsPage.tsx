@@ -1,3 +1,4 @@
+/** Console page: CRS / core rule library browse and per-app toggles. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,
@@ -83,7 +84,7 @@ export function RulesCrsPage() {
     void refresh();
   }, [refresh]);
 
-  // Tab 切换只更新本地筛选与拦截等级，不重新拉数、不进入整页 loading
+  // Tab switch only updates local filters and intercept level; no refetch or full-page loading
   useEffect(() => {
     const mod = moduleConfigs[activeCategory];
     if (mod) setActiveProtect(sensitivityToProtect(mod.sensitivity));

@@ -1,7 +1,4 @@
-/**
- * Nerve UI 组件体系 — 表格 / 表单 / 弹窗 / 卡片 / 操作列等复合封装
- * 底层样式仍沿用 style.css 中 `.ant-*`，同时挂载 `.nerve-*` 便于统一维护
- */
+/** Legacy Nerve UI composite wrappers (dialogs, drawers, cards, table rows). */
 import {
   btn,
   formField,
@@ -20,11 +17,11 @@ export type NerveTableColumn = {
   key: string;
   title: string;
   className?: string;
-  /** 默认居左；可用 nerve-align-center / nerve-align-right 覆盖 */
+  /** Left-aligned by default; override with nerve-align-center / nerve-align-right */
   align?: "left" | "center" | "right";
 };
 
-/** 列对齐修饰类（默认居左，无需添加类名） */
+/** Column alignment modifier classes (left by default; no class required) */
 export const NERVE_ALIGN_CENTER = "nerve-align-center";
 export const NERVE_ALIGN_RIGHT = "nerve-align-right";
 
@@ -43,7 +40,7 @@ export type NerveTableAction = {
   primary?: boolean;
 };
 
-/** 表格操作列按钮组 */
+/** Table action-column button group */
 export function nerveTableActions(actions: NerveTableAction[]): string {
   const inner = actions
     .map((a) => {
@@ -66,7 +63,7 @@ export function nerveTableActions(actions: NerveTableAction[]): string {
   return `<div class="nerve-table-actions">${inner}</div>`;
 }
 
-/** 标准数据表格 */
+/** Standard data table */
 export function nerveTable(opts: {
   columns: NerveTableColumn[];
   bodyHtml: string;
@@ -82,20 +79,20 @@ export function nerveTable(opts: {
   return `<div class="nerve-table-wrap"><table class="${cls}"><thead><tr>${head}</tr></thead><tbody>${opts.bodyHtml}</tbody></table></div>`;
 }
 
-/** 操作列 th/td 类名（默认居左） */
+/** Action-column th/td class names (left by default) */
 export const NERVE_COL_ACTIONS = "nerve-col-actions";
 
-/** 表格单元格 class（含可选对齐） */
+/** Table cell class (optional alignment) */
 export function nerveTableCell(className: string, align?: NerveTableColumn["align"]): string {
   return [className, nerveAlignClass(align)].filter(Boolean).join(" ");
 }
 
-/** 实时威胁列表容器 */
+/** Live-threat list container */
 export function nerveThreatList(rowsHtml: string): string {
   return `<div class="nerve-threat-list threat-list">${rowsHtml}</div>`;
 }
 
-/** 实时威胁单行（时间 + 标签 + IP + URI） */
+/** Live-threat row (time + tags + IP + URI) */
 export function nerveThreatRow(opts: {
   time: string;
   siteLabel: string;
@@ -122,7 +119,7 @@ export function nerveThreatRow(opts: {
   </div>`;
 }
 
-/** 复选框 */
+/** Checkbox */
 export function nerveCheckbox(opts: {
   id?: string;
   label?: string;
@@ -140,7 +137,7 @@ export function nerveCheckbox(opts: {
   return `<label class="nerve-checkbox-wrap">${inputHtml}<span>${esc(opts.label)}</span></label>`;
 }
 
-/** 单选 */
+/** Radio */
 export function nerveRadio(opts: {
   name: string;
   id?: string;
@@ -157,7 +154,7 @@ export function nerveRadio(opts: {
   </label>`;
 }
 
-/** 开关 */
+/** Switch */
 export function nerveSwitch(opts: {
   id?: string;
   checked?: boolean;
@@ -173,7 +170,7 @@ export function nerveSwitch(opts: {
   return `<label class="nerve-switch-wrap switch-wrap">${opts.label ? `<span>${esc(opts.label)}</span>` : ""}${sw}</label>`;
 }
 
-/** 分区卡片（规则库 / 规则集等列表区块） */
+/** Section card (rule library / rule-set list blocks) */
 export function nerveSectionCard(opts: {
   title: string;
   subtitle?: string;
@@ -199,7 +196,7 @@ export function nerveSectionCard(opts: {
   return { open, close };
 }
 
-/** 弹窗壳（DOM） */
+/** Modal shell (DOM) */
 export function mountNerveDialog(opts: {
   title: string;
   wide?: boolean;
@@ -245,12 +242,12 @@ export function mountNerveDialog(opts: {
   return { mask, body, footer, close };
 }
 
-/** 弹窗底部按钮组 */
+/** Modal footer button group */
 export function nerveDialogFooter(...buttons: string[]): string {
   return buttons.join("");
 }
 
-// —— 与 controls 同名别名，便于页面统一从 nerve 导入 ——
+// — aliases matching controls names so pages can import from nerve uniformly —
 export {
   btn as nerveBtn,
   formField as nerveFormField,

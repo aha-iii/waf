@@ -1,4 +1,4 @@
-//! 智能研判服务 — 供 inspect / 事件列表 / 告警 自动调用。
+//! Intelligent triage service — auto-called from inspect / event list / alerts.
 
 use nerve_waf_sdk::{EventQuery, WafEventRecord};
 use nerve_waf_triage::{analyze_event, TriageContext, TriageResult, TriageVerdict};

@@ -1,4 +1,4 @@
-//! 白名单：按 URI / Host / 规则 ID / 源 IP / 类别 精细放行
+//! Whitelist / false-positive tuning by URI, host, rule ID, source IP, or category.
 
 use serde::{Deserialize, Serialize};
 
@@ -55,7 +55,7 @@ pub fn is_whitelisted(cfg: &WhitelistConfig, req: &WhitelistRequest<'_>) -> bool
     cfg.rules.iter().any(|r| r.enabled && rule_matches(r, req))
 }
 
-/// 路径级全量放行：仅匹配 URI 前缀（可叠加 Host / 源 IP），不指定 rule_id / category 时跳过整条检测链。
+/// Path-level full allow: match URI prefix only (optional Host / src IP); without rule_id / category, skip entire detect chain.
 pub fn is_inspect_bypassed(cfg: &WhitelistConfig, host: &str, uri: &str, src_ip: &str) -> bool {
     if !cfg.enabled {
         return false;

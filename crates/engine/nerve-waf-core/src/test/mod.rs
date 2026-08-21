@@ -1,3 +1,3 @@
-//! core 契约测试（与生产 `verdict.rs` 等分离）。
+//! Core contract tests (separated from production `verdict.rs`, etc.).
 
 mod test_verdict;

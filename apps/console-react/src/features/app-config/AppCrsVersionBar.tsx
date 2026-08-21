@@ -1,3 +1,4 @@
+/** app-config feature: App Crs Version Bar. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,
@@ -363,7 +364,7 @@ export function AppCrsVersionBar({
   );
 }
 
-/** 加载并展示 CRS 版本栏（含 status 拉取） */
+/** Load and show CRS version bar (includes status fetch) */
 export function AppCrsVersionBarLoader({
   siteId,
   onApplied,

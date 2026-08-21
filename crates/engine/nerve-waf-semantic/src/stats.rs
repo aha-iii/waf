@@ -55,7 +55,7 @@ pub struct SemanticStatsSnapshot {
     pub backend: &'static str,
 }
 
-/// 检测热路径使用的统计接口（内存 + 持久化实现）
+/// Stats interface used on detect hot path (in-memory + persistent impls).
 pub trait SemanticStatsRecorder: Send + Sync {
     fn record_inspect(&self, site_id: &str);
     fn record_hit(&self, site_id: &str, sample: SemanticSample);
@@ -85,7 +85,7 @@ impl Default for SiteBucket {
     }
 }
 
-/// 纯内存实现（测试 / 回退）
+/// Pure in-memory impl (tests / fallback).
 pub struct InMemorySemanticStats {
     sites: RwLock<std::collections::HashMap<String, SiteBucket>>,
 }

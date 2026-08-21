@@ -1,5 +1,4 @@
-/** 检测流水线阶段（与后端 pipeline_order 一致） */
-
+/** Protection pipeline stages (aligned with pipeline_order). */
 export const PIPELINE_STAGES: { id: string; label: string; desc: string }[] = [
   {
     id: "pre_access",
@@ -28,7 +27,7 @@ export const PIPELINE_STAGES: { id: string; label: string; desc: string }[] = [
   },
 ];
 
-/** 流水线能力总览（应用配置 · 检测流水线 Tab） */
+/** Pipeline capability overview (app config · detection pipeline tab) */
 export const PIPELINE_CAPABILITY_INTRO =
   "每个请求按顺序经过下列检测引擎：前段负责接入与快速过滤，中段深度分析 Web 攻击，后段可扩展业务与 AI 场景规则。可拖动调整顺序，或单独启停某一段。";
 
@@ -52,7 +51,7 @@ export function normalizePipelineEnabled(raw?: Partial<PipelineEnabledMap> | nul
   return base;
 }
 
-/** 历史 `crs` → `expert` + `core`；剥离 `semantic`/`plugin`；按规范顺序补齐缺失段 */
+/** Legacy `crs` → `expert` + `core`; strip `semantic`/`plugin`; fill missing stages in canonical order */
 export function normalizePipelineOrder(order: string[]): string[] {
   const ids = PIPELINE_STAGES.map((s) => s.id);
   const seen = new Set<string>();

@@ -22,7 +22,7 @@ pub struct CustomRule {
     pub severity: String,
     #[serde(default = "default_category")]
     pub category: String,
-    /// signature = 签名/正则；plugin = 自定义插件（L7 Lua/JSON）
+    /// signature = signature/regex; plugin = custom plugin (L7 Lua/JSON).
     #[serde(default = "default_rule_type")]
     pub rule_type: String,
     #[serde(default)]
@@ -106,7 +106,7 @@ fn rule_matches(rule: &CustomRule, content: &str) -> bool {
     }
 }
 
-/// 按 priority 检测自定义规则（仅 request phase）
+/// Evaluate custom rules by priority (request phase only).
 pub fn inspect_custom_rules(
     rules: &[CustomRule],
     req: &InspectRequest,

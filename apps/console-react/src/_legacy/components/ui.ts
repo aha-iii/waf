@@ -1,5 +1,4 @@
-/** 控制台通用 UI 工具 */
-
+/** Legacy console shared UI helpers. */
 export { esc, el, htmlAttrs } from "./esc.js";
 export {
   alertBox,
@@ -152,7 +151,7 @@ export type PromptOptions = {
   cancelText?: string;
 };
 
-/** 表单输入弹框（可叠在其它弹窗之上，不关闭底层 modal） */
+/** Form input dialog (can stack above other modals without closing the underlying one) */
 export function showPrompt(opts: PromptOptions): Promise<Record<string, string> | null> {
   return new Promise((resolve) => {
     const mask = el("div", "nerve-dialog-mask ant-modal-mask");
@@ -232,7 +231,7 @@ export function showPrompt(opts: PromptOptions): Promise<Record<string, string> 
   });
 }
 
-/** 与控制台 Ant Design 风格一致的操作确认框 */
+/** Confirm dialog matching Console Ant Design styling */
 export function showConfirm(opts: ConfirmOptions): Promise<boolean> {
   return new Promise((resolve) => {
     hideModal();
@@ -277,7 +276,7 @@ export function showConfirm(opts: ConfirmOptions): Promise<boolean> {
   });
 }
 
-/** 表格分页：可选 5 / 10 / 20 / 50 / 100，默认 10 */
+/** Table pagination: 5 / 10 / 20 / 50 / 100 options, default 10 */
 export const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100] as const;
 export const DEFAULT_PAGE_SIZE = 10;
 
@@ -343,7 +342,7 @@ export function bindPaginationBar(
   });
 }
 
-/** 标准数据表格 HTML（配合 `.data-table` / `.ant-table-wrapper` 样式） */
+/** Standard data-table HTML (works with `.data-table` / `.ant-table-wrapper` styles) */
 export type DataTableColumn<T> = {
   key: string;
   title: string;
@@ -391,7 +390,7 @@ const MUTATE_VERB: Record<"create" | "edit" | "save" | "delete", string> = {
   delete: "删除",
 };
 
-/** 操作结果弹框（成功 / 失败 / 提示） */
+/** Result dialog (success / failure / info) */
 export function showResult(opts: ResultOptions): Promise<void> {
   return new Promise((resolve) => {
     hideModal();
@@ -446,7 +445,7 @@ export type MutateActionOptions = {
   run: () => void | Promise<void>;
 };
 
-/** 新增 / 编辑 / 保存 / 删除：确认 → 调用 API → 结果弹框 */
+/** Create / edit / save / delete: confirm → call API → result dialog */
 export async function runMutatingAction(opts: MutateActionOptions): Promise<boolean> {
   const verb = MUTATE_VERB[opts.action];
   const subject = opts.subject ?? "";
@@ -481,7 +480,7 @@ export function defaultPaginationState(): PaginationState {
   return { page: 1, pageSize: DEFAULT_PAGE_SIZE };
 }
 
-/** 客户端分页：表格 HTML + 分页条（用于 innerHTML 渲染） */
+/** Client pagination: table HTML + pager (for innerHTML rendering) */
 export function renderPaginatedSection<T>(
   prefix: string,
   items: T[],
@@ -507,7 +506,7 @@ export type MountPaginatedTableOptions<T> = {
   onAfterRender?: () => void;
 };
 
-/** 客户端分页：挂载到容器并自动绑定翻页（用于 DOM 渲染） */
+/** Client pagination: mount into a container and bind page controls (DOM rendering) */
 export function mountPaginatedTable<T>(
   container: HTMLElement,
   prefix: string,

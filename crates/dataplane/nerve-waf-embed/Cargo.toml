@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-embed"
-description = "进程内嵌 WAF Inspect（供 Gateway 边缘节点等同进程调用）"
+description = "In-process WAF inspect (same process as host, no HTTP hop)"
 version.workspace = true
 edition.workspace = true
 

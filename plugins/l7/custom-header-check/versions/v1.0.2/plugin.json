@@ -3,7 +3,7 @@
   "layer": "l7",
   "type": "lua",
   "version": "1.0.2",
-  "description": "自定义 Header / URI 检查",
+  "description": "Custom Header / URI checks (sample Lua L7 plugin) / 自定义 Header / URI 检查",
   "priority": 200,
   "category": "custom",
   "rules": [],

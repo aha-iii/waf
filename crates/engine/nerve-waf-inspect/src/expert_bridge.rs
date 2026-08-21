@@ -1,14 +1,14 @@
-//! Nerve-waf-expert 黑盒引擎桥接。
+//! Nerve-waf-expert black-box engine bridge.
 //!
-//! 挂在 `nerve-waf-inspect` 流水线的 `expert`（及兼容 `crs`）段：
-//! 1. 优先调用自研 [`nerve_antibody::Engine`]
-//! 2. 未加载 / 未命中 / 出错 → 由调用方回退 WASM/Coraza
+//! Attached to `nerve-waf-inspect` pipeline `expert` (and compat `crs`) segment:
+//! 1. Prefer first-party [`nerve_antibody::Engine`].
+//! 2. If unloaded / miss / error → caller falls back to WASM/Coraza.
 //!
-//! 环境变量：
-//! - `NERVE_EXPERT_PACK`：加密规则包（`.sealed`）或开发用明文目录
-//! - `NERVE_LICENSE_KEY` / `NERVE_LICENSE_URL`：在线 License（sealed 必填）
-//! - `NERVE_EXPERT_ENGINE=off`：强制关闭自研引擎
-//! - `NERVE_EXPERT_CHALLENGE_AS`：`challenge`（默认）| `log` | `block` — fusion `challenge` 动作映射兼容覆写
+//! Environment variables:
+//! - `NERVE_EXPERT_PACK`: sealed pack (`.sealed`) or plaintext dir for development.
+//! - `NERVE_LICENSE_KEY` / `NERVE_LICENSE_URL`: online License (required for sealed).
+//! - `NERVE_EXPERT_ENGINE=off`: force-disable first-party engine.
+//! - `NERVE_EXPERT_CHALLENGE_AS`: `challenge` (default) | `log` | `block` — fusion `challenge` action mapping override.
 
 use nerve_antibody::{Engine, ExpertHit, ExpertLevel as NeLevel, ExpertRequest};
 use nerve_waf_core::{InspectHit, InspectPhase, WafAction};
@@ -28,7 +28,7 @@ fn last_load_error_slot() -> &'static RwLock<Option<String>> {
     LAST_LOAD_ERROR.get_or_init(|| RwLock::new(None))
 }
 
-/// 最近一次引擎加载失败原因（health / 排障）。
+/// Last engine load failure reason (health / troubleshooting).
 pub fn expert_last_load_error() -> Option<String> {
     last_load_error_slot().read().ok()?.clone()
 }
@@ -39,15 +39,15 @@ fn set_last_load_error(msg: Option<String>) {
     }
 }
 
-/// 进程内全局引擎槽（惰性初始化，可 reload 替换）。
+/// Process-global engine slot (lazy init; replaceable via reload).
 static ENGINE: OnceLock<RwLock<Option<Arc<Engine>>>> = OnceLock::new();
 
-/// 取得全局引擎槽。
+/// Get the global engine slot.
 fn engine_slot() -> &'static RwLock<Option<Arc<Engine>>> {
     ENGINE.get_or_init(|| RwLock::new(None))
 }
 
-/// 是否启用自研专家引擎。
+/// Whether first-party expert engine is enabled.
 pub fn expert_engine_enabled() -> bool {
     match std::env::var("NERVE_EXPERT_ENGINE") {
         Ok(v) => {
@@ -105,7 +105,7 @@ fn resolve_pack_dir() -> Option<PathBuf> {
     None
 }
 
-/// 惰性加载全局引擎；失败返回 `None`（调用方走 legacy）。
+/// Lazy-load global engine; return `None` on failure (caller uses legacy).
 pub fn ensure_engine() -> Option<Arc<Engine>> {
     if !expert_engine_enabled() {
         return None;
@@ -142,7 +142,7 @@ pub fn ensure_engine() -> Option<Arc<Engine>> {
     }
 }
 
-/// 热更新规则包（运维 / 测试）。
+/// Hot-reload rule pack (ops / tests).
 pub fn reload_engine(pack: Option<&Path>) -> Result<(), String> {
     let pack = pack
         .map(|p| p.to_path_buf())
@@ -156,19 +156,19 @@ pub fn reload_engine(pack: Option<&Path>) -> Result<(), String> {
     Ok(())
 }
 
-/// 引擎健康（未加载时尝试 ensure）。
+/// Engine health (try ensure when not loaded).
 pub fn expert_health() -> Option<nerve_antibody::ExpertHealth> {
     let eng = ensure_engine()?;
     Some(eng.health())
 }
 
-/// 引擎指标快照（Fast/Deep 比例、延迟分桶，排障用）。
+/// Engine metrics snapshot (Fast/Deep ratio, latency buckets; troubleshooting).
 pub fn expert_metrics_snapshot() -> Option<nerve_antibody::MetricsSnapshot> {
     let eng = ensure_engine()?;
     Some(eng.metrics_snapshot())
 }
 
-/// 在线 License 状态。
+/// Online License status.
 pub fn expert_license_status() -> Option<nerve_antibody::ExpertLicenseStatus> {
     let eng = ensure_engine()?;
     Some(eng.license_status())
@@ -265,12 +265,12 @@ fn log_smuggle_hit(req: &ExpertRequest, hit: &ExpertHit) {
     );
 }
 
-/// L7 [`InspectRequest`] → 专家 [`ExpertRequest`]。
+/// L7 [`InspectRequest`] → expert [`ExpertRequest`].
 pub fn to_expert_request(req: &InspectRequest) -> ExpertRequest {
     to_expert_request_with_response(req, None)
 }
 
-/// 带可选响应体的转换（响应阶段）。
+/// Conversion with optional response body (response phase).
 pub fn to_expert_request_with_response(
     req: &InspectRequest,
     response_body: Option<&str>,
@@ -293,7 +293,7 @@ pub fn to_expert_request_with_response(
     }
 }
 
-/// 专家命中 → WAF [`InspectHit`]。
+/// Expert hit → WAF [`InspectHit`].
 pub fn expert_hit_to_inspect_hit(
     phase: InspectPhase,
     hit: &ExpertHit,
@@ -338,7 +338,7 @@ pub fn expert_hit_to_inspect_hit(
     }
 }
 
-/// `NERVE_EXPERT_CHALLENGE_AS`：challenge（默认）| log | block。
+/// `NERVE_EXPERT_CHALLENGE_AS`: challenge (default) | log | block.
 fn map_expert_challenge_action() -> WafAction {
     match std::env::var("NERVE_EXPERT_CHALLENGE_AS") {
         Ok(v) => match v.trim().to_ascii_lowercase().as_str() {
@@ -350,7 +350,7 @@ fn map_expert_challenge_action() -> WafAction {
     }
 }
 
-/// 跑自研专家引擎（请求阶段）。
+/// Run first-party expert engine (request phase).
 pub fn inspect_nerve_antibody(
     req: &InspectRequest,
     level: SemLevel,
@@ -387,7 +387,7 @@ pub fn inspect_nerve_antibody(
     out
 }
 
-/// 响应体检测。
+/// Response-body detection.
 pub fn inspect_nerve_antibody_response(
     req: &InspectRequest,
     response_body: &str,

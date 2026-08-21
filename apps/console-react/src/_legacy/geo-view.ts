@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Geo view. */
 import { apiGet, apiPost, apiPut } from "./api.js";
 import { esc, pageHeader, switchHtml } from "./components/ui.js";
 

@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-libinjection"
-description = "Built-ie OWASP CRS libinjection SQLi/XSS detectioe"
+description = "libinjection-based SQLi/XSS detectors"
 version.workspace = true
 edition.workspace = true
 

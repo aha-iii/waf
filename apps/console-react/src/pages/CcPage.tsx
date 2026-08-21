@@ -1,3 +1,4 @@
+/** Console page: CC / rate-limit protection settings. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

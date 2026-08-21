@@ -252,11 +252,11 @@ fn check_libinjection(
         if !module_enabled(modules, rule.category) {
             continue;
         }
-        // 与 plain libinjection 一致：尊重本应用 disabled_rules（如关闭 941100）
+        // Same as plain libinjection: honor this app's disabled_rules (e.g. disable 941100).
         if modules.is_rule_disabled(rule.category, rule.id) {
             continue;
         }
-        // 与 plain libinjection 一致：按 CRS 扫描目标过滤（避免关 941100 后被 941101 误扫 query）
+        // Same as plain libinjection: filter by CRS scan targets (avoid 941101 scanning query after 941100 disabled).
         if !rule_applies_to_slice(rule, slice) {
             continue;
         }
@@ -284,7 +284,7 @@ fn check_libinjection(
     None
 }
 
-/// 将语义 ParamKind 对齐到 libinjection ScanTarget，避免路径类规则扫到 query/body。
+/// Align semantic ParamKind to libinjection ScanTarget so path rules do not scan query/body.
 fn rule_applies_to_slice(rule: &LibInjectionRuleDef, slice: &ParamSlice) -> bool {
     use ParamKind::*;
     use ScanTarget::*;

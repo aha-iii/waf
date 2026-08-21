@@ -46,7 +46,7 @@ fn prepared_for_site(
     guard.put_prepared(generation, site_id, prepared)
 }
 
-/// 按 snapshot 执行检测（blocking 线程调用；CRS 规则按 generation 缓存）。
+/// Run inspect against snapshot (blocking thread; CRS rules cached by generation).
 pub fn inspect_for_site_blocking(
     waf: &EmbeddedWaf,
     cache: &SharedInspectCache,

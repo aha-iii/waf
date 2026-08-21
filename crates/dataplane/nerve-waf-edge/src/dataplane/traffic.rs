@@ -1,4 +1,4 @@
-//! Edge 按 site+host 三档流量计数，定期 flush 到控制面。
+//! Edge counts traffic by site+host in three buckets; periodically flush to control plane.
 
 use nerve_waf_embed::EmbedInspectResponse;
 use nerve_waf_sdk::TrafficBatchItem;

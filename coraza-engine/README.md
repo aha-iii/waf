@@ -1,33 +1,33 @@
 # nerve-waf-coraza
 
-**进程内嵌 [OWASP Coraza](https://coraza.io/) + CRS v4**（Go）。  
-用于对齐 ModSecurity/Coraza 全集语义；Rust `nerve-waf-l7` 仍负责自定义/JSON 子集与业务模块。
+**In-process [OWASP Coraza](https://coraza.io/) + CRS v4** (Go).  
+Aligns with full ModSecurity/Coraza semantics; Rust `nerve-waf-l7` still owns custom/JSON subsets and business modules.
 
-## 为何是 Go 进程
+## Why a Go process
 
-Coraza 官方实现是 Go，没有可用的生产级 Rust 移植。Nerve 的「嵌入」= **本二进制内嵌 Coraza 库 + CRS**，由 WAF API / Gateway 经 HTTP 调用（默认 `127.0.0.1:8791`）。
+The official Coraza implementation is Go; there is no production-grade Rust port. Nerve “embedding” means **this binary embeds Coraza + CRS**, and WAF API / Gateway call it over HTTP (default `127.0.0.1:8791`).
 
-## 启动
+## Start
 
 ```bash
 # WSL
 cd Nerve-waf/coraza-engine
 go run ./cmd/nerve-waf-coraza
-# 或
+# or
 ./scripts/start-coraza.sh
 ```
 
-环境变量：
+Environment:
 
-| 变量 | 默认 | 说明 |
-|------|------|------|
-| `NERVE_CORAZA_LISTEN` | `127.0.0.1:8791` | 监听地址 |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NERVE_CORAZA_LISTEN` | `127.0.0.1:8791` | Listen address |
 
 ## API
 
 - `GET /healthz`
-- `POST /api/inspect` — body 与 WAF inspect 字段对齐（method/host/uri/headers/body/src_ip/user_agent）
+- `POST /api/inspect` — body aligned with WAF inspect fields (method/host/uri/headers/body/src_ip/user_agent)
 
-## Rust 侧
+## Rust side
 
-设 `NERVE_WAF_CORAZA_URL=http://127.0.0.1:8791`（或 `NERVE_WAF_CRS_ENGINE=coraza`）后，InspectPipeline / edge 的 **crs 阶段**走 Coraza。
+Set `NERVE_WAF_CORAZA_URL=http://127.0.0.1:8791` (or `NERVE_WAF_CRS_ENGINE=coraza`) so InspectPipeline / edge **crs stage** uses Coraza.

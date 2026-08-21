@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Dashboard view. */
 import { apiGet } from "./api.js";
 import { actionTag, categoryLabel, esc, nerveThreatList, nerveThreatRow, pageHeader, statPill } from "./components/ui.js";
 import { PAGE_META, PLATFORM_CONSOLE_URL, PLATFORM_OBSERVER_TOPOLOGY_URL } from "./nav.js";

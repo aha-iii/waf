@@ -1,6 +1,8 @@
+# Nerve WAF Helm chart metadata (control-plane API: L7 inspect + WAF-L3 SyncPlan).
+# Independent of Nerve-control. Bump version/appVersion when publishing the chart.
 apiVersion: v2
 name: nerve-waf
-description: Nerve WAF API（L7 inspect + WAF-L3 SyncPlan）— 独立于 Control
+description: Nerve WAF API (L7 inspect + WAF-L3 SyncPlan) — independent of Control
 type: application
 version: 0.1.0
 appVersion: "0.1.0"

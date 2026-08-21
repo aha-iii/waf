@@ -1,4 +1,7 @@
-# 容器内默认配置（路径与 deploy/docker/Dockerfile 一致）
+# Nerve WAF — default in-container config (paths match deploy/docker/Dockerfile).
+# Placeholders / null database.url: override with DATABASE_URL or mount a real config.
+# 容器内默认配置（路径与 deploy/docker/Dockerfile 一致）。
+
 waf:
   api:
     port: 8781

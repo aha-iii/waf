@@ -89,7 +89,7 @@ fn open_api_sign_not_flagged_as_rce_or_ssrf() {
     let uri = "/open/api/ai/asr/speech/getInfo?tenant=cansino&appid=1665558862867&reqid=ad1715b0-815f-416c-893e-a3b25c6fe285&timestamp=1783299202393&platform=baidu&sign=7165D0A8A81529CDCA1FD9E811C5613EA387BF18352A2F5410B15CAF75524427";
     let hit = engine.inspect(&InspectRequest {
         uri: uri.into(),
-        headers: "x-forwarded-for: 192.168.1.1:29002\nhost: test-mars.rektec.cn".into(),
+        headers: "x-forwarded-for: 192.168.1.1:29002\nhost: app.example.com".into(),
         ..Default::default()
     });
     assert!(hit.is_none(), "expected no hit, got {:?}", hit);

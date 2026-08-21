@@ -1,4 +1,4 @@
-//! CRS 运行时配置与能力矩阵（Console / API 用）。
+//! CRS runtime config and capability matrix (Console / API).
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
@@ -6,7 +6,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 static WASM_LOADED: AtomicBool = AtomicBool::new(false);
 
-/// 由 engine 在 WASM 初始化成功后调用。
+/// Called by engine after successful WASM init.
 pub fn set_wasm_loaded(loaded: bool) {
     WASM_LOADED.store(loaded, Ordering::SeqCst);
 }
@@ -37,17 +37,17 @@ pub fn resolve_wasm_path() -> Option<PathBuf> {
     None
 }
 
-/// 用户可配置的 CRS 引擎偏好（写入 `data/crs_runtime.json`）。
+/// User-configurable CRS engine preference (written to `data/crs_runtime.json`).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum CrsEnginePreference {
-    /// wasm 可用时走 WASM，否则 libinjection 回退
+    /// Prefer WASM when available; else fall back to libinjection.
     Auto,
-    /// 单进程 WASM Coraza+CRS
+    /// Single-process WASM Coraza+CRS.
     Wasm,
-    /// 跳过 WASM，crs 阶段走 libinjection（或 Go Coraza 若配置）
+    /// Skip WASM; crs stage uses libinjection (or Go Coraza if configured).
     Off,
-    /// Go HTTP 伴生进程（实验）
+    /// Go HTTP sidecar process (experimental).
     Coraza,
 }
 
@@ -77,7 +77,7 @@ impl Default for CrsRuntimeConfig {
 pub struct CrsCapability {
     pub key: String,
     pub label: String,
-    /// 当前有效引擎下是否生效
+    /// Whether effective under the currently selected engine.
     pub applies: bool,
     pub note: String,
 }

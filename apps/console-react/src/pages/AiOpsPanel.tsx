@@ -1,3 +1,4 @@
+/** Console page: AI ops panel embedded in triage workflows. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

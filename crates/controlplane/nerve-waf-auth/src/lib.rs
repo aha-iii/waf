@@ -1,4 +1,4 @@
-//! RBAC / API Key / Keycloak OIDC / 本地 JWT 鉴权
+//! Authentication: API key, local users/JWT, and optional Keycloak OIDC.
 
 mod keycloak;
 mod local;
@@ -47,7 +47,7 @@ impl Default for AuthConfig {
     }
 }
 
-/// `NERVE_AUTH_ENABLED=0|false|off` 显式关闭；未设置或其它值视为开启。
+/// `NERVE_AUTH_ENABLED=0|false|off` disables explicitly; unset or other values = enabled.
 pub fn auth_enabled_from_env() -> bool {
     match std::env::var("NERVE_AUTH_ENABLED") {
         Ok(v) => {
@@ -236,7 +236,7 @@ impl AuthState {
         }
     }
 
-    /// RBAC 角色解析
+    /// RBAC role resolution.
     pub fn resolve_role(&self, method: AuthMethod, api_key: Option<&str>, bearer: Option<&str>) -> String {
         match method {
             AuthMethod::Jwt => bearer

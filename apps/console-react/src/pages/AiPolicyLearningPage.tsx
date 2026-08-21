@@ -1,3 +1,4 @@
+/** Console page: policy change rehearsal and false-positive samples. */
 import { Suspense, lazy, useMemo, useState } from "react";
 import { NervePageHeader, NerveTabBar } from "@nerve/ui";
 import { AiTrainingPage } from "./AiTrainingPage";

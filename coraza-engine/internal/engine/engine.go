@@ -54,7 +54,7 @@ func Global() (*Engine, error) {
 
 // New builds Coraza with embedded CRS from coraza-coreruleset.
 func New() (*Engine, error) {
-	// crs-setup 示例可能含 DetectionOnly；Include 之后强制 On，保证可拦截。
+	// crs-setup example may set DetectionOnly; force On after Include so blocking works.
 	directives := strings.TrimSpace(`
 SecRequestBodyAccess On
 SecResponseBodyAccess Off

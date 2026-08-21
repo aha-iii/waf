@@ -1,4 +1,4 @@
-//! 应用级防护模块与检测流水线的规范化持久化（PostgreSQL 专用表 + 文件目录）。
+//! Normalized persistence for per-app protection modules and detect pipeline (PG tables + file dirs).
 
 use nerve_waf_sdk::{ModuleConfig, ProtectionModules};
 use nerve_waf_semantic::{
@@ -269,7 +269,7 @@ pub mod pg {
         }))
     }
 
-    /// 读取系统级 Web 核心防护（`waf_protection` 表，非 waf_app_*）。
+    /// Read system Web core protection (`waf_protection` table, not waf_app_*).
     pub async fn load_default_protection(pool: &PgPool) -> Result<ProtectionModules, ConfigError> {
         if let Some(m) = crate::global_config::pg::load_global_protection(pool).await? {
             return Ok(m);
@@ -299,7 +299,7 @@ pub mod pg {
         Ok(ProtectionModules::default())
     }
 
-    /// 读取生效配置：应用已落库则返回应用级完整快照，否则继承系统默认。
+    /// Read effective config: full app snapshot if persisted, else inherit system defaults.
     pub async fn load_effective_protection(
         pool: &PgPool,
         site_id: &str,
@@ -347,7 +347,7 @@ pub mod pg {
         save_app_protection_inner(pool, site_id, modules, ctx).await
     }
 
-    /// 从系统 `waf_pipeline*` 复制完整流水线快照（provision 专用，避免 save_app_pipeline 复杂路径失败）。
+    /// Copy full pipeline snapshot from system `waf_pipeline*` (provision-only; avoid save_app_pipeline failure paths).
     pub async fn provision_app_pipeline_from_global(
         pool: &PgPool,
         site_id: &str,
@@ -427,7 +427,7 @@ pub mod pg {
         Ok(())
     }
 
-    /// 新应用（含内置 `default` 应用）首次落库：从系统默认复制防护模块、流水线、自定义规则完整快照。
+    /// First persist for new apps (incl. built-in `default`): copy full protection/pipeline/custom-rule snapshot from system defaults.
     pub async fn ensure_app_provisioned(
         pool: &PgPool,
         site_id: &str,
@@ -467,7 +467,7 @@ pub mod pg {
         }
 
         crate::custom_rules::pg::provision_app_custom_from_default(pool, site_id).await?;
-        // 仅在尚无绑定时写入缺省「标准」；禁止每次 provision 覆盖用户已选策略
+        // Write default 'Standard' only when unbound; never overwrite user-chosen strategy on every provision.
         let has_bound: bool = sqlx::query_scalar(
             "SELECT EXISTS(SELECT 1 FROM waf_app_bound_strategy WHERE site_id = $1)",
         )
@@ -569,7 +569,7 @@ pub mod pg {
         Ok(())
     }
 
-    /// 读取应用级流水线覆盖（不含系统默认回退）。
+    /// Read per-app pipeline override (no system-default fallback).
     pub async fn load_app_pipeline_override(
         pool: &PgPool,
         site_id: &str,
@@ -668,7 +668,7 @@ pub mod pg {
         Ok(Some(cfg))
     }
 
-    /// 生效流水线：应用 `waf_app_pipeline` 快照；未 provision 时继承系统 `waf_pipeline`。
+    /// Effective pipeline: app `waf_app_pipeline` snapshot; inherit system `waf_pipeline` if not provisioned.
     pub async fn load_effective_pipeline(
         pool: &PgPool,
         site_id: &str,
@@ -677,7 +677,7 @@ pub mod pg {
             .await?
             .unwrap_or_default();
         if let Some(mut ov) = load_app_pipeline_override(pool, site_id).await? {
-            // 已有应用快照则不再跟全局 expert_level 联动
+            // Once an app snapshot exists, do not follow global expert_level.
             if ov.expert_level.is_none() {
                 ov.expert_level = Some(ExpertLevel::Medium);
             }
@@ -686,7 +686,7 @@ pub mod pg {
         Ok(global)
     }
 
-    /// 兼容旧名：读取生效流水线配置。
+    /// Legacy name: read effective pipeline config.
     pub async fn load_app_pipeline(
         pool: &PgPool,
         site_id: &str,
@@ -835,7 +835,7 @@ pub mod pg {
         .await
         .map_err(|e| ConfigError::Db(e.to_string()))?;
 
-        // 兼容：waf_ai_settings 保留 JSON 快照（semantic + triage_llm 同事务写入，避免二次锁等待）
+        // Compat: waf_ai_settings keeps JSON snapshot (semantic + triage_llm same txn; avoid second lock wait).
         let semantic_json = serde_json::to_value(&cfg)?;
         if let Some(triage) = triage_llm {
             sqlx::query(
@@ -914,7 +914,7 @@ pub mod pg {
         Ok(())
     }
 
-    /// 将仍绑定到已删/已禁用策略的应用回退到「标准」
+    /// Fall apps still bound to deleted/disabled strategies back to 'Standard'.
     pub async fn rebind_sites_away_from_strategy(
         pool: &PgPool,
         strategy_id: &str,
@@ -970,7 +970,7 @@ pub fn save_bound_strategy_file(
     Ok(())
 }
 
-/// 文件模式：凡绑定到 strategy_id 的应用回退到标准
+/// File mode: every app bound to strategy_id falls back to Standard.
 pub fn rebind_sites_away_from_strategy_file(
     data_dir: &Path,
     strategy_id: &str,

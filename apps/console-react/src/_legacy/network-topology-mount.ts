@@ -1,6 +1,4 @@
-/**
- * vanilla TS → React PatternFly Topology 桥接
- */
+/** Bridge from vanilla TS to React PatternFly Topology mount. */
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import type { TopologyGraph } from "./network-topology.js";

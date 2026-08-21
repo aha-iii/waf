@@ -1,20 +1,22 @@
-# L7 检测插件（HTTP 层）
+# L7 detection plugins (HTTP)
 
-L7 插件由 **plugin-host** 加载，检测链顺序：
+Loaded by plugin-host: JSON rule packs first, then Lua `inspect(req)`. Sample packs: `owasp-sqli` / `owasp-xss` / `owasp-misc` / `custom-header-check`.
 
-1. JSON 规则包（`nerve-waf-l7` 正则引擎）
-2. Lua 脚本（`inspect(req)` 函数）
+Detection chain order:
 
-## 子目录
+1. JSON rule packs (`nerve-waf-l7` regex engine)
+2. Lua scripts (`inspect(req)`)
 
-| 目录 | type | 说明 |
-|------|------|------|
-| `owasp-sqli/` | json | SQL 注入规则 |
-| `owasp-xss/` | json | XSS 规则 |
-| `owasp-misc/` | json | 路径穿越/RCE/SSRF/Webshell |
-| `custom-header-check/` | lua | 自定义 Header/URI 检查 |
+## Subdirectories
 
-## plugin.json 字段
+| Directory | type | Purpose |
+|-----------|------|---------|
+| `owasp-sqli/` | json | SQL injection rules |
+| `owasp-xss/` | json | XSS rules |
+| `owasp-misc/` | json | Path traversal / RCE / SSRF / Webshell |
+| `custom-header-check/` | lua | Custom Header / URI checks |
+
+## `plugin.json` fields
 
 ```json
 {
@@ -29,34 +31,34 @@ L7 插件由 **plugin-host** 加载，检测链顺序：
 }
 ```
 
-Lua 插件将 `"type": "lua"` 并设置 `"script": "plugin.lua"`。
+Lua plugins set `"type": "lua"` and `"script": "plugin.lua"`.
 
-## 规则 JSON 格式
+## Rule JSON format
 
 ```json
 {
   "id": "sql-001",
-  "name": "SQL注入-UNION",
+  "name": "SQLi-UNION",
   "pattern": "(?i)union\\s+select",
   "category": "sqli",
   "severity": "high"
 }
 ```
 
-`category` 须与 `data/modules.json` 中模块名一致（控制开关与 action）。
+`category` must match a module name in `data/modules.json` (controls enablement and action).
 
-## 热更新
+## Hot reload
 
 ```bash
-# 改 rules/*.json 或 plugin.lua 后
+# After editing rules/*.json or plugin.lua
 curl -X POST http://127.0.0.1:8780/api/plugins/reload
 
-# 验证
+# Verify
 curl -X POST http://127.0.0.1:8780/api/inspect \
   -H "Content-Type: application/json" \
   -d '{"uri":"/search?q=1+or+1%3D1","persist":true}'
 ```
 
-## modules.json
+## `modules.json`
 
-全局检测模式与各模块 action 见 `data/modules.json`（`mode`: `block` | `detect`）。
+Global detection mode and per-module actions live in `data/modules.json` (`mode`: `block` | `detect`).

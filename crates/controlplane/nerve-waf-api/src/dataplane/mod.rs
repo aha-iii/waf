@@ -1,4 +1,4 @@
-//! Edge dataplane generation（控制面 compile snapshot）。
+//! Edge dataplane generation (control-plane compile snapshot).
 
 mod build;
 pub mod bypass;

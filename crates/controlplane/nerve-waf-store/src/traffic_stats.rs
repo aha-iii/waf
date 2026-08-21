@@ -1,4 +1,4 @@
-//! Edge 流量 hourly rollup（site + host + 三档计数）。
+//! Edge traffic hourly rollup (site + host + three counters).
 
 use chrono::{DateTime, TimeZone, Timelike, Utc};
 use nerve_waf_sdk::{

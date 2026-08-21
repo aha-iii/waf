@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Ai semantic view. */
 import { apiGet, apiPost, apiPut } from "./api.js";
 import { pageHeader, runMutatingAction } from "./components/ui.js";
 import { GLOBAL_DEFAULT_SITE_ID } from "./sites.js";

@@ -1,6 +1,6 @@
-// nerve-waf-coraza — 进程内嵌 Coraza + OWASP CRS v4，对外 HTTP inspect。
+// nerve-waf-coraza — in-process Coraza + OWASP CRS v4 with HTTP inspect.
 //
-// Coraza 官方为 Go；Rust WAF/Gateway 通过本进程对齐 ModSecurity/CRS 全集语义。
+// Official Coraza is Go; Rust WAF/Gateway call this process to align full ModSecurity/CRS semantics.
 package main
 
 import (

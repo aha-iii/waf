@@ -1,3 +1,4 @@
+/** Console page: named protection strategies and module snapshots. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

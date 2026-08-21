@@ -1,4 +1,4 @@
-//! Bot 检测与评分
+//! Bot detection and scoring.
 
 use serde::{Deserialize, Serialize};
 

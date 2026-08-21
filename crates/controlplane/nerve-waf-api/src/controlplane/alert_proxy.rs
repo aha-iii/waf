@@ -1,7 +1,7 @@
-//! 将 Console `/api/alerts/*` 反向代理到 Nerve-alert。
+//! Reverse-proxy Console `/api/alerts/*` to Nerve-alert.
 //!
-//! 开发态由 Vite 代理到 `:8790`；生产态由 waf-api 同端口托管时，
-//! 若无此代理，请求会落入 SPA fallback（PUT → 405，GET → index.html）。
+//! Dev: Vite proxies to `:8790`; prod: when waf-api hosts the same port,
+//! without this proxy requests fall through SPA fallback (PUT → 405, GET → index.html).
 
 use axum::{
     body::Body,
@@ -42,7 +42,7 @@ fn alert_base_url() -> String {
         .to_string()
 }
 
-/// 将传入的 Console 路径拼到 Nerve-alert 基址；保留 query。
+/// Join the incoming Console path onto the Nerve-alert base URL; keep query.
 pub fn build_upstream_uri(base: &str, path_and_query: &str) -> Result<Uri, String> {
     let base = base.trim_end_matches('/');
     let pq = if path_and_query.is_empty() {

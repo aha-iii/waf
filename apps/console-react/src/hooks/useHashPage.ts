@@ -1,3 +1,4 @@
+/** React hook: Use Hash Page. */
 import { useCallback, useEffect, useState } from "react";
 import type { PageId } from "../nav";
 import { LEGACY_PAGE_ALIASES, NAV, PAGE_META } from "../nav";

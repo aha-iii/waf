@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-tamper"
+description = "Response-body integrity / anti-tamper baselines"
 version.workspace = true
 edition.workspace = true
 

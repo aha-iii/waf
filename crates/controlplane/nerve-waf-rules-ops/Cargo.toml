@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-rules-ops"
+description = "Load/merge CRS and custom rule packs with rollout helpers"
 version.workspace = true
 edition.workspace = true
 

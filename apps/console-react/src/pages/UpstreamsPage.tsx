@@ -1,3 +1,4 @@
+/** Console page: upstream pools, origins, and health checks. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

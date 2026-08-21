@@ -1,24 +1,24 @@
 use serde::{Deserialize, Serialize};
 
-/// 检测阶段 — 对齐 ModSecurity/Coraza phase 概念，便于扩展 response 链
+/// Detect phase — aligned with ModSecurity/Coraza phase concepts for response-chain extension.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InspectPhase {
-    /// CC / Geo / Bot / Intel 等前置策略
+    /// Pre-access policies: CC / Geo / Bot / Intel, etc.
     PreAccess,
-    /// 请求头
+    /// Request headers.
     RequestHeaders,
-    /// 请求体 / URI / Args
+    /// Request body / URI / Args.
     RequestBody,
-    /// 文件上传
+    /// File upload.
     RequestUpload,
-    /// 响应头（预留）
+    /// Response headers (reserved).
     ResponseHeaders,
-    /// 响应体（预留）
+    /// Response body (reserved).
     ResponseBody,
-    /// Lua / 自定义脚本
+    /// Lua / custom scripts.
     Script,
-    /// 审计日志
+    /// Audit log.
     Logging,
 }
 

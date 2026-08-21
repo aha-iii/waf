@@ -1,4 +1,4 @@
-//! 控制面进程基础设施：AppState、平台服务、日志、中间件、启动。
+//! Control-plane process infra: AppState, platform services, logging, middleware, bootstrap.
 
 pub mod app_state;
 pub mod bootstrap;

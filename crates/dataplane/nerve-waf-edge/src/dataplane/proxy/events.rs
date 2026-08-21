@@ -2,11 +2,11 @@ use axum::http::HeaderMap;
 use chrono::Utc;
 use nerve_waf_embed::EmbedInspectResponse;
 
-/// 与 API 侧 MAX_HEADERS_LEN / MAX_BODY_LEN 对齐
+/// Aligned with API MAX_HEADERS_LEN / MAX_BODY_LEN.
 const EDGE_MAX_HEADERS_LEN: usize = 4096;
 const EDGE_MAX_BODY_LEN: usize = 8192;
 
-/// 将 HeaderMap 转为换行分隔的 `Name: Value` 字符串（与前端 formatHeaders 期望一致）。
+/// Convert HeaderMap to newline-separated `Name: Value` (matches frontend formatHeaders).
 fn headermap_to_string(h: &HeaderMap) -> String {
     let mut lines = Vec::new();
     for (k, v) in h.iter() {

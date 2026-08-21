@@ -1,3 +1,5 @@
+//! L7 edge binary: sync snapshot + reverse proxy + inspect.
+
 use axum::{routing::any, Router};
 use clap::Parser;
 use nerve_waf_embed::EmbeddedWaf;

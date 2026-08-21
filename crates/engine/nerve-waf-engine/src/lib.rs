@@ -1,3 +1,5 @@
+//! Compile WAF-L3 / plugin configs into SyncPlan for Agent eBPF.
+
 use nerve_waf_client::NerveClient;
 use nerve_waf_plugins::get_plugin;
 use nerve_waf_sdk::{

@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Ai llm view. */
 import { apiGet, apiPut } from "./api.js";
 import { esc, pageHeader } from "./components/ui.js";
 

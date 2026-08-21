@@ -1,8 +1,8 @@
-//! Base64 展开快速门闩：无 b64 特征时跳过 regex 扫描。
+//! Fast gate for Base64 expansion: skip regex scan when no b64 features.
 
 use crate::plausibility::is_plausible_b64_candidate;
 
-/// 文本是否可能含需展开的 base64 载荷。
+/// Whether text may contain base64 payloads that need expansion.
 pub fn text_may_contain_b64_payload(text: &str) -> bool {
     if text.len() < 8 {
         return false;

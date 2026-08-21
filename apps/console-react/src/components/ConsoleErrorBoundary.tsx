@@ -1,3 +1,4 @@
+/** Shared console UI component: Console Error Boundary. */
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { NerveAlert, NerveButton } from "@nerve/ui";
 

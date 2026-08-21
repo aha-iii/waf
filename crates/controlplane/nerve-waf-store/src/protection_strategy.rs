@@ -1,5 +1,5 @@
-//! 防护策略：策略 → 四段模块快照（专家 / 核心 / 语义 / 自定义）
-//! 新建策略：从当前全局运行时深拷贝。
+//! Protection strategy: strategy → four-section module snapshot (expert / core / semantic / custom).
+//! Create strategy: deep-copy from current global runtime.
 
 use nerve_waf_sdk::ProtectionModules;
 use nerve_waf_semantic::{ExpertLevel, SemanticConfig, SemanticMode};
@@ -15,7 +15,7 @@ pub struct ProtectionStrategyTemplate {
     pub name: String,
     #[serde(default)]
     pub description: String,
-    /// 兼容列表展示；与 expert.level / semantic.mode 同步
+    /// Compat list display; sync with expert.level / semantic.mode.
     #[serde(default = "default_mode_std")]
     pub semantic_mode: String,
     #[serde(default = "default_level_med")]
@@ -24,23 +24,23 @@ pub struct ProtectionStrategyTemplate {
     pub builtin: bool,
     #[serde(default)]
     pub sort_order: i32,
-    /// `None` = 存全局表 `waf_protection_strategies`；
-    /// `Some(site)` = 存应用私有表 `waf_app_protection_strategies`（仅该应用可见）
+    /// `None` = store in global table `waf_protection_strategies`;
+    /// `Some(site)` = store in app-private `waf_app_protection_strategies` (visible only to that app).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub site_id: Option<String>,
-    /// 仅应用私有策略可禁用；全局/内置恒为 true
+    /// Only app-private strategies can be disabled; global/built-in stay true.
     #[serde(default = "default_enabled_true")]
     pub enabled: bool,
     /// `{ "level": "low|medium|high" }`
     #[serde(default = "default_expert_json")]
     pub expert: Value,
-    /// 语义快照：至少含 mode；可为完整 SemanticConfig
+    /// Semantic snapshot: at least mode; may be full SemanticConfig.
     #[serde(default = "default_semantic_json")]
     pub semantic: Value,
-    /// 核心防护完整快照
+    /// Full core-protection snapshot.
     #[serde(default)]
     pub core: ProtectionModules,
-    /// 自定义检测快照（首期可为 `{}`）
+    /// Custom-detect snapshot (may be `{}` initially).
     #[serde(default = "default_custom_json")]
     pub custom: Value,
 }
@@ -81,7 +81,7 @@ impl ProtectionStrategyTemplate {
                 .unwrap_or(false)
     }
 
-    /// 可选绑：须对本应用可见且未禁用
+    /// Optional bind: must be visible to this app and not disabled.
     pub fn selectable_for_site(&self, site_id: &str) -> bool {
         self.enabled && self.visible_to_site(site_id)
     }
@@ -427,7 +427,7 @@ pub fn list_file(
     for_site: Option<&str>,
 ) -> Result<Vec<ProtectionStrategyTemplate>, ConfigError> {
     let mut global = ensure_seeds_file(data_dir, modules, pipeline)?;
-    // 全局文件只保留全局策略（防止历史混入 site_id）
+    // Global file keeps only global strategies (prevent historical site_id mix-in).
     global.retain(|t| t.is_global());
     match for_site.map(|s| s.trim()).filter(|s| !s.is_empty()) {
         None => Ok(global),
@@ -477,7 +477,7 @@ pub fn upsert_file(
         return Err(ConfigError::Db("策略名称不能为空".into()));
     }
     if let Some(site) = t.site_id.clone().filter(|s| !s.is_empty()) {
-        // 应用私有：独立文件，不写全局库
+        // App-private: separate file; do not write global library.
         t.builtin = false;
         t.site_id = Some(site.clone());
         let mut file = read_app_file(data_dir, &site)?;
@@ -493,13 +493,13 @@ pub fn upsert_file(
         return Ok(t);
     }
 
-    // 全局策略库
+    // Global strategy library.
     t.site_id = None;
     let mut file = read_file(data_dir)?;
     if file.templates.is_empty() {
         file.templates = builtin_from_runtime(modules, pipeline);
     }
-    // 清理误写入全局文件的私有策略
+    // Clean private strategies mistakenly written into the global file.
     file.templates.retain(|x| x.is_global());
     if file
         .templates
@@ -568,7 +568,7 @@ pub mod pg {
     use sqlx::{PgPool, Row};
     use tokio::sync::OnceCell;
 
-    /// 仅种子数据进程内跑一次。表结构假定启动迁移已建好，业务路径禁止 DDL。
+    /// Seed data runs once in-process. Schema assumed created by startup migrations; no DDL on business paths.
     static SEEDS_READY: OnceCell<()> = OnceCell::const_new();
 
     fn row_to_global(row: &sqlx::postgres::PgRow) -> Result<ProtectionStrategyTemplate, ConfigError> {
@@ -614,12 +614,12 @@ pub mod pg {
         Ok(t)
     }
 
-    /// 进程内种子是否已初始化（就绪后 list/get/upsert 不再拉全局 modules/pipeline）
+    /// Whether in-process seed is ready (after ready, list/get/upsert no longer load global modules/pipeline).
     pub fn is_ready() -> bool {
         SEEDS_READY.get().is_some()
     }
 
-    /// 列表已读到数据时标记就绪，避免再走 OnceCell 种子路径（防止初始化卡住拖死所有请求）
+    /// Mark ready when list already read data; avoid OnceCell seed path (prevent init hang stalling all requests).
     pub fn mark_ready() {
         let _ = SEEDS_READY.set(());
     }
@@ -632,8 +632,8 @@ pub mod pg {
         if SEEDS_READY.get().is_some() {
             return Ok(());
         }
-        // 不用 get_or_try_init：初始化 future 若挂起，所有等待方会永久卡住。
-        // 并发重复执行可接受（插入/更新均幂等），并加超时避免拖死 API。
+        // Do not use get_or_try_init: if init future hangs, all waiters stay stuck forever.
+        // Concurrent duplicate runs are OK (insert/update idempotent); add timeout so API is not stalled.
         match tokio::time::timeout(
             std::time::Duration::from_secs(8),
             run_ensure_seeds(pool, modules, pipeline),
@@ -780,7 +780,7 @@ pub mod pg {
         list_ready(pool, for_site).await
     }
 
-    /// 假定种子已就绪：只做 SELECT（给热路径用，避免每次加载全局 modules）
+    /// Assume seed ready: SELECT only (hot path; avoid loading global modules every time).
     pub async fn list_ready(
         pool: &PgPool,
         for_site: Option<&str>,

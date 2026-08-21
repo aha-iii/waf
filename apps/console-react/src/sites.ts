@@ -1,3 +1,4 @@
+/** Site / app selection helpers for multi-tenant console context. */
 import { apiGet } from "./api.js";
 import type { IngressOrigin } from "./features/ingress/ingress-types";
 
@@ -7,7 +8,7 @@ export type ProtectedSite = {
   hosts: string[];
   upstream?: string;
   enabled: boolean;
-  /** 历史字段，检测链路不依赖；保存时保留即可 */
+  /** Legacy field; detection path does not depend on it; keep on save */
   integration?: string;
   description?: string;
   ingress_mode?: string;
@@ -23,7 +24,7 @@ export type ProtectedSite = {
   gateway_upstream_id?: string;
 };
 
-/** 全局默认防护模板；侧边栏 WAF 配置均读写此 site_id，各应用未单独配置时继承 */
+/** Global default protection template; sidebar WAF settings read/write this site_id; apps inherit when not overridden */
 export const GLOBAL_DEFAULT_SITE_ID = "default";
 
 const SITE_KEY = "waf-selected-site";
@@ -40,7 +41,7 @@ export function consumeEventsSiteFilter(): string | null {
   return v;
 }
 
-/** 跳转攻击日志并预选应用筛选 */
+/** Navigate to attack logs with app filter preselected */
 export function navigateToAppEvents(siteId: string): void {
   setEventsSiteFilter(siteId);
   const onEvents = location.hash.replace(/^#\/?/, "").split("?")[0] === "events";
@@ -63,7 +64,7 @@ export function siteQuery(siteId: string): string {
   return `?site_id=${encodeURIComponent(siteId)}`;
 }
 
-/** 攻击日志等场景：site_id → 展示名 */
+/** Attack-log and similar: site_id → display name */
 export function siteDisplayName(sites: ProtectedSite[], siteId: string | undefined): string {
   const id = (siteId ?? "default").trim() || "default";
   const list = Array.isArray(sites) ? sites : [];

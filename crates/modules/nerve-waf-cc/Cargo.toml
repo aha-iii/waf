@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-cc"
-description = "CC / rate limitieg for Nerve WAF"
+description = "CC / rate limiting for Nerve WAF"
 version.workspace = true
 edition.workspace = true
 

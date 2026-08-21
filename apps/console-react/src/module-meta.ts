@@ -1,4 +1,4 @@
-/** Web 核心防护模块展示元数据（顺序固定，不受 API HashMap 键序影响） */
+/** Display metadata for Web core protection modules (stable order for UI). */
 export const MODULE_META: Record<string, { title: string; desc: string }> = {
   sqli: { title: "SQL 注入防护", desc: "检测 UNION SELECT、OR 1=1 等 SQLi 特征" },
   xss: { title: "XSS 防护", desc: "检测 script 标签、事件处理器等跨站脚本" },
@@ -15,7 +15,7 @@ export const MODULE_META: Record<string, { title: string; desc: string }> = {
   crs: { title: "专家规则", desc: "专家引擎规则包，多层融合检测" },
 };
 
-/** Web 攻击类检测（请求签名 / CRS 规则，可配灵敏度与单规则） */
+/** Web-attack detection (request signatures / CRS rules; sensitivity and per-rule config) */
 export const WEB_ATTACK_MODULE_KEYS = [
   "sqli",
   "xss",
@@ -26,13 +26,13 @@ export const WEB_ATTACK_MODULE_KEYS = [
   "webshell",
 ] as const;
 
-/** 基础防护：限流 / Bot（参数在独立页面配置） */
+/** Basic protection: rate limit / Bot (params on dedicated pages) */
 export const PRE_ACCESS_MODULE_KEYS = ["cc", "bot"] as const;
 
-/** 响应阶段检测 */
+/** Response-phase detection */
 export const RESPONSE_MODULE_KEYS = ["info_leak"] as const;
 
-/** 侧边栏「防护模块」网格：含攻击检测 + 基础防护 + 响应（UI 分区展示） */
+/** Sidebar protection-module grid: attack detection + basic protection + response (UI sections) */
 export const WEB_CORE_MODULE_KEYS = [
   ...WEB_ATTACK_MODULE_KEYS,
   ...PRE_ACCESS_MODULE_KEYS,
@@ -47,7 +47,7 @@ export function moduleConfigKind(key: string): ModuleConfigKind {
   return "attack";
 }
 
-/** 基础防护模块详细参数所在 Console 页 */
+/** Console page that holds detailed basic-protection module params */
 export const PRE_ACCESS_MODULE_PAGES: Partial<Record<string, string>> = {
   cc: "cc",
   bot: "bot",
@@ -57,7 +57,7 @@ export const RESPONSE_MODULE_PAGES: Partial<Record<string, string>> = {
   info_leak: "info-leak",
 };
 
-/** 应用「防护模块」子 Tab：自定义规则（含签名与插件，按规则集配置） */
+/** App protection-module sub-tab: custom rules (signatures and plugins, configured per rule set) */
 export const EXTENSION_MODULE_KEYS = ["custom"] as const;
 
 export type ExtensionModuleKey = (typeof EXTENSION_MODULE_KEYS)[number];
@@ -70,7 +70,7 @@ export const MODULE_ORDER = Object.keys(MODULE_META);
 
 const DEFAULT_MODULE_CFG = { enabled: false, action: "block", sensitivity: "medium" };
 
-/** 按固定顺序合并模块配置，缺失项用默认值 */
+/** Merge module config in fixed order; fill missing entries with defaults */
 export function orderedModuleEntries(
   modules: Record<string, { enabled: boolean; action: string; sensitivity: string; disabled_rules?: string[] }>,
 ): [string, typeof DEFAULT_MODULE_CFG & { disabled_rules?: string[] }][] {
@@ -90,7 +90,7 @@ export function orderedModuleEntries(
   });
 }
 
-/** 仅 Web 核心检测模块（不含 custom / plugin / crs） */
+/** Web core detection modules only (excludes custom / plugin / crs) */
 export function orderedWebCoreModuleEntries(
   modules: Record<string, { enabled: boolean; action: string; sensitivity: string; disabled_rules?: string[] }>,
 ): [string, typeof DEFAULT_MODULE_CFG & { disabled_rules?: string[] }][] {
@@ -178,7 +178,7 @@ function normalizeModuleCfg(
   };
 }
 
-/** 读取模块配置：优先精确 key，扩展项回退到聚合 custom / plugin */
+/** Read module config: prefer exact key; extensions fall back to aggregated custom / plugin */
 export function moduleCfgFromRecord(modules: ModuleCfgRecord, key: string): ModuleCfg {
   if (modules[key]) return normalizeModuleCfg(modules[key]);
   if (key.startsWith(CUSTOM_MODULE_KEY_PREFIX) && modules.custom) {
@@ -205,9 +205,9 @@ export type PluginDescriptorInfo = {
   enabled: boolean;
 };
 
-/** 每个自定义规则集一张卡片。
- * `onlyMounted`：只展示 modules 里已有 `custom:{id}` 的规则集（策略快照挂载），
- * 避免把签名规则库里的全部集合误显示成「本应用已启用」。
+/** One card per custom rule set.
+ * `onlyMounted`: only sets already present as `custom:{id}` in modules (strategy snapshot mounts),
+ * so the full signature rule library is not shown as "enabled for this app".
  */
 export function buildCustomModuleEntries(
   modules: ModuleCfgRecord,
@@ -247,7 +247,7 @@ export function buildCustomModuleEntries(
   });
 }
 
-/** 每个 L7 自定义插件（遗留 key plugin:name，新规则请用自定义规则页） */
+/** Each L7 custom plugin (legacy key plugin:name; new rules use the custom rules page) */
 export function buildPluginModuleEntries(
   modules: ModuleCfgRecord,
   plugins: PluginDescriptorInfo[],

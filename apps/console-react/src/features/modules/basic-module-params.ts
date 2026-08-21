@@ -1,3 +1,4 @@
+/** modules feature: Basic module params. */
 import { apiGet } from "../../api";
 import type { ModuleCfg } from "../../module-meta";
 
@@ -60,7 +61,7 @@ export function mergeCcParams(
   };
 }
 
-/** 策略 / 应用快照展示：仅读本地已存字段，不拉取实时全局 */
+/** Strategy / app snapshot display: read locally stored fields only; do not fetch live global */
 export function resolveCcParams(cfg: ParamCarrier): CcModuleParams {
   const local = pickCcParams(cfg);
   return {
@@ -80,7 +81,7 @@ export function mergeBotParams(
   };
 }
 
-/** 策略 / 应用快照展示：仅读本地已存字段，不拉取实时全局 */
+/** Strategy / app snapshot display: read locally stored fields only; do not fetch live global */
 export function resolveBotParams(cfg: ParamCarrier): BotModuleParams {
   const local = pickBotParams(cfg);
   return {
@@ -88,7 +89,7 @@ export function resolveBotParams(cfg: ParamCarrier): BotModuleParams {
   };
 }
 
-/** 创建策略 / 套用快照时：把当前全局 CC/Bot 参数写入 modules，形成独立副本 */
+/** When creating a strategy or applying a snapshot: copy current global CC/Bot params into modules as an independent copy */
 export function materializeBasicModuleParams(
   modules: Record<string, ModuleCfg>,
   cc: CcModuleParams,

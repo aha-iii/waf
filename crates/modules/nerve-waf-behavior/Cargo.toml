@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-behavior"
-description = "Behavioral aeomaly scorieg for Nerve WAF"
+description = "Behavioral anomaly scoring for Nerve WAF"
 version.workspace = true
 edition.workspace = true
 

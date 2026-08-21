@@ -1,3 +1,4 @@
+/** Console page: bot management thresholds and actions. */
 import { useState } from "react";
 import {
   NerveButton,

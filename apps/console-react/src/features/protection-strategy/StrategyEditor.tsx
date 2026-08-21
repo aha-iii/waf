@@ -1,3 +1,4 @@
+/** protection-strategy feature: Strategy Editor. */
 import { useState } from "react";
 import { NerveButton, NerveTag } from "@nerve/ui";
 import {

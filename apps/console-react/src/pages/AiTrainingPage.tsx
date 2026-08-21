@@ -1,3 +1,4 @@
+/** Console page: AI training / sample management. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

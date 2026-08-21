@@ -1,4 +1,4 @@
-//! 应用级 CRS 版本绑定与历史快照。
+//! Per-app CRS version binding and history snapshots.
 
 use nerve_waf_sdk::{ModuleConfig, ProtectionModules};
 use serde::{Deserialize, Serialize};
@@ -7,7 +7,7 @@ use std::path::Path;
 
 use crate::config::ConfigError;
 
-/// CRS 相关 Web 核心防护模块 key。
+/// CRS-related Web core protection module keys.
 pub const CRS_MODULE_KEYS: &[&str] = &[
     "sqli",
     "xss",

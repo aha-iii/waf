@@ -186,7 +186,7 @@ impl FileConfigStore {
             let base = self.load_global_pipeline()?;
             crate::app_config::save_app_pipeline_file(&self.data_dir, site_id, &base)?;
         }
-        // 缺省绑定「标准」
+        // Default bind to 'Standard'.
         if !crate::app_config::app_bound_strategy_file(&self.data_dir, site_id).exists() {
             crate::app_config::save_bound_strategy_file(
                 &self.data_dir,

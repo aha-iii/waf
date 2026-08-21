@@ -1,3 +1,4 @@
+/** protection-strategy feature: Create Strategy Modal. */
 import { useEffect, useState } from "react";
 import {
   NerveButton,

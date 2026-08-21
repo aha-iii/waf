@@ -1,4 +1,4 @@
-//! NetworkPolicy → SyncPlan + L4 eBPF policy (Nerve 自研，7 模块)
+//! Compile NetworkPolicy-like configs into SyncPlan / L4 hints.
 
 mod cnp;
 mod fqdn;
@@ -67,7 +67,7 @@ pub struct NpPort {
     pub protocol: String,
 }
 
-/// 从简化 NP 规则编译 baseline_allow + deny 动作
+/// Compile simplified NP rules into baseline_allow + deny actions.
 pub fn compile_np_rules(rules: &[NpRule]) -> SyncPlan {
     let mut actions = Vec::new();
     for r in rules {
@@ -94,12 +94,12 @@ pub fn compile_np_rules(rules: &[NpRule]) -> SyncPlan {
     }
 }
 
-/// 从 K8s NetworkPolicy JSON 编译（legacy SyncPlan）
+/// Compile from K8s NetworkPolicy JSON (legacy SyncPlan).
 pub fn compile_k8s_np(spec: &K8sNetworkPolicySpec) -> SyncPlan {
     compile_k8s_np_rules_legacy(spec)
 }
 
-/// 带 Pod 快照的完整 NP 编译：SyncPlan + L4 policy
+/// Full NP compile with Pod snapshot: SyncPlan + L4 policy.
 pub fn compile_k8s_np_full(
     spec: &K8sNetworkPolicySpec,
     pods: &[PodSnapshot],
@@ -179,7 +179,7 @@ fn compile_k8s_np_rules_legacy(spec: &K8sNetworkPolicySpec) -> SyncPlan {
     compile_np_rules(&rules)
 }
 
-/// 集群级：合并所有 NP 为单一 L4 policy
+/// Cluster-wide: merge all NPs into a single L4 policy.
 pub fn compile_all_k8s_np(
     specs: &[K8sNetworkPolicySpec],
     pods: &[PodSnapshot],
@@ -198,7 +198,7 @@ pub fn compile_all_k8s_np(
     (merged_plan, merged_l4, id_map)
 }
 
-/// 东西向 L7 路径策略 → 日志动作（Phase 4 D8）
+/// East-west L7 path policy → log action (Phase 4 D8).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EastWestL7Policy {
     pub src_namespace: String,
@@ -236,7 +236,7 @@ pub fn compile_east_west_l7(policies: &[EastWestL7Policy]) -> SyncPlan {
     }
 }
 
-/// 合并多个 SyncPlan
+/// Merge multiple SyncPlans.
 pub fn merge_plans(plans: &[SyncPlan]) -> SyncPlan {
     let mut actions = Vec::new();
     let mut seen_deny = HashSet::new();

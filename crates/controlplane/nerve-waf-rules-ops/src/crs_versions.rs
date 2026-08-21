@@ -1,4 +1,4 @@
-//! CRS 规则集版本管理：快照、回滚、保留最近 N 个版本。
+//! CRS ruleset versioning: snapshot, rollback, keep last N versions.
 
 use serde::{Deserialize, Serialize};
 use std::fs;

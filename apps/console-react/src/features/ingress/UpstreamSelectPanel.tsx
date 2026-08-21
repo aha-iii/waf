@@ -1,3 +1,4 @@
+/** ingress feature: Upstream Select Panel. */
 import { NerveFormItem, NerveSelect } from "@nerve/ui";
 import type { WafUpstream } from "../upstreams/upstream-types";
 import { upstreamOriginKind, upstreamOriginKindLabel } from "../upstreams/upstream-types";

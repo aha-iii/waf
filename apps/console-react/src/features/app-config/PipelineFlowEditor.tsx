@@ -1,3 +1,4 @@
+/** app-config feature: Pipeline Flow Editor. */
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import {
   bindPipelineFlowEditor,
@@ -40,7 +41,7 @@ export const PipelineFlowEditor = forwardRef<PipelineFlowEditorHandle, Props>(
         () => onChangeRef.current?.(),
       );
       return () => destroyPipelineFlowEditor(el);
-      // 仅挂载/卸载时绑定；编排态变更由 LogicFlow 内部维护，保存或切模式时再 readState
+      // Bind only on mount/unmount; orchestration state is maintained inside LogicFlow; readState on save or mode switch
     }, []);
 
     return (

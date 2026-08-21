@@ -1,6 +1,6 @@
-//! Web 核心防护「灵敏度 低/中/高」与 CRS 规则 paranoia / 严重度对齐。
+//! Web core protection sensitivity (low/medium/high) aligned with CRS paranoia / severity.
 
-/// 灵敏度 → 最大 paranoia level（累积：越高包含越多 PL 层）
+/// Sensitivity → max paranoia level (cumulative: higher includes more PL layers).
 pub fn sensitivity_paranoia_max(sensitivity: &str) -> u8 {
     match sensitivity {
         "low" => 1,
@@ -17,7 +17,7 @@ pub fn severity_rank(severity: &str) -> u8 {
     }
 }
 
-/// 灵敏度 → 最低纳入的严重度 rank（累积：越高纳入越多低危规则）
+/// Sensitivity → minimum severity rank included (cumulative: higher includes more low-severity rules).
 fn min_severity_rank_for_sensitivity(sensitivity: &str) -> u8 {
     match sensitivity {
         "low" => 3,
@@ -26,7 +26,7 @@ fn min_severity_rank_for_sensitivity(sensitivity: &str) -> u8 {
     }
 }
 
-/// 规则是否在该模块灵敏度下参与检测（与 Console CRS 页拦截等级逻辑一致）
+/// Whether a rule participates under this module sensitivity (matches Console CRS block-level logic).
 pub fn rule_matches_sensitivity(paranoia_level: u8, severity: &str, sensitivity: &str) -> bool {
     paranoia_level <= sensitivity_paranoia_max(sensitivity)
         && severity_rank(severity) >= min_severity_rank_for_sensitivity(sensitivity)

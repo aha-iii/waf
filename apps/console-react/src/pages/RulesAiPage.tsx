@@ -1,3 +1,4 @@
+/** Console page: AI-oriented protection rules (prompt injection, etc.). */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

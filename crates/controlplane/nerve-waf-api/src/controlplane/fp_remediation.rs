@@ -1,4 +1,4 @@
-//! 误报治理 — 上报误报（反馈/审计）；可选显式 actions 做加白 / 关规则。
+//! FP remediation — report FP (feedback/audit); optional explicit actions for allowlist / disable rule.
 
 use axum::{
     extract::{Path, Query, State},
@@ -64,7 +64,7 @@ async fn confirm_false_positive(
     };
 
     let actions = body.actions;
-    // 默认仅上报误报（记反馈 + 审计）；加白路径 / 禁用规则需显式传入对应 actions
+    // Default: report FP only (feedback + audit); allowlist path / disable rule need explicit actions.
     let mut applied: Vec<String> = Vec::new();
 
     if actions.iter().any(|a| a == "whitelist_uri") {

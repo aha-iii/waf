@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::InspectPhase;
 
-/// 单次 HTTP 检测事务上下文（ModSecurity Transaction 简化版）
+/// Single HTTP inspect transaction context (simplified ModSecurity Transaction).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WafTransaction {
     pub method: String,

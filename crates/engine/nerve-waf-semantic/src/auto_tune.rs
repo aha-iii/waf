@@ -8,7 +8,7 @@ pub struct AutoTuneResult {
     pub config_changed: bool,
 }
 
-/// 根据误报反馈历史自动调整白名单 / 语义模式
+/// Auto-tune allowlist / semantic mode from FP feedback history.
 pub fn apply_auto_tune(
     cfg: &mut SemanticConfig,
     tune: &SemanticAutoTune,

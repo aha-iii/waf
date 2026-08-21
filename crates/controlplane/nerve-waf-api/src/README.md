@@ -1,21 +1,21 @@
-# nerve-waf-api 源码分层
+# nerve-waf-api source layout
 
 ```text
 src/
-├── controlplane/              控制面
-│   ├── shared/                AppState、bootstrap、platform、中间件
+├── controlplane/              control plane
+│   ├── shared/                AppState, bootstrap, platform, middleware
 │   ├── routes.rs / events.rs  Console HTTP
 │   ├── ingress.rs / sites.rs  …
 │   └── mod.rs                 → controlplane_router()
 │
-└── dataplane/                 数据面协议（控制面侧 compile + 下发）
+└── dataplane/                 dataplane protocol (control-side compile + push)
     ├── site_inspect.rs
     ├── build.rs / generation.rs
     ├── routes.rs              /api/waf/edge/*
     └── events.rs              Edge 403 ingest
 ```
 
-- **controlplane**：Console 写入、inspect、攻击日志
-- **dataplane**：Edge 拉取的 snapshot（与 crate `nerve-waf-dataplane` 契约对齐）
+- **controlplane**: Console writes, inspect, attack logs
+- **dataplane**: snapshots Edge pulls (aligned with crate `nerve-waf-dataplane`)
 
-类型契约：`crates/contract/nerve-waf-dataplane/`（独立 crate）
+Type contract: `crates/contract/nerve-waf-dataplane/` (separate crate)

@@ -1,7 +1,8 @@
+/** Shared library helpers: Module display. */
 import { MODULE_META } from "../module-meta";
 import type { ModuleConfig, ProtectionModules } from "./waf-types";
 
-/** 卡片上显示的模块短名 */
+/** Short module name shown on cards */
 export const MODULE_SHORT: Record<string, string> = {
   sqli: "SQLi",
   xss: "XSS",

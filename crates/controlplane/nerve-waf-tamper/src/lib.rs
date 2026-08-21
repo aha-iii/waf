@@ -1,4 +1,4 @@
-//! 网页防篡改：响应体 hash 基线对比
+//! Response-body integrity / anti-tamper baselines.
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};

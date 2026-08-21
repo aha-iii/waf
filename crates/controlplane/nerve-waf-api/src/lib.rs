@@ -1,23 +1,21 @@
-//! Nerve WAF 控制面 API。
+//! Nerve WAF control-plane HTTP API (inspect, sites, events, modules, sync).
 //!
-//! ```text
-//! src/
-//! ├── controlplane/   Console HTTP + AppState / platform / 中间件
-//! └── dataplane/      Edge 快照 compile + List/Watch 协议
-//! ```
+//! Layout:
+//! - `controlplane/` - Console HTTP, AppState, platform routes, middleware
+//! - `dataplane/` - Edge snapshot compile plus List/Watch protocol
 
 pub mod console_static;
 pub mod controlplane;
 pub mod dataplane;
 
-// --- 对外稳定入口（shared 在 controlplane 内）---
+// --- Stable public exports (shared lives under controlplane) ---
 pub use controlplane::shared::AppState;
 pub use controlplane::shared::{
     bootstrap, inspect_daemon, logging, phase11_middleware, platform, trace_bind, trace_middleware,
     triage_ai, triage_service,
 };
 
-// --- 兼容旧路径 ---
+// --- Legacy path aliases ---
 pub use controlplane::ai_settings as ai_settings_routes;
 pub use controlplane::app_crs as app_crs_routes;
 pub use controlplane::custom_rules as custom_rules_routes;
@@ -38,6 +36,6 @@ pub use controlplane::topology;
 pub use controlplane::triage as triage_routes;
 pub use dataplane::site_inspect;
 
-// 旧名
+// Legacy name.
 pub use controlplane as control;
 pub use controlplane::shared as shared;

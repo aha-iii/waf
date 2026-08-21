@@ -14,7 +14,7 @@ use crate::AppState;
 
 #[derive(Debug, Deserialize)]
 pub struct TrafficSinceQuery {
-    /// `24h` / `7d` / `30d` 或 RFC3339
+    /// `24h` / `7d` / `30d` or RFC3339.
     #[serde(default = "default_range")]
     pub since: String,
     #[serde(default)]

@@ -1,3 +1,4 @@
+/** events feature: Raw Request Modal. */
 import { NerveModal } from "@nerve/ui";
 import type { WafEvent } from "../../lib/waf-types";
 

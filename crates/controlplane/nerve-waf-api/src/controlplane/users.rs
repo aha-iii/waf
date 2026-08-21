@@ -1,4 +1,4 @@
-//! Console 用户管理 API（仅 admin）。
+//! Console user-management API (admin only).
 
 use axum::{
     extract::{Path, State},

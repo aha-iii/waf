@@ -1,4 +1,4 @@
-//! L7 JSON / Lua 插件 CRUD + 版本管理（plugins/l7/<name>/ + versions/）
+//! L7 JSON / Lua plugin CRUD + versioning (plugins/l7/<name>/ + versions/).
 
 use crate::AppState;
 use axum::extract::{Path, Query, State};
@@ -167,7 +167,7 @@ fn bump_patch(ver: &str) -> String {
 }
 
 fn now_rfc3339() -> String {
-    // 无 chrono 依赖时用简易 UTC 近似：SystemTime → ISO-ish
+    // Without chrono: rough UTC from SystemTime → ISO-ish.
     let secs = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -296,13 +296,13 @@ fn write_version_meta(vdir: &FsPath, note: &str) -> Result<(), String> {
     std::fs::write(vdir.join("meta.json"), raw + "\n").map_err(|e| e.to_string())
 }
 
-/// 将 current 目录（不含 versions/）复制到 versions/vX.Y.Z/
+/// Copy current dir (excluding versions/) to versions/vX.Y.Z/.
 fn archive_current(dir: &FsPath, version: &str, note: &str) -> Result<(), String> {
     let ver = validate_version(version)?;
     let vroot = versions_root(dir);
     let vdir = vroot.join(version_dir_name(&ver));
     if vdir.is_dir() {
-        // 已存在则不覆盖历史
+        // Do not overwrite existing history.
         return Ok(());
     }
     std::fs::create_dir_all(&vdir).map_err(|e| e.to_string())?;
@@ -612,7 +612,7 @@ async fn publish_l7_plugin(
     let old_version = m.version.clone();
     let note = body.note.clone().unwrap_or_default();
 
-    // 惰性建档：确保旧版本进历史
+    // Lazy archive: ensure older versions enter history.
     archive_current(&dir, &old_version, "auto-archive")
         .map_err(|e| map_err_status(e, StatusCode::INTERNAL_SERVER_ERROR))?;
 
@@ -752,7 +752,7 @@ async fn rollback_l7_plugin(
         .note
         .unwrap_or_else(|| format!("rollback from {ver}"));
 
-    // 复用 publish 路径
+    // Reuse the publish path.
     let publish = PublishBody {
         description: Some(hist.description),
         category: hist.category,

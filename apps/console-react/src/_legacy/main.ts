@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Main. */
 import { apiGet } from "./api.js";
 import { ensureAuth, getAuthSkippedReason, getUsername, logout } from "./auth.js";
 
@@ -137,7 +138,7 @@ function parseHashPage(): PageId | null {
     "ai-semantic", "ai-llm", "ai-lab",
     "dashboard", "advanced", "modules", "protection-levels", "events",
   ];
-  // 旧书签 #/rules-plugins-json → 签名规则
+  // Legacy bookmark #/rules-plugins-json → signature rules
   if (h === "rules-plugins-json") return "rules-custom";
   return allowed.includes(h as PageId) ? (h as PageId) : null;
 }
@@ -424,7 +425,7 @@ export function buildApp(root: HTMLElement): void {
 
   layout.append(sider, main);
 
-  main.append(topbar, content, el("footer", "app-copyright", "Copyright (c) 2026 Aha Tech (www.ahatec.com.cn). All rights reserved."));
+  main.append(topbar, content, el("footer", "app-copyright", "Copyright (c) 2026 Nerve WAF. All rights reserved."));
 
   root.appendChild(layout);
 

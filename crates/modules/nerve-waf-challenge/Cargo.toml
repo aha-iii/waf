@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-challenge"
+description = "Human challenge tokens and challenge-page HTML"
 version.workspace = true
 edition.workspace = true
 

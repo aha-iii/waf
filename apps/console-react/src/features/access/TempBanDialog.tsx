@@ -1,3 +1,4 @@
+/** access feature: Temp Ban Dialog. */
 import { useEffect, useState } from "react";
 import {
   NerveButton,
@@ -13,7 +14,7 @@ import { defaultExpiresLocal, localDatetimeToIso } from "../../lib/temp-deny";
 
 export type TempBanDialogProps = {
   open: boolean;
-  /** 预填 IP；空则允许在弹窗内输入 */
+  /** Prefill IP; empty allows typing in the dialog */
   ip?: string;
   source?: string;
   defaultReason?: string;
@@ -21,7 +22,7 @@ export type TempBanDialogProps = {
   onDone?: () => void;
 };
 
-/** 临时封禁弹窗：可填到期时间 / 原因 */
+/** Temporary-ban dialog: optional expiry / reason */
 export function TempBanDialog({
   open,
   ip: ipProp = "",

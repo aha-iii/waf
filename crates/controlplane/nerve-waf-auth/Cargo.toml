@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-auth"
+description = "Authentication: API key, local users/JWT, optional Keycloak OIDC"
 version.workspace = true
 edition.workspace = true
 

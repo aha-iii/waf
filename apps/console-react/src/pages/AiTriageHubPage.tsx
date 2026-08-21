@@ -1,3 +1,4 @@
+/** Console page: intelligent triage hub (lab + LLM entry). */
 import { useMemo, useState } from "react";
 import { NervePageHeader, NerveTabBar } from "@nerve/ui";
 import { AiLabPage } from "./AiLabPage";

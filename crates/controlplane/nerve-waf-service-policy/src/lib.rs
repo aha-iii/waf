@@ -1,4 +1,4 @@
-//! 服务级 allowlist（Phase 4 D5）
+//! Service-level allowlist policy helpers.
 
 use serde::{Deserialize, Serialize};
 

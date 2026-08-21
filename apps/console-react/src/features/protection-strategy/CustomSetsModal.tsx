@@ -1,3 +1,4 @@
+/** protection-strategy feature: Custom Sets Modal. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,

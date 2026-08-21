@@ -1,3 +1,4 @@
+/** ingress feature: Ingress Api Missing Banner. */
 import { NerveAlert } from "@nerve/ui";
 
 export function IngressApiMissingBanner() {

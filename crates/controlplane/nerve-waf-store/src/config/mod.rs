@@ -50,7 +50,7 @@ impl From<ConfigError> for crate::StoreError {
     }
 }
 
-/// 控制台/API 操作人（写入 created_by_* / updated_by_*）
+/// Console/API operator (writes created_by_* / updated_by_*).
 #[derive(Debug, Clone, Default)]
 pub struct AuditContext {
     pub operator_id: Option<Uuid>,
@@ -183,7 +183,7 @@ impl ConfigBackend {
         }
     }
 
-    /// 系统级 Web 核心防护模板（`waf_protection`），供新应用 provision 与未配置应用继承。
+    /// System Web core protection template (`waf_protection`) for new-app provision and unconfigured inherit.
     pub async fn load_global_modules(&self) -> Result<ProtectionModules, ConfigError> {
         match self {
             Self::File(s) => s.load_global_modules(),
@@ -204,7 +204,7 @@ impl ConfigBackend {
         }
     }
 
-    /// 系统级检测流水线模板（`waf_pipeline`）。
+    /// System detect-pipeline template (`waf_pipeline`).
     pub async fn load_global_pipeline(
         &self,
     ) -> Result<nerve_waf_semantic::SemanticConfig, ConfigError> {
@@ -227,7 +227,7 @@ impl ConfigBackend {
         }
     }
 
-    /// 新应用首次保存前，从系统默认复制完整配置快照到应用级表。
+    /// Before first save of a new app, copy full config snapshot from system defaults into app tables.
     pub async fn ensure_app_provisioned(&self, site_id: &str) -> Result<(), ConfigError> {
         match self {
             Self::File(s) => s.ensure_app_provisioned(site_id),
@@ -375,7 +375,7 @@ impl ConfigBackend {
             }
             #[cfg(feature = "postgres")]
             Self::Postgres(s) => {
-                // 快路径：库里已有策略则直接列出，不经过种子 OnceCell（避免初始化挂起拖死列表）
+                // Fast path: if strategies already exist in DB, list them without seed OnceCell (avoid init hang killing the list).
                 match crate::protection_strategy::pg::list_ready(s.pool(), for_site).await {
                     Ok(list) if !list.is_empty() => {
                         crate::protection_strategy::pg::mark_ready();
@@ -431,7 +431,7 @@ impl ConfigBackend {
         }
     }
 
-    /// 首次访问策略库时才加载全局 modules/pipeline 做种子；之后热路径不再读它们
+    /// Load global modules/pipeline as seed only on first strategy-library access; hot path never re-reads them.
     #[cfg(feature = "postgres")]
     async fn ensure_protection_strategy_store(&self) -> Result<(), ConfigError> {
         let Self::Postgres(s) = self else {
@@ -445,10 +445,10 @@ impl ConfigBackend {
         crate::protection_strategy::pg::ensure_seeds(s.pool(), &modules, &pipeline).await
     }
 
-    /// 新建策略：从当前全局运行时深拷贝四段快照。
-    /// `site_id = None` → 全局策略库；`Some(site)` → 该应用私有策略表。
-    /// `source_id`：若提供则从该策略深拷贝四段；否则从当前全局运行时拷贝。
-    /// `global_modules`：已从全局拷贝并固化 CC/Bot 参数的快照；缺省时在 store 内加载全局 modules。
+    /// Create strategy: deep-copy four-section snapshot from current global runtime.
+    /// `site_id = None` → global strategy library; `Some(site)` → that app's private strategy table.
+    /// `source_id`: if set, deep-copy four sections from that strategy; else from current global runtime.
+    /// `global_modules`: snapshot already copied from global with CC/Bot params frozen; else load global modules inside store.
     pub async fn create_protection_strategy_from_global(
         &self,
         name: &str,
@@ -497,7 +497,7 @@ impl ConfigBackend {
         Ok(saved)
     }
 
-    /// 套用策略到全局运行时（pipeline + modules）
+    /// Apply strategy onto global runtime (pipeline + modules).
     pub async fn apply_protection_strategy_global(
         &self,
         id: &str,
@@ -513,7 +513,7 @@ impl ConfigBackend {
         Ok(tpl)
     }
 
-    /// 应用当前绑定的防护策略 id（缺省 tpl-standard）
+    /// Protection strategy id currently bound to the app (default tpl-standard).
     pub async fn get_app_bound_strategy(&self, site_id: &str) -> Result<String, ConfigError> {
         match self {
             Self::File(s) => crate::app_config::load_bound_strategy_file(s.data_dir(), site_id),
@@ -524,7 +524,7 @@ impl ConfigBackend {
         }
     }
 
-    /// 记录应用绑定的防护策略（仅写绑定表，不改模块快照）
+    /// Record app↔strategy binding (binding table only; do not change module snapshots).
     pub async fn set_app_bound_strategy(
         &self,
         site_id: &str,

@@ -1,3 +1,4 @@
+/** Local / Keycloak auth helpers for WAF Console sessions. */
 import Keycloak from "keycloak-js";
 
 export type KeycloakConfig = {
@@ -297,7 +298,7 @@ export async function loginLocal(user: string, pass: string): Promise<void> {
   saveSession(data.token, data.username || user, data.role);
 }
 
-/** @deprecated 使用 initAuth */
+/** @deprecated use initAuth */
 export async function ensureAuth(): Promise<void> {
   const phase = await initAuth();
   if (phase === "login") {

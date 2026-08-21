@@ -18,8 +18,8 @@ pub(crate) struct EdgeEventsBody {
     events: Vec<WafEventRecord>,
 }
 
-/// 形态 B：Edge 拦截后上报 L7 事件（写入 PostgreSQL，Console 攻击日志可见），
-/// 并对符合条件的事件触发 Nerve-alert 分发（与 `/api/inspect` 对齐）。
+/// Shape B: after Edge block, report L7 events (PostgreSQL; visible in Console attack log),
+/// and dispatch Nerve-alert for qualifying events (aligned with `/api/inspect`).
 pub async fn post_waf_edge_events(
     State(state): State<Arc<AppState>>,
     Json(body): Json<EdgeEventsBody>,
@@ -59,7 +59,7 @@ pub async fn post_waf_edge_events(
     Ok(Json(json!({ "ok": true, "inserted": n })))
 }
 
-/// Edge 入库成功后需走告警分发的事件（与 inspect 路径 `should_alert_waf_event` 对齐）。
+/// Events that need alert dispatch after Edge persist (aligned with inspect `should_alert_waf_event`).
 pub(crate) fn edge_alert_candidates(events: &[WafEventRecord]) -> Vec<&WafEventRecord> {
     events
         .iter()

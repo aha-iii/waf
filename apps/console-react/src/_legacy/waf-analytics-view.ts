@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Waf analytics view. */
 import { apiGet } from "./api.js";
 
 import { categoryLabel, esc, mountPaginatedTable, pageHeader } from "./components/ui.js";

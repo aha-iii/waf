@@ -1,3 +1,4 @@
+/** policy-sim feature: Policy Sim Rules Picker. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,

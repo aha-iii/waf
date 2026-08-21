@@ -1,4 +1,4 @@
-//! License / 计量（Phase 6 简化）
+//! License / metering stubs for commercial builds.
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

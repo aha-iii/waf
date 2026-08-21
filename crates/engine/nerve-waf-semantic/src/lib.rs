@@ -1,4 +1,4 @@
-//! 语义检测：参数定位 → 递归解码 → libinjection + SQL 意图 → 融合输出
+//! Semantic scoring pipeline over normalized parameters.
 
 mod auto_tune;
 mod config;

@@ -1,9 +1,11 @@
-# Nerve WAF 控制面配置
-# 优先级：CLI / 环境变量 > config.yml > 默认值
+# Nerve WAF control-plane config (local / default sample).
+# Precedence: CLI / environment variables > config.yml > built-in defaults.
+# Set database.url or DATABASE_URL before using persistence features.
+# 控制面配置；优先级：CLI / 环境变量 > config.yml > 默认值。
 
 waf:
   api:
-    port: 8780
+    port: 8781
   data_dir: "./data"
   plugins_dir: "./plugins"
   nerve_url: "http://127.0.0.1:8766"

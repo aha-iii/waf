@@ -1,3 +1,4 @@
+/** protection-strategy feature: Option Cards. */
 type Option = { value: string; label: string; desc: string };
 
 type Props = {
@@ -7,7 +8,7 @@ type Props = {
   onChange: (value: string) => void;
 };
 
-/** 单选卡片组，对齐原 Console pl-option-group */
+/** Radio option cards aligned with legacy Console pl-option-group */
 export function OptionCards({ name, options, value, onChange }: Props) {
   return (
     <div className="pl-option-group" role="radiogroup">

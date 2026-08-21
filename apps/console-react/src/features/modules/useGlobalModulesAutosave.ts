@@ -1,3 +1,4 @@
+/** modules feature: Use Global Modules Autosave. */
 import { useEffect, useRef, useState } from "react";
 import { apiPut } from "../../api";
 import type { ProtectionModules } from "../../lib/waf-types";

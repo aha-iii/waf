@@ -1,6 +1,6 @@
-//! 解码视图可信度：区分「真实编码载荷」与 API 签名/ID 等高熵噪声。
+//! Decode-view plausibility: separate real encoded payloads from high-entropy API signatures/IDs.
 
-/// 是否应尝试 Base64 解码该 token（与具体参数名无关，只看 token 形态）。
+/// Whether to try Base64 on this token (shape only; independent of param name).
 pub fn is_plausible_b64_candidate(tok: &str) -> bool {
     let t = tok.trim_end_matches('=');
     if t.is_empty() {
@@ -26,7 +26,7 @@ pub fn is_plausible_b64_candidate(tok: &str) -> bool {
     true
 }
 
-/// 解码结果是否像「可读文本载荷」，而非 hex/b64 误解码的随机字节。
+/// Whether decode result looks like readable text payload vs random bytes from hex/b64 mis-decode.
 pub fn is_plausible_decoded_text(bytes: &[u8]) -> bool {
     if bytes.len() < 4 {
         return false;
@@ -48,7 +48,7 @@ pub fn is_plausible_decoded_text(bytes: &[u8]) -> bool {
     (printable as f32 / n as f32) >= 0.85
 }
 
-/// 是否应对解码视图 / 软信号做攻击形启发式。
+/// Whether to run attack-shape heuristics on decode view / soft signals.
 pub fn is_plausible_inspect_text(text: &str) -> bool {
     if text.is_empty() {
         return false;

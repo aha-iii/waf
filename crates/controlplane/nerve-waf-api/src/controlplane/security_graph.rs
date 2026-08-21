@@ -1,4 +1,4 @@
-//! 安全图谱 — WAF 事件与 Flow 关联
+//! Security graph — correlate WAF events with Flows.
 
 use axum::{
     extract::{Path, Query, State},

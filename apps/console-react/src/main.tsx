@@ -1,3 +1,4 @@
+/** Vite entry: mounts the WAF Console React root. */
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "@nerve/ui/style.css";
@@ -5,5 +6,5 @@ import "@logicflow/core/lib/style/index.css";
 import "@logicflow/extension/lib/style/index.css";
 import "./app-local.css";
 
-// 不用 StrictMode：开发态会双挂载 ensureAuth/Keycloak，易触发整页刷新死循环
+// Skip StrictMode: dev double-mount of ensureAuth/Keycloak can cause full-page refresh loops
 createRoot(document.getElementById("root")!).render(<App />);

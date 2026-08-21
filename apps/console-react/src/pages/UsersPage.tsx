@@ -1,3 +1,4 @@
+/** Console page: Console user accounts and roles. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveButton,

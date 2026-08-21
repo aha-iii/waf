@@ -1,4 +1,4 @@
-//! Phase 10 — Cluster Mesh + DNS 策略 + Identity 聚合 API
+//! Phase 10 — Cluster Mesh + DNS policy + Identity aggregate API.
 
 use axum::{
     extract::{Query, State},

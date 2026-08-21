@@ -7,7 +7,7 @@ use nerve_waf_sdk::{
 };
 use std::path::{Path, PathBuf};
 
-/// 解析 plugins 目录：环境变量 > data/../plugins > cwd/plugins > 仓库默认
+/// Resolve plugins dir: env > data/../plugins > cwd/plugins > repo default.
 pub fn resolve_plugins_dir(data_dir: Option<&Path>) -> PathBuf {
     if let Ok(p) = std::env::var("NERVE_WAF_PLUGINS") {
         return PathBuf::from(p);
@@ -153,7 +153,7 @@ impl PluginHost {
         self.build_merged_engine(modules, Vec::new())
     }
 
-    /// 合并规则 precedence：embedded 基线 → JSON 插件包 → CRS/AI（与 API `merged_l7_rules_internal` 一致）
+    /// Merge precedence: embedded baseline → JSON plugin packs → CRS/AI (same as API `merged_l7_rules_internal`).
     pub fn build_merged_engine(
         &self,
         modules: &ProtectionModules,
@@ -226,7 +226,7 @@ fn rust_meta_to_descriptor(meta: PluginMeta) -> PluginDescriptor {
     }
 }
 
-/// L7 检测：JSON 规则引擎 + Lua 插件链
+/// L7 detect: JSON rule engine + Lua plugin chain.
 pub struct HostedL7 {
     engine: L7Engine,
     lua_plugins: Vec<LuaInspectPlugin>,
@@ -244,7 +244,7 @@ impl HostedL7 {
         }
     }
 
-    /// 兼容旧调用：仅插件规则，不含 CRS
+    /// Legacy call: plugin rules only, no CRS.
     pub fn from_host_plugins_only(host: &PluginHost, modules: &ProtectionModules) -> Self {
         Self::from_host(host, modules, Vec::new())
     }

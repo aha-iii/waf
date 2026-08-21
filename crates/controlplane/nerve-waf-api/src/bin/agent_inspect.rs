@@ -1,4 +1,4 @@
-//! Agent 本地 WAF 检测守护进程（Unix Socket，内嵌 inspect 流水线）
+//! Local Agent WAF inspect daemon over Unix socket / low-latency path.
 
 use clap::Parser;
 use nerve_waf_api::bootstrap::{self, BootstrapOptions};

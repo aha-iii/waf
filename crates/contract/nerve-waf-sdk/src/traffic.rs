@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-/// Edge 批量上报的单条增量（控制面按小时桶 UPSERT 累加）。
+/// One Edge batch-report delta (control plane UPSERTs into hourly buckets).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TrafficBatchItem {
     pub site_id: String,

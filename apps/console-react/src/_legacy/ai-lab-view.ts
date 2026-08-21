@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Ai lab view. */
 import { apiGet, apiPost } from "./api.js";
 import { esc, pageHeader } from "./components/ui.js";
 

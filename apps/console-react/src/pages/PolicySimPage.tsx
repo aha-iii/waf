@@ -1,3 +1,4 @@
+/** Console page: policy simulation / dry-run against traffic. */
 import { useState, useEffect } from "react";
 import {
   NerveAlert,

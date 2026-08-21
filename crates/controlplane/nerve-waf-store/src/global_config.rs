@@ -1,4 +1,4 @@
-//! 系统级 WAF 配置（`waf_protection` / `waf_pipeline`），与 `waf_app_*` 应用覆盖层分离。
+//! System-level WAF config (`waf_protection` / `waf_pipeline`), separate from `waf_app_*` overrides.
 
 use nerve_waf_sdk::{ModuleConfig, ProtectionModules};
 use nerve_waf_semantic::{

@@ -1,7 +1,4 @@
-/**
- * WAF Console 基础控件 HTML 封装
- * 样式类名与 style.css 中 `.ant-*` / `.form-stack` 等保持一致
- */
+/** Legacy WAF Console form control HTML wrappers (`.ant-*` / `.form-stack`). */
 import { esc, htmlAttrs } from "./esc.js";
 
 export type BtnVariant = "default" | "primary" | "danger" | "link";
@@ -18,7 +15,7 @@ export type BtnOptions = {
   attrs?: Record<string, string | number | boolean | undefined | null>;
 };
 
-/** 按钮：nerve-btn + ant-btn */
+/** Button: nerve-btn + ant-btn */
 export function btn(opts: BtnOptions): string {
   const classs = ["nerve-btn", "ant-btn"];
   const variant = opts.variant ?? "default";
@@ -44,7 +41,7 @@ export type InputOptions = {
   attrs?: Record<string, string | number | boolean | undefined | null>;
 };
 
-/** 单行输入框 */
+/** Single-line input */
 export function input(opts: InputOptions = {}): string {
   const cls = ["nerve-input", "ant-input", opts.wide && "ant-input-wide", opts.sm && "sm", opts.className]
     .filter(Boolean)
@@ -67,7 +64,7 @@ export type TextareaOptions = {
   attrs?: Record<string, string | number | boolean | undefined | null>;
 };
 
-/** 多行输入框 */
+/** Multi-line textarea */
 export function textarea(opts: TextareaOptions = {}): string {
   const cls = ["nerve-input", "nerve-textarea", "ant-input", opts.wide !== false && "ant-input-wide", opts.className].filter(Boolean).join(" ");
   const id = opts.id ? ` id="${esc(opts.id)}"` : "";
@@ -86,7 +83,7 @@ export type SelectOptions = {
   attrs?: Record<string, string | number | boolean | undefined | null>;
 };
 
-/** 下拉框 */
+/** Select dropdown */
 export function select(opts: SelectOptions): string {
   const cls = ["nerve-select", "ant-input", opts.wide && "ant-input-wide", opts.className].filter(Boolean).join(" ");
   const id = opts.id ? ` id="${esc(opts.id)}"` : "";
@@ -108,7 +105,7 @@ export type SearchInputOptions = {
   attrs?: Record<string, string | number | boolean | undefined | null>;
 };
 
-/** 搜索框（用于 table-toolbar） */
+/** Search input (for table-toolbar) */
 export function searchInput(opts: SearchInputOptions = {}): string {
   const width = opts.width ?? 220;
   const cls = ["nerve-input", "nerve-search", "ant-input", opts.className].filter(Boolean).join(" ");
@@ -120,16 +117,16 @@ export function searchInput(opts: SearchInputOptions = {}): string {
 export type CardOptions = {
   title: string;
   body: string;
-  /** 纯文本副标题（自动包 head-tip） */
+  /** Plain-text subtitle (auto-wrapped in head-tip) */
   tip?: string;
-  /** 标题行附加 HTML（已含 head-tip 等） */
+  /** Extra HTML on the title row (may already include head-tip, etc.) */
   tipHtml?: string;
   id?: string;
   bodyId?: string;
   className?: string;
 };
 
-/** ant-card 卡片 */
+/** ant-card panel */
 export function card(opts: CardOptions): string {
   const id = opts.id ? ` id="${esc(opts.id)}"` : "";
   const bodyId = opts.bodyId ? ` id="${esc(opts.bodyId)}"` : "";
@@ -149,7 +146,7 @@ export type PanelCardOptions = {
   className?: string;
 };
 
-/** 轻量 panel 卡片（.card，用于规则页等） */
+/** Lightweight panel card (.card; used on rules pages, etc.) */
 export function panelCard(opts: PanelCardOptions): string {
   const id = opts.id ? ` id="${esc(opts.id)}"` : "";
   const bodyId = opts.bodyId ? ` id="${esc(opts.bodyId)}"` : "";
@@ -157,40 +154,40 @@ export function panelCard(opts: PanelCardOptions): string {
   return `<div class="${cls}"${id}><h3>${esc(opts.title)}</h3><div${bodyId}>${opts.body}</div></div>`;
 }
 
-/** 表格上方工具栏 */
+/** Toolbar above the table */
 export function tableToolbar(...parts: (string | false | null | undefined)[]): string {
   return `<div class="nerve-table-toolbar table-toolbar">${parts.filter(Boolean).join("")}</div>`;
 }
 
-/** 页面级操作按钮组（热加载 / 刷新等） */
+/** Page-level action button group (hot reload / refresh, etc.) */
 export function syncActions(...buttons: (string | false | null | undefined)[]): string {
   return `<div class="nerve-sync-actions sync-actions">${buttons.filter(Boolean).join("")}</div>`;
 }
 
-/** 垂直表单容器 */
+/** Vertical form stack */
 export function formStack(content: string, className?: string): string {
   const cls = ["nerve-form", "form-stack", className].filter(Boolean).join(" ");
   return `<div class="${cls}">${content}</div>`;
 }
 
-/** 表单标签 */
+/** Form label */
 export function formLabel(text: string): string {
   return `<label class="nerve-form-label ant-form-label">${esc(text)}</label>`;
 }
 
-/** 标签 + 控件 */
+/** Label + control */
 export function formField(label: string, control: string): string {
   return `<div class="nerve-form-item ant-form-item">${formLabel(label)}${control}</div>`;
 }
 
-/** 内联标签 + 控件（toolbar 场景） */
+/** Inline label + control (toolbar scenarios) */
 export function inlineField(label: string, control: string, marginLeft = "16px"): string {
   return `<label style="margin-left:${marginLeft}">${esc(label)} ${control}</label>`;
 }
 
 export type AlertTone = "info" | "error" | "success" | "warning";
 
-/** 提示条 */
+/** Alert / tip bar */
 export function alertBox(tone: AlertTone, message: string, className?: string): string {
   const cls = ["nerve-alert", "ant-alert", `ant-alert-${tone}`, className].filter(Boolean).join(" ");
   return `<div class="${cls}">${message}</div>`;
@@ -198,7 +195,7 @@ export function alertBox(tone: AlertTone, message: string, className?: string): 
 
 export type TagTone = "default" | "green" | "red" | "orange" | "blue";
 
-/** 状态标签 */
+/** Status tag */
 export function tag(text: string, tone: TagTone = "default"): string {
   const cls = tone === "default" ? "nerve-tag ant-tag" : `nerve-tag ant-tag ant-tag-${tone}`;
   return `<span class="${cls}">${esc(text)}</span>`;
@@ -206,7 +203,7 @@ export function tag(text: string, tone: TagTone = "default"): string {
 
 export type TabItem = { id: string; label: string; active?: boolean };
 
-/** Tab 切换条 */
+/** Tab bar */
 export function tabBar(tabs: TabItem[], attr = "data-tab"): string {
   return `<div class="nerve-tab-bar tab-bar">${tabs
     .map(
@@ -216,7 +213,7 @@ export function tabBar(tabs: TabItem[], attr = "data-tab"): string {
     .join("")}</div>`;
 }
 
-/** 带 label 的下拉筛选（toolbar 常用） */
+/** Labeled filter select (common in toolbars) */
 export function filterSelect(opts: {
   id: string;
   label?: string;

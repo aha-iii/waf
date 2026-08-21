@@ -1,3 +1,4 @@
+/** Console page: protected sites (apps) inventory and app-config drawer. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,
@@ -293,7 +294,7 @@ export function AssetsPage() {
           siteIndex={configIndex}
           onClose={() => {
             setConfigIndex(null);
-            // 关闭抽屉后从服务端重载，丢掉未点「保存并生效」的本地草稿
+            // After closing the drawer, reload from server and discard local drafts not saved-and-applied
             void refresh();
           }}
           onSitesChange={setSites}

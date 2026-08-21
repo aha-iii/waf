@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-core"
-description = "Nerve WAF 核心：Traesaction、检测阶段、裁决语义（Coraza/ModSecurity 风格）"
+description = "Core transaction model: phases, verdicts, timing, journey hops"
 version.workspace = true
 edition.workspace = true
 

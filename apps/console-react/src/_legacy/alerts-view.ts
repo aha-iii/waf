@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Alerts view. */
 import { apiGet, apiPost, apiPut } from "./api.js";
 import { bindPaginationBar, categoryLabel, defaultPaginationState, esc, pageHeader, renderPaginatedSection, showConfirm, switchHtml, type PaginationState } from "./components/ui.js";
 

@@ -1,4 +1,4 @@
-//! 官网预约演示线索（`demo_leads`）。
+//! Website demo-booking leads (`demo_leads`).
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

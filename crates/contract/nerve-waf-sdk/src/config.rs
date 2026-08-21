@@ -36,7 +36,7 @@ impl From<serde_yaml::Error> for ConfigError {
     }
 }
 
-/// 根配置：`waf:` + 顶层 `logging:`
+/// Root config: `waf:` plus top-level `logging:`.
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct WafFileConfig {
     pub waf: WafNodeConfig,

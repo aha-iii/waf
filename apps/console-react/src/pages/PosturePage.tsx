@@ -1,3 +1,4 @@
+/** Console page: protection posture health and drift checks. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,

@@ -8,7 +8,7 @@ use crate::StoreError;
 #[cfg(feature = "postgres")]
 const AI_TABLES: &[&str] = &["waf_ml_labels", "waf_posture_scan", "waf_fp_remediation"];
 
-/// 检查 AI 相关迁移表是否就绪（035/036 等）
+/// Check whether AI-related migration tables are ready (035/036, etc.).
 #[cfg(feature = "postgres")]
 pub async fn ai_schema_status(pool: &PgPool) -> Value {
     let mut tables = serde_json::Map::new();
@@ -43,7 +43,7 @@ async fn table_exists(pool: &PgPool, table: &str) -> Result<bool, StoreError> {
     Ok(row.0)
 }
 
-/// AI 迁移依赖表名（035/036 等），供测试与文档对齐
+/// AI migration dependency table names (035/036, etc.) for tests/docs alignment.
 #[cfg(feature = "postgres")]
 pub fn ai_required_tables() -> &'static [&'static str] {
     AI_TABLES

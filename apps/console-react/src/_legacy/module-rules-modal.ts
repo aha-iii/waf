@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Module rules modal. */
 import { categoryLabel, esc, hideModal } from "./components/ui.js";
 import {
   bindRiskSectionRuleToggles,
@@ -24,11 +25,11 @@ export async function showModuleRulesModal(opts: {
   moduleEnabled: boolean;
   moduleKey?: string;
   siteId?: string;
-  /** 应用抽屉内可编辑本应用规则集 */
+  /** Editable app rule set inside the app drawer */
   editable?: boolean;
   disabledRules?: string[];
   onSave?: (disabledRules: string[]) => void;
-  /** 打开后定位并高亮指定规则 */
+  /** After open, scroll to and highlight a rule */
   highlightRuleId?: string;
   crsRuntime?: CrsRuntimeStatus;
 }): Promise<void> {

@@ -30,14 +30,14 @@ pub struct EdgeSiteMeta {
     pub upstream_id: String,
 }
 
-/// 与 API `execute_inspect_traced` 对齐的 per-site 检测输入。
+/// Per-site inspect input aligned with API `execute_inspect_traced`.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SiteInspectSnapshot {
     pub modules: ProtectionModules,
     pub semantic: SemanticConfig,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub crs_binding: Option<AppCrsBinding>,
-    /// 可序列化 L7 规则（Edge 侧 compile 为 L7Engine）。
+    /// Serializable L7 rules (compiled to L7Engine on Edge).
     #[serde(default)]
     pub l7_rules: Vec<RawRule>,
     #[serde(default)]
@@ -48,7 +48,7 @@ pub struct SiteInspectSnapshot {
     pub strategy_name: Option<String>,
 }
 
-/// 全局平台 overlay（所有 site 共享）。
+/// Global platform overlay (shared by all sites).
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct GlobalInspectOverlay {
     #[serde(default)]

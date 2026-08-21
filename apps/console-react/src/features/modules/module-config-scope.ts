@@ -1,4 +1,4 @@
-/** 防护模块配置作用域：与核心防护三层模型一致 */
+/** Shared helpers for global module config vs per-app module overrides. */
 export type ModuleConfigScope = "global" | "strategy" | "app";
 
 export function moduleScopeHint(scope: ModuleConfigScope): string {

@@ -1,3 +1,4 @@
+/** Console HTTP client for Nerve WAF control-plane APIs. */
 import { getAuthHeaders, notifyUnauthorized } from "./auth.js";
 
 const API = "";
@@ -193,13 +194,13 @@ export type RuntimeDenyEntry = {
 export type TempDenyOptions = {
   source?: string;
   reason?: string;
-  /** RFC3339 / ISO 字符串 */
+  /** RFC3339 / ISO string */
   expires_at?: string;
-  /** 相对时长（秒）；未传 expires_at 时可用 */
+  /** Relative duration (seconds); usable when expires_at is omitted */
   ttl_secs?: number;
 };
 
-/** 临时封禁（运行时 overlay，不写插件配置） */
+/** Temporary ban (runtime overlay; does not write plugin config) */
 export async function apiTempDeny(
   ip: string,
   sourceOrOpts: string | TempDenyOptions = "console",
@@ -216,7 +217,7 @@ export async function apiTempDeny(
   });
 }
 
-/** 解除临时封禁 */
+/** Lift temporary ban */
 export async function apiTempAllow(ip: string): Promise<unknown> {
   return apiPost("/api/policy/allow", { ip, kind: "temporary" });
 }
@@ -239,7 +240,7 @@ export async function apiListRuntimeDenies(): Promise<{ denies: RuntimeDenyEntry
   return apiGet("/api/runtime-denies");
 }
 
-/** 从当前 routes.json 编译并下发到 Nerve Agent */
+/** Compile from current routes.json and push to Nerve Agent */
 export async function apiSync(plan?: unknown): Promise<SyncResult> {
   return apiPost<SyncResult>("/api/sync", plan);
 }

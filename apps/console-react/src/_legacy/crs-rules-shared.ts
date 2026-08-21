@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Crs rules shared. */
 import { apiGet } from "./api.js";
 import { siteQuery } from "./sites.js";
 import { sanitizeProductText } from "./brand-sanitize.js";
@@ -387,7 +388,7 @@ export function paranoiaTag(pl: number): string {
   return `<span class="pl-tag pl-tag-${n}" title="Paranoia Level ${n}">PL${n}</span>`;
 }
 
-/** 按当前拦截等级展示规则状态（模块总开关由页面顶部提示说明，不在行内标「全局关闭」） */
+/** Show rule status for the current intercept level (module master switch is explained in the page tip; do not label rows as globally off) */
 export function statusTag(
   r: RuleRow,
   modules: Record<string, ModuleConfig>,
@@ -426,7 +427,7 @@ export async function fetchRuleRows(siteId?: string): Promise<{
   return { allRows, moduleConfigs, liEnabled };
 }
 
-/** @deprecated 使用 fetchRuleRows */
+/** @deprecated use fetchRuleRows */
 export async function fetchRuleRowsGlobal(): Promise<Awaited<ReturnType<typeof fetchRuleRows>>> {
   return fetchRuleRows();
 }
@@ -453,15 +454,15 @@ export type RiskSectionsRenderOpts = {
   filter?: string;
   idPrefix?: string;
   pageState: Record<string, { page: number; pageSize: number }>;
-  /** 弹窗模式：不渲染空危级分组 */
+  /** Modal mode: skip empty severity groups */
   hideEmptyTiers?: boolean;
-  /** 应用级规则集编辑：显示开关列 */
+  /** App-level rule-set edit: show toggle column */
   editable?: boolean;
-  /** 编辑态下本模块已关闭的规则 ID */
+  /** Rule IDs disabled for this module while editing */
   disabledRules?: Set<string>;
   moduleKey?: string;
   liEnabled?: boolean;
-  /** 编辑态：抽屉内模块开关（优先于 API 快照） */
+  /** Edit mode: in-drawer module toggles (prefer over API snapshot) */
   moduleEnabled?: boolean;
 };
 

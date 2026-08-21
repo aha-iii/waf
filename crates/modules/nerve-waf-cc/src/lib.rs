@@ -1,4 +1,4 @@
-//! CC / 频率限制：内存 token bucket，按 IP / Host / URI 维度计数。
+//! CC / rate limiting with an in-memory token bucket (IP / Host / URI dimensions).
 
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
@@ -15,7 +15,7 @@ pub struct CcConfig {
     pub burst: u32,
     #[serde(default)]
     pub block_duration_sec: u64,
-    /// 可选 Redis URL，设置后 CC 计数走 Redis（分布式）
+    /// Optional Redis URL; when set, CC counters use Redis (distributed).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub redis_url: Option<String>,
 }

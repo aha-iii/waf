@@ -1,4 +1,4 @@
-//! 应用级 CRS 版本绑定（只读系统 rules-versions，不影响全局活跃规则集）
+//! Per-app CRS version binding (read-only system rules-versions; does not change global active set).
 
 use axum::{
     extract::{Path, State},

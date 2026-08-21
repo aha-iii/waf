@@ -1,8 +1,4 @@
-/**
- * 产品展示层：屏蔽第三方实现/品牌名（OWASP、ModSecurity、Coraza、libinjection 等）。
- * 内部 API 字段名可保留；凡写入 UI / 事件摘要 / 规则说明的字符串须经此处理。
- */
-
+/** Product display sanitizer: strip third-party engine brand names from UI strings. */
 const REPLACEMENTS: [RegExp, string][] = [
   [/OWASP\s*ModSecurity\s*CRS/gi, "专家规则集"],
   [/OWASP\s*ModSecurity/gi, "专家规则集"],

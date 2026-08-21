@@ -1,3 +1,4 @@
+/** Shared library helpers: Waf types. */
 export type WafEvent = {
   id: string;
   ts: string;

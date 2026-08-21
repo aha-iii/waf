@@ -1,3 +1,3 @@
-/** @deprecated 请从 `@nerve/ui` 导入；此处仅作兼容转发 */
+/** @deprecated Prefer `@nerve/ui` toast; this re-exports for compatibility. */
 export { ToastProvider, useToast, nerveToast } from "@nerve/ui";
 export type { NerveToastFn as ToastFn } from "@nerve/ui";

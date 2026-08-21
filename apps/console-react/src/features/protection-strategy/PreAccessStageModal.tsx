@@ -1,3 +1,4 @@
+/** protection-strategy feature: Pre Access Stage Modal. */
 import { useEffect, useMemo, useState } from "react";
 import { NerveButton, NerveModal, nerveResult } from "@nerve/ui";
 import { apiPut } from "../../api";

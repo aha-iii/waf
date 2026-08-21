@@ -12,7 +12,7 @@
 **Do not** open a public GitHub/GitLab issue for security bugs (RCE, auth bypass, rule-bypass that enables exploitation of protected apps, secret leakage, etc.).
 
 Please report privately to the maintainers via your organization’s security contact
-（在公开前请将本段替换为真实邮箱或私有 tracker）。
+(replace this sentence with a real email or private tracker before making the repo public).
 
 Include:
 

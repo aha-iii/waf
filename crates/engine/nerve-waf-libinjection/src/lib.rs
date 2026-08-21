@@ -1,6 +1,4 @@
-//! OWASP CRS 对齐的内置 libinjection SQLi / XSS 检测。
-//!
-//! 规则 ID 与 CRS `@detectSQLi` / `@detectXSS` 一致；Paranoia Level 控制默认启用范围。
+//! libinjection-based SQLi/XSS detectors aligned with OWASP CRS rule IDs.
 
 mod catalog;
 mod inspect;
@@ -13,10 +11,10 @@ pub use inspect::inspect_libinjection;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// 单条 libinjection 规则开关（覆盖 Paranoia 默认行为）
+/// Per-rule libinjection switch (overrides Paranoia defaults).
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 pub struct LibInjectionRuleSwitch {
-    /// `None` = 跟随 Paranoia；`Some(false)` 强制关；`Some(true)` 强制开（仍受总开关与模块开关约束）
+    /// `None` = follow Paranoia; `Some(false)` force off; `Some(true)` force on (still gated by master/module switches).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
 }
@@ -25,10 +23,10 @@ pub struct LibInjectionRuleSwitch {
 pub struct LibInjectionConfig {
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// CRS Paranoia Level 上限（1–4）。规则 PL ≤ 此值时默认启用。
+    /// CRS Paranoia Level cap (1–4). Rules with PL ≤ this value enabled by default.
     #[serde(default = "default_paranoia")]
     pub paranoia_max: u8,
-    /// 按规则 ID 覆盖（942100 / 942101 / 941100 / 941101）
+    /// Per-rule-id overrides (942100 / 942101 / 941100 / 941101).
     #[serde(default)]
     pub rules: HashMap<String, LibInjectionRuleSwitch>,
 }
@@ -51,7 +49,7 @@ impl Default for LibInjectionConfig {
     }
 }
 
-/// API / Console 展示用：规则目录 + 当前生效状态
+/// For API / Console: rule catalog + current effective state.
 #[derive(Debug, Clone, Serialize)]
 pub struct LibInjectionRuleStatus {
     pub id: String,
@@ -61,7 +59,7 @@ pub struct LibInjectionRuleStatus {
     pub severity: String,
     pub scan_targets: Vec<String>,
     pub crs_operator: String,
-    /// 在 paranoia_max=N 时 CRS 标准是否启用该规则
+    /// Whether CRS standard enables the rule when paranoia_max=N.
     pub standard_at_pl: [bool; 4],
     pub override_enabled: Option<bool>,
     pub effective_enabled: bool,

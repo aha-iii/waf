@@ -1,4 +1,4 @@
-//! 自研账号密码登录：签发 HS256 JWT，不依赖 Keycloak。
+//! Local username/password login: issue HS256 JWT; no Keycloak dependency.
 
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};

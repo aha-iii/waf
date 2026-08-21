@@ -1,3 +1,4 @@
+/** Console page: semantic enhancement settings for protection. */
 import { useCallback, useEffect, useState } from "react";
 import { NerveButton, NervePageHeader, nerveConfirm } from "@nerve/ui";
 import { apiGet, apiPost, apiPut } from "../api";

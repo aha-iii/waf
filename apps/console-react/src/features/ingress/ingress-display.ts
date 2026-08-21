@@ -1,3 +1,4 @@
+/** ingress feature: Ingress display. */
 import type { IngressMode } from "./ingress-types";
 import type { ProtectedSite } from "../../sites";
 
@@ -21,7 +22,7 @@ function normalizeSiteMode(raw?: string): IngressMode {
   return "waf-edge";
 }
 
-/** 是否可在 Console 配置回源（default 站点允许，其余通配 * 需先填具体域名） */
+/** Whether Console can configure upstream (default site allowed; other * wildcards need a concrete domain first) */
 export function siteSupportsOriginConfig(site: ProtectedSite): boolean {
   if (site.id === "default") return true;
   const hosts = site.hosts ?? [];

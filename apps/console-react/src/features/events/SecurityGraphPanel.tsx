@@ -1,3 +1,4 @@
+/** events feature: Security Graph Panel. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveAlert,
@@ -20,10 +21,10 @@ type GraphResponse = {
 };
 
 type Props = {
-  /** 有 eventId 时自动加载 */
+  /** Auto-load when eventId is present */
   eventId?: string;
   srcIp?: string;
-  /** 嵌入事件详情时不展示按 IP 反查卡片 */
+  /** When embedded in event detail, hide the reverse-IP lookup card */
   compact?: boolean;
 };
 

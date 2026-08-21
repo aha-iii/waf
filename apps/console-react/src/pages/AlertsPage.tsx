@@ -1,3 +1,4 @@
+/** Console page: alert channel and push-rule configuration. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveButton,
@@ -204,7 +205,7 @@ function normalizeConfig(cfg: AlertConfig): AlertConfig {
   const webhooks = [...(cfg.webhooks ?? [])];
   let merged: AlertConfig = {
     ...cfg,
-    // 规则命中 block 一律可推，不再按类型白名单过滤
+    // Any rule hit with block can push alerts; no longer filter by type allowlist
     categories: [],
     wecom,
     email: cfg.email ?? defaultEmail(),

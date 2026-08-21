@@ -1,4 +1,4 @@
-//! L7 OWASP 检测引擎：支持内置规则 + 外置 JSON 规则包热加载。
+//! L7 regex/OWASP rule engine (embedded rules plus JSON packs).
 
 mod custom;
 mod engine;

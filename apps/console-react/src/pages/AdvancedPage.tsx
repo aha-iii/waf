@@ -1,6 +1,7 @@
+/** Console page: advanced security placeholders (capability not enabled). */
 import { NervePageHeader } from "@nerve/ui";
 
-/** 高级安全：能力未开放，仅占位 */
+/** Advanced security: capability not enabled; placeholder only */
 export function AdvancedPage(): JSX.Element {
   return (
     <>

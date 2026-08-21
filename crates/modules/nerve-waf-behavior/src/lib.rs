@@ -1,4 +1,4 @@
-//! 行为异常检测：基于 IP 滑动窗口的请求频率、路径扫描、URI 熵等启发式评分。
+//! Behavioral anomaly scoring: IP sliding-window rate, path scanning, URI entropy heuristics.
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -28,13 +28,13 @@ pub struct BehaviorConfig {
     pub action: String,
     #[serde(default = "default_threshold")]
     pub score_threshold: u8,
-    /// 滑动窗口秒数
+    /// Sliding window length in seconds.
     #[serde(default = "default_window")]
     pub window_sec: u64,
-    /// 窗口内请求数超过此值加分
+    /// Score up when request count in window exceeds this.
     #[serde(default = "default_rpm")]
     pub max_requests_per_window: u32,
-    /// 窗口内不同 URI 超过此值加分
+    /// Score up when distinct URI count in window exceeds this.
     #[serde(default = "default_unique_paths")]
     pub max_unique_paths: u32,
 }

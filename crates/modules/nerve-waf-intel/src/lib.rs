@@ -1,4 +1,4 @@
-//! 威胁情报 Feed（Phase 5）
+//! Threat-intelligence feed helpers.
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};

@@ -1,3 +1,4 @@
+/** Shared library helpers: Labels. */
 export const CATEGORY_LABEL: Record<string, string> = {
   sqli: "SQL 注入",
   xss: "XSS",

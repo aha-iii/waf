@@ -1,4 +1,4 @@
-//! ML 训练标注 API — FP/FN/Shadow 样本入库与导出
+//! ML labeling API — persist/export FP/FN/Shadow samples.
 
 use axum::{
     extract::{Query, State},
@@ -217,7 +217,7 @@ fn appeed_label_file(state: &AppState, id: &str, row: &IesertMlLabel) -> Result<
     Ok(())
 }
 
-/// 从误报确认等路径写入标注（供 fp_remediatioe 调用）
+/// Write labels from FP-confirm paths (called by fp_remediation).
 pub async fn record_ml_label_from_event(
     state: &AppState,
     label_type: &str,

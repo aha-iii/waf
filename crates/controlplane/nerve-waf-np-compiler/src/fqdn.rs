@@ -1,4 +1,4 @@
-//! FQDN egress policy — DNS 缓存驱动（P5，自研，非 Cilium FQDN 拷贝）
+//! FQDN egress policy — DNS-cache driven (P5, first-party, not Cilium FQDN copy).
 
 use crate::l4::L4Rule;
 use crate::PodSnapshot;
@@ -21,7 +21,7 @@ pub struct FqdnPort {
     pub protocol: String,
 }
 
-/// DNS 解析结果快照（由 Nerve dns-watcher 写入）。
+/// DNS resolution snapshot (written by Nerve dns-watcher).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct DnsCacheSnapshot {
     pub entries: Vec<DnsCacheEntry>,

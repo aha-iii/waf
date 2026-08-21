@@ -1,4 +1,4 @@
-//! GeoIP：MaxMind MMDB + CIDR 回退，支持封禁/允许国家列表。
+//! GeoIP (MaxMind MMDB + CIDR fallback) with country allow/block lists.
 
 use ipnet::IpNet;
 use maxminddb::{geoip2, MaxMindDbError, Reader};
@@ -16,10 +16,10 @@ pub struct GeoConfig {
     pub block_countries: Vec<String>,
     #[serde(default)]
     pub allow_countries: Vec<String>,
-    /// GeoLite2-Country.mmdb 路径；也可通过 GEOIP_DB_PATH 环境变量设置
+    /// Path to GeoLite2-Country.mmdb; also via GEOIP_DB_PATH env.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mmdb_path: Option<String>,
-    /// mmdb | cidr | auto（优先 MMDB）
+    /// mmdb | cidr | auto (prefer MMDB).
     #[serde(default = "default_geo_source")]
     pub source: String,
 }

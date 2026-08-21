@@ -1,4 +1,4 @@
-//! AI 重计算接口简易限流（进程内，单实例）
+//! Simple in-process rate limit for AI recompute APIs (single instance).
 
 use std::collections::HashMap;
 use std::sync::Mutex;
@@ -38,7 +38,7 @@ fn map_mut() -> std::sync::MutexGuard<'static, Option<HashMap<AiRateLimitKind, B
     guard
 }
 
-/// 返回 Err(retry_after_sec) 当触发限流
+/// Returns Err(retry_after_sec) when limited.
 pub fn check_expensive_ai(kind: AiRateLimitKind) -> Result<(), u64> {
     let max = kind.max_per_window();
     let window = kind.window();

@@ -1,3 +1,5 @@
+//! Shared WAF SDK types: routes, events, plugins, protection modules, and config shapes.
+
 mod config;
 mod l7_checks;
 mod trace;

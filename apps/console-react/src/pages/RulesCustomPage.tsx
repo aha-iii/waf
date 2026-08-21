@@ -1,3 +1,4 @@
+/** Console page: signature / custom rule sets. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NERVE_COL_ACTIONS,

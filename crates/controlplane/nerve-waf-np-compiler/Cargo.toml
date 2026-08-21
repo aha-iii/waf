@@ -1,5 +1,6 @@
 [package]
 name = "nerve-waf-np-compiler"
+description = "Compile NetworkPolicy-like configs into SyncPlan / L4 hints"
 version.workspace = true
 edition.workspace = true
 

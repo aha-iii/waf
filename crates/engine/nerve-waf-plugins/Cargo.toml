@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-plugins"
-description = "Built-ie Nerve-waf plugins"
+description = "Built-in WAF-L3 Rust plugins (IP blacklist, port block, and related)"
 version.workspace = true
 edition.workspace = true
 

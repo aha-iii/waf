@@ -1,4 +1,4 @@
-//! 网络观测：趋势统计、GeoIP 查询、Agent 基线加白代理。
+//! Network observation: trend stats, GeoIP lookup, Agent baseline-allow proxy.
 
 use axum::{
     extract::{Query, State},

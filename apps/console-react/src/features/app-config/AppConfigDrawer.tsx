@@ -1,3 +1,4 @@
+/** app-config feature: App Config Drawer. */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
@@ -333,7 +334,7 @@ export function AppConfigDrawer({
   const [initialModulesJson, setInitialModulesJson] = useState("");
   const [initialSemanticJson, setInitialSemanticJson] = useState("");
   const [initialBoundStrategyId, setInitialBoundStrategyId] = useState("tpl-standard");
-  /** 本应用运行时快照：选中内置策略时回显，避免被本应用私有策略预览污染 */
+  /** This app's runtime snapshot: echo when a built-in strategy is selected to avoid pollution from private strategy preview */
   const [appRuntimeModules, setAppRuntimeModules] = useState<ProtectionModules | null>(null);
   const [appRuntimeSemantic, setAppRuntimeSemantic] = useState<SemanticConfig | null>(null);
   const [appRuntimeLevels, setAppRuntimeLevels] = useState<ProtectionLevels | null>(null);
@@ -531,7 +532,7 @@ export function AppConfigDrawer({
           upsertStrategyCache(tpl);
         }
         if (!isAppPrivateStrategy(tpl)) {
-          // 非本应用私有：回显运行时
+          // Not app-private: echo runtime
           if (appRuntimeModules) setModules(appRuntimeModules);
           if (appRuntimeSemantic) setSemantic(appRuntimeSemantic);
           if (appRuntimeLevels) setProtectionLevels(appRuntimeLevels);
@@ -547,7 +548,7 @@ export function AppConfigDrawer({
       return;
     }
 
-    // 内置/全局：回显本应用运行时（隔离，不同步写入）
+    // Built-in/global: echo this app's runtime (isolated; do not sync-write)
     if (appRuntimeModules) setModules(appRuntimeModules);
     if (appRuntimeSemantic) setSemantic(appRuntimeSemantic);
     if (appRuntimeLevels) setProtectionLevels(appRuntimeLevels);
@@ -787,7 +788,7 @@ export function AppConfigDrawer({
     const errors: string[] = [];
     let nextSites = [...sites];
     try {
-      // 任意配置保存时都写入完整应用列表，避免新应用只改模块却未持久化
+      // On any config save, write the full app list so new apps that only change modules still persist
       if (siteIndex >= 0) nextSites[siteIndex] = site;
       else {
         nextSites.push(site);

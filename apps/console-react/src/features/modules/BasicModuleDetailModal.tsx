@@ -1,3 +1,4 @@
+/** modules feature: Basic Module Detail Modal. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

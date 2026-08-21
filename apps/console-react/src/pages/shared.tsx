@@ -1,3 +1,4 @@
+/** Shared helpers and widgets used across Console pages. */
 import { NerveTag, type NerveTagTone } from "@nerve/ui";
 import { formatTs, formatTsEvent } from "../lib/datetime";
 import { categoryLabel as catLabel } from "../lib/labels";

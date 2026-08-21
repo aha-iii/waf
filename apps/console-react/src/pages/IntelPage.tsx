@@ -1,3 +1,4 @@
+/** Console page: threat-intelligence feeds and hits. */
 import { useCallback, useEffect, useState } from "react";
 import {
   NerveButton,

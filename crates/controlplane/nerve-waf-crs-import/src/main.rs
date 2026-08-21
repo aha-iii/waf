@@ -1,3 +1,5 @@
+//! CLI entry for importing OWASP ModSecurity CRS into Nerve JSON rule packs.
+
 use clap::Parser;
 use nerve_waf_crs_import::{count_existing_rules, import_crs, merge_pack_manifest, ImportOptions};
 use std::path::PathBuf;

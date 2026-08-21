@@ -1,3 +1,4 @@
+/** Root React app: routing shell and auth gate for WAF Console. */
 import { useEffect, useState } from "react";
 import { ToastProvider } from "@nerve/ui";
 import { apiGet } from "./api";

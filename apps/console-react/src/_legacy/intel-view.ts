@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Intel view. */
 import { apiGet, apiPost, apiPut } from "./api.js";
 import {
   btn,

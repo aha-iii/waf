@@ -1,3 +1,4 @@
+/** modules feature: Module Rules Modal. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   NerveAlert,
@@ -40,13 +41,13 @@ export type ModuleRulesModalProps = {
   moduleEnabled?: boolean;
   moduleKey?: string;
   siteId?: string;
-  /** 应用抽屉内可编辑本应用规则集 */
+  /** Editable app rule set inside the app drawer */
   editable?: boolean;
   disabledRules?: string[];
   onSave?: (disabledRules: string[]) => void;
-  /** 打开后定位并高亮指定规则 */
+  /** After open, scroll to and highlight a rule */
   highlightRuleId?: string;
-  /** 专家防护运行时；未传入时在弹窗打开时拉取 */
+  /** Expert-protection runtime; fetch on modal open when not passed in */
   crsRuntime?: CrsRuntimeStatus;
 };
 
@@ -221,7 +222,7 @@ export function ModuleRulesModal(props: ModuleRulesModalProps) {
       void fetchCrsRuntime()
         .then(setFetchedCrsRuntime)
         .catch(() => {
-          /* 与原版一致：无 crsRuntime 时不限制开关 */
+          /* Match legacy: do not gate toggles when crsRuntime is absent */
         });
     }
   }, [open, load, initialDisabled, highlightRuleId, crsRuntimeProp]);

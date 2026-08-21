@@ -1,3 +1,4 @@
+/** upstreams feature: Upstream types. */
 export type UpstreamNode = {
   host: string;
   port: number;
@@ -15,7 +16,7 @@ export type UpstreamTransport = {
   pool_max_requests?: number;
 };
 
-/** 主动 + 被动健康检查配置 */
+/** Active + passive health-check config */
 export type ActiveHealthyThreshold = {
   interval: number;
   successes: number;
@@ -65,7 +66,7 @@ export type UpstreamChecks = {
   passive?: PassiveHealthCheck | null;
 };
 
-/** @deprecated 旧单块配置，加载时迁移到 checks */
+/** @deprecated legacy single-block config; migrated to checks on load */
 export type UpstreamHealthCheck = {
   enabled: boolean;
   hc_type: string;
@@ -84,7 +85,7 @@ export type WafUpstream = {
   id: string;
   name: string;
   enabled: boolean;
-  /** 节点回源 | Gateway 穿透 */
+  /** Node origin | Gateway pass-through */
   origin_kind?: UpstreamOriginKind;
   scheme: string;
   type: string;

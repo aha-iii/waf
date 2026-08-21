@@ -1,3 +1,4 @@
+/** Console page: generic placeholder for routes not yet wired. */
 import { NervePageHeader } from "@nerve/ui";
 
 type Props = {

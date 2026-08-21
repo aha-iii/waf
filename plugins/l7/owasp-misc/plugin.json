@@ -3,7 +3,7 @@
   "layer": "l7",
   "type": "json",
   "version": "1.0.0",
-  "description": "路径穿越/RCE/SSRF/Webshell 规则包",
+  "description": "Path traversal / RCE / SSRF / Webshell rule pack / 路径穿越/RCE/SSRF/Webshell 规则包",
   "category": "misc",
   "priority": 120,
   "rules": ["rules/*.json"],

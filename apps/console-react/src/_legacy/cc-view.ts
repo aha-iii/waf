@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Cc view. */
 import { apiGet, apiPut } from "./api.js";
 
 type CcConfig = {

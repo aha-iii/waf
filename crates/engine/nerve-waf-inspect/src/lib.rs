@@ -1,3 +1,5 @@
+//! Unified inspect pipeline (pre_access -> expert -> core -> custom).
+
 mod expert_bridge;
 mod pipeline;
 mod trace;

@@ -1,3 +1,4 @@
+/** Legacy (pre-React) console module: Module display. */
 import { MODULE_META } from "./module-meta.js";
 
 export type ModuleConfig = {
@@ -11,7 +12,7 @@ export type ProtectionModulesLike = {
   modules: Record<string, ModuleConfig>;
 };
 
-/** 卡片上显示的模块短名 */
+/** Short module name shown on cards */
 export const MODULE_SHORT: Record<string, string> = {
   sqli: "SQLi",
   xss: "XSS",
@@ -95,7 +96,7 @@ export function renderModuleTag(key: string, cfg: ModuleConfig, globalMode: stri
   return `<span class="${moduleTagClasses(cfg, globalMode)}" title="${esc(moduleTagTitle(key, cfg, globalMode))}">${esc(label)}${suffix}</span>`;
 }
 
-/** 应用卡片：仅模块标签着色（不含全局拦截/检测标签） */
+/** App card: color module tags only (no global block/detect tags) */
 export function renderSiteCapabilityTags(
   modules: ProtectionModulesLike,
   esc: (s: string) => string,

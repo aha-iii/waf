@@ -18,15 +18,15 @@ fn default_timeout_ms() -> u32 {
     50
 }
 
-/// 规范流水线阶段 id（与 Console `pipeline-stages.ts` 一致）。
-/// 语义是增强配置，不是可排序检测段。
+/// Canonical pipeline stage ids (aligned with Console `pipeline-stages.ts`).
+/// Semantic is enhancement config, not a reorderable detect segment.
 pub const PIPELINE_STAGE_IDS: &[&str] = &["pre_access", "expert", "core", "custom"];
 
 fn default_pipeline_order() -> Vec<String> {
     PIPELINE_STAGE_IDS.iter().map(|s| (*s).into()).collect()
 }
 
-/// 将历史 `crs` 展开为 `expert` + `core`；剥离已废弃的 `semantic`/`plugin` 段；补齐缺失阶段。
+/// Expand historical `crs` into `expert` + `core`; strip deprecated `semantic`/`plugin`; fill missing stages.
 pub fn normalize_pipeline_order(order: &[String]) -> Vec<String> {
     let allowed: std::collections::HashSet<&str> = PIPELINE_STAGE_IDS.iter().copied().collect();
     let mut seen = std::collections::HashSet::new();
@@ -69,7 +69,7 @@ pub fn normalize_pipeline_order(order: &[String]) -> Vec<String> {
     result
 }
 
-/// 迁移 `pipeline_enabled`：旧键 `crs` 复制到 expert/core。
+/// Migrate `pipeline_enabled`: copy old key `crs` to expert/core.
 pub fn normalize_pipeline_enabled(
     order: &[String],
     enabled: &std::collections::HashMap<String, bool>,
@@ -136,17 +136,17 @@ fn default_window_hours() -> u32 {
     168
 }
 
-/// 反馈驱动自动调优（长期运营）
+/// Feedback-driven auto-tune (long-term ops).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SemanticAutoTune {
     #[serde(default = "default_true")]
     pub enabled: bool,
-    /// 同一 param_path 误报达到此次数 → 自动加入参数白名单
+    /// Same param_path FP count reaches this → auto-add to param allowlist.
     #[serde(default = "default_fp_threshold")]
     pub false_positive_threshold: u32,
     #[serde(default = "default_true")]
     pub auto_whitelist_param: bool,
-    /// 窗口内误报总数达到此次数 → 自动切 relaxed 模式
+    /// Window FP total reaches this → auto-switch to relaxed mode.
     #[serde(default = "default_true")]
     pub auto_relax_mode: bool,
     #[serde(default = "default_relax_fp_count")]
@@ -174,12 +174,12 @@ pub struct SemanticWhitelist {
     pub param_names: Vec<String>,
     #[serde(default)]
     pub path_prefixes: Vec<String>,
-    /// 匹配 Content-Type 前缀则跳过 body 切片
+    /// Skip body slicing when Content-Type prefix matches.
     #[serde(default)]
     pub content_types: Vec<String>,
 }
 
-/// 引擎组合 / 流水线优先级
+/// Engine composition / pipeline priority.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EngineFusion {
     #[serde(default = "default_true")]
@@ -192,7 +192,7 @@ pub struct EngineFusion {
     pub fallback_plain_libinjection: bool,
     #[serde(default = "default_pipeline_order")]
     pub pipeline_order: Vec<String>,
-    /// 各检测段是否参与流水线（缺省或未配置视为启用）
+    /// Whether each detect segment participates (missing/unset = enabled).
     #[serde(default)]
     pub pipeline_enabled: HashMap<String, bool>,
 }
@@ -202,7 +202,7 @@ impl EngineFusion {
         self.pipeline_enabled.get(stage).copied().unwrap_or(true)
     }
 
-    /// 加载/保存前规范化阶段列表与开关（兼容历史 `crs`）。
+    /// Normalize stage list and switches before load/save (compat historical `crs`).
     pub fn normalize_pipeline(&mut self) {
         self.pipeline_order = normalize_pipeline_order(&self.pipeline_order);
         self.pipeline_enabled =
@@ -227,7 +227,7 @@ fn default_pipeline_editor_mode() -> String {
     "list".into()
 }
 
-/// 流水线编排编辑器状态（Console 列表/流程图双模式）
+/// Pipeline orchestration editor state (Console list/flowchart dual mode).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PipelineNodeLayout {
     pub x: i32,
@@ -245,15 +245,15 @@ pub struct PipelineEditor {
     /// `list` | `flow`
     #[serde(default = "default_pipeline_editor_mode")]
     pub mode: String,
-    /// 各检测段在编排画布上的偏移（像素，兼容旧版）
+    /// Per-segment offsets on orchestration canvas (pixels; legacy compat).
     #[serde(default)]
     pub layout: HashMap<String, PipelineNodeLayout>,
-    /// LogicFlow 图数据（nodes + edges），Console 编排模式持久化
+    /// LogicFlow graph data (nodes + edges); persisted in Console orchestration mode.
     #[serde(default)]
     pub graph: Option<serde_json::Value>,
 }
 
-/// 性能与采样
+/// Performance and sampling.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct SemanticPerformance {
     #[serde(default = "default_max_slices")]
@@ -321,10 +321,10 @@ pub struct SemanticConfig {
     pub auto_tune: SemanticAutoTune,
     #[serde(default = "default_true")]
     pub intent_enabled: bool,
-    /// 检测流水线编排 UI（不影响运行时，仅 Console 持久化）
+    /// Detect-pipeline orchestration UI (Console persistence only; no runtime effect).
     #[serde(default)]
     pub pipeline_editor: PipelineEditor,
-    /// 专家防护强度。全局必填语义（缺省 medium）；应用侧 `None` 表示继承全局。
+    /// Expert protection strength. Required globally (default medium); app-side `None` means inherit global.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub expert_level: Option<ExpertLevel>,
 }
@@ -354,7 +354,7 @@ impl SemanticConfig {
             .unwrap_or(ExpertLevel::Medium)
     }
 
-    /// 历史：语义曾是流水线段。若显式关闭该段，迁移为关闭语义增强。
+    /// Historical: semantic used to be a pipeline segment. Explicitly disabling it migrates to disable semantic enhancement.
     fn migrate_semantic_stage_off(&mut self) {
         if self.engines.pipeline_enabled.get("semantic") == Some(&false) {
             self.enabled = false;

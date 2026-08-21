@@ -1,3 +1,4 @@
+/** ingress feature: Gateway Bind Panel. */
 import { NerveButton, NerveFormItem, NerveSelect, NerveTag } from "@nerve/ui";
 import { GATEWAY_DASHBOARD_URL } from "../../nav";
 import type { GatewayBindingsResponse, GatewayUpstreamsResponse, SiteIngress } from "./ingress-types";

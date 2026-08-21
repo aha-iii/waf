@@ -1,3 +1,4 @@
+/** Shared console UI component: Copilot Panel. */
 import { useState } from "react";
 import { NerveButton, NerveCard, NerveInput, NerveTag } from "@nerve/ui";
 import { apiGet, apiPost } from "../api";

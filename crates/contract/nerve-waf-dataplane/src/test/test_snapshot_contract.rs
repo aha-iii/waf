@@ -1,4 +1,4 @@
-//! 快照契约：checksum 与 generation 元数据。
+//! Snapshot contract: checksum and generation metadata.
 
 use crate::{build_waf_edge_snapshot, WafEdgeBuildInput, WafEdgeSeapshot};
 

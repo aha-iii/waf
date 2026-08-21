@@ -1,3 +1,5 @@
+//! HTTP client to Nerve Agent / Observer (policy sync, journey traces).
+
 use reqwest::Client;
 use serde_json::{json, Value};
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -179,13 +181,13 @@ impl NerveClient {
         self.get_query("/api/observer/journey", &[("id", id)]).await
     }
 
-    /// NPT 连接谱系（trace_id 下 journey 树 + 合并时间线）。
+    /// NPT connection lineage (journey tree under trace_id + merged timeline).
     pub async fn get_trace_genealogy(&self, trace_id: &str) -> Result<Value, NerveClientError> {
         self.get_query("/api/observer/trace/genealogy", &[("trace_id", trace_id)])
             .await
     }
 
-    /// 将 trace 上下文绑定到 Agent session/五元组，供 eBPF/CNI 自动拼接。
+    /// Bind trace context to Agent session/5-tuple for eBPF/CNI auto-stitch.
     pub async fn bind_trace_context(&self, body: &Value) -> Result<(), NerveClientError> {
         let url = format!("{}/api/observer/trace/bind", self.base_url);
         let res = self.http.post(&url).json(body).send().await?;
@@ -218,7 +220,7 @@ impl NerveClient {
         Ok(())
     }
 
-    /// 上报单跳至 Observer（Packet Journey 标准）。
+    /// Report one hop to Observer (Packet Journey standard).
     pub async fn post_journey_hop(&self, hop: &Value) -> Result<(), NerveClientError> {
         let url = format!("{}/api/observer/journey/hop", self.base_url);
         let res = self.http.post(&url).json(hop).send().await?;
@@ -233,7 +235,7 @@ impl NerveClient {
         Ok(())
     }
 
-    /// Agent 实时观测快照（等同 WebSocket 初始 state）。
+    /// Agent live observation snapshot (same as WebSocket initial state).
     pub async fn get_observer_state(&self) -> Result<Value, NerveClientError> {
         self.get("/api/state").await
     }

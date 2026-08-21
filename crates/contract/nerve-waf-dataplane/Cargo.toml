@@ -1,6 +1,6 @@
 [package]
 name = "nerve-waf-dataplane"
-description = "WAF Edge dataplane snapshot contract (control plane compile → data plane consume)"
+description = "Control-plane to data-plane snapshot contract (WafEdgeSnapshot) with checksum helpers"
 version.workspace = true
 edition.workspace = true
 

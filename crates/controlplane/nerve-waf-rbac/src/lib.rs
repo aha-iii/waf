@@ -1,4 +1,4 @@
-//! 多租户 RBAC（Phase 6）
+//! Multi-tenant RBAC helpers.
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};

@@ -1,4 +1,4 @@
-//! Console 本地账号（`waf_users`）持久化与密码校验。
+//! Console local accounts (`waf_users`) persistence and password verify.
 
 use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
@@ -74,7 +74,7 @@ impl UsersStore {
         Ok(Self { pool })
     }
 
-    /// 无可用登录账号时创建 bootstrap 管理员。
+    /// Create bootstrap admin when no usable login account exists.
     pub async fn ensure_bootstrap_admin(
         &self,
         username: &str,

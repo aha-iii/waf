@@ -1,3 +1,5 @@
+//! CLI to compile/sync WAF-L3 plans to Nerve Agent.
+
 use clap::Parser;
 use nerve_waf_client::NerveClient;
 use nerve_waf_engine::sync_config_with_runtime;

@@ -15,7 +15,7 @@ fn default_decode_order() -> Vec<String> {
     ]
 }
 
-/// 解码策略：各编码开/关 + 执行顺序
+/// Decode policy: per-encoding on/off + execution order.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DecodePolicy {
     pub max_depth: u8,
@@ -52,7 +52,7 @@ impl Default for DecodePolicy {
     }
 }
 
-/// 兼容旧配置字段名
+/// Compat legacy config field names.
 pub type DecodeConfig = DecodePolicy;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -62,7 +62,7 @@ pub struct DecodeLayer {
     pub text: String,
 }
 
-/// 按策略顺序递归解码
+/// Recursively decode in policy order.
 pub fn decode_chain(raw: &str, cfg: &DecodePolicy) -> Vec<DecodeLayer> {
     let mut layers = vec![DecodeLayer {
         depth: 0,
@@ -115,7 +115,7 @@ pub fn decode_chain(raw: &str, cfg: &DecodePolicy) -> Vec<DecodeLayer> {
 
 fn try_url_decode(s: &str) -> Option<String> {
     use nerve_waf_canonical::url_decode_uni;
-    // Semantic `url` 步：与 Antibody UrlDecodeUni 对齐，最多 3 轮迭代。
+    // Semantic `url` step: aligned with Antibody UrlDecodeUni; at most 3 iterations.
     let decoded = url_decode_uni(s, 3);
     if decoded != s {
         Some(decoded)

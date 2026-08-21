@@ -1,3 +1,4 @@
+/** Shared library helpers: Crs runtime. */
 import { apiGet } from "../api";
 
 export type CrsEnginePreference = "auto" | "wasm" | "off" | "coraza";
@@ -24,7 +25,7 @@ export async function fetchCrsRuntime(): Promise<CrsRuntimeStatus> {
   return apiGet<CrsRuntimeStatus>("/api/crs/runtime");
 }
 
-/** 专家防护整包路径下，核心模块开关不作用于专家段 */
+/** On the expert whole-pack path, core module toggles do not apply to the expert stage */
 export function crsModuleControlsLimited(status: CrsRuntimeStatus): boolean {
   return status.effective_engine === "wasm";
 }

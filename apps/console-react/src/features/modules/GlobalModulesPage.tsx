@@ -1,3 +1,4 @@
+/** modules feature: Global Modules Page. */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NerveAlert, NervePageHeader, NerveSelect, NerveTableToolbar } from "@nerve/ui";
 import { apiGet } from "../../api";

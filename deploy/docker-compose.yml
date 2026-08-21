@@ -1,9 +1,11 @@
-# 形态 B 单机部署：控制面 API + Console + 数据面 Edge（同一镜像，不同 entrypoint）
+# Nerve WAF — topology B (single host): control-plane API + Console + data-plane Edge
+# (same image, different entrypoints). Copy deploy/.env.example → .env and change placeholders.
 #
 #   docker load -i ../dist/nerve-waf-api-1.0.0.tar
 #   cd Nerve-waf/deploy && docker compose up -d
 #
-# 业务域名 → EDGE_PORT(8080)；管理 Console → CONSOLE_PORT(8782，建议内网)；API → PORT(8781)
+# Traffic: business → EDGE_PORT(8080); Console → CONSOLE_PORT(8782, prefer intranet); API → PORT(8781)
+# 形态 B 单机部署：控制面 API + Console + 数据面 Edge（同一镜像，不同 entrypoint）
 
 name: nerve-waf-test
 

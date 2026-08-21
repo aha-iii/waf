@@ -1,4 +1,4 @@
-//! Edge 监听：可选 SO_REUSEPORT 多进程共享端口（Linux）。
+//! Edge listen: optional SO_REUSEPORT multi-process shared port (Linux).
 
 use std::net::SocketAddr;
 

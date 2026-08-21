@@ -1,4 +1,4 @@
-//! Keycloak OIDC JWT 校验（JWKS）
+//! Keycloak OIDC JWT validation (JWKS).
 
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use jsonwebtoken::jwk::{Jwk, JwkSet};

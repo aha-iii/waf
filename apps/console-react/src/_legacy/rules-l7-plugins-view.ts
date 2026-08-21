@@ -1,7 +1,4 @@
-/**
- * L7 JSON / Lua 插件：ConfigMap 式版本管理
- * renderRulesL7PluginsView(root, toast, "json" | "lua")
- */
+/** Legacy L7 JSON/Lua plugins view with ConfigMap-style versioning. */
 import { apiDelete, apiGet, apiPost, apiPut } from "./api.js";
 import {
   btn,
