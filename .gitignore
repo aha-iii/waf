@@ -46,9 +46,9 @@ Thumbs.db
 .local/
 .deploy-stage/
 
-# Scripts：仅保留测试/正式上传链路入库；临时文件仍忽略
-scripts/.tmp-*
-scripts/_pack-*.txt
+# 发版 / 部署脚本：仅本机保留，不上 GitLab
+/scripts/*
+!/scripts/README.md
 
 # Accidental / temp
 /cannot
