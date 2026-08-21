@@ -5,7 +5,7 @@
 ## 开发前准备
 
 1. 阅读 [README.md](./README.md) 与 [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md)
-2. 按 DEPENDENCIES 放好同级仓（Antibody / Alert），或运行 `bash scripts/check-sibling-deps.sh`
+2. 按 DEPENDENCIES 放好同级仓（Antibody / Alert）
 3. Rust：见 `rust-toolchain.toml`；Node 20+（Console）
 
 ```bash
@@ -52,9 +52,8 @@ mod test;
 | 路径 | 是否面向贡献者 |
 |------|----------------|
 | `crates/`、`apps/console-react/` | ✅ 主战场 |
-| `scripts/start-*.sh`、`download-*.sh`、`import-crs.sh`、`defense-smoke-*` | ✅ 开发/验证 |
-| `scripts/diag-*`、`deploy-prod*`、`emergency-*` 等运维脚本 | ❌ **不入库**（见根 `.gitignore` / `scripts/README.md`） |
-| `vendor/coreruleset` | 上游 CRS 快照，勿随手大改；见 `vendor/README.md` |
+| `scripts/deploy-*`、`pack-dist-runtime*` | ✅ 测试/正式上传（见 `scripts/README.md`） |
+| `vendor/coreruleset` | 上游 CRS 快照；见 `vendor/README.md` |
 | `dist/`、`data/`、`logs/` | ❌ 本地产物，勿提交 |
 
 ## PR 建议

@@ -1,22 +1,42 @@
-# Scripts 约定
+# Scripts — 测试 / 正式上传
 
-## 会入库（开源 / CI / 本地开发）
+本目录**只保留**打包装发与上传相关脚本。
 
-| 类型 | 示例 |
-|------|------|
-| 启动 | `start-*.sh`、`start-api.sh` |
-| 依赖与规则 | `download-*.sh`、`import-crs.sh`、`npm-deps.sh`、`fetch-sibling-deps.sh`、`check-sibling-deps.sh` |
-| 冒烟 / 回归 | `defense-smoke-*`、`e2e-*`、`gotestwaf-*`、`run-waf-bench-*`、`run-gotestwaf-*` |
-| 构建辅助 | `docker-build-console.sh`、`build-with-hyperscan.sh`、`pack-dist-runtime*`、`init-db.sql` |
-| 说明 | `README.md` |
+## 测试环境（mars-test）
 
-## 不入库（运维私有，已在根 `.gitignore`）
+```bash
+cp scripts/deploy-runtime.local.env.example scripts/deploy-runtime.local.env
+# 编辑主机 / 账号 / 路径
 
-本地可继续放在 `scripts/`，但 **不要 `git add`**：
+bash scripts/deploy-test.sh              # 编译 + 打包 + 上传 + up
+bash scripts/deploy-test.sh --skip-build # 跳过编译
+# 或：
+bash scripts/deploy-runtime-to-test.sh --up
+```
 
-- `diag-*`、`deploy-prod*`、`deploy-runtime*`、`deploy-test*`、`deploy-mars*`
-- `emergency-*`、`ensure-prod*`、`migrate-prod*`、`finish-tls*`、`reload-prod*`
-- `attack-*`、`ssh-smoke*`、`tune-gitlab*`、`_*` 临时脚本
-- 各类 `fix-*-corruption*` / 环境特供 fix、以及 `scripts/lib/deploy-*.sh`
+Windows：`deploy-runtime-to-test.ps1` / `deploy-runtime-to-test-win.ps1`
 
-这类脚本请放到私有 ops 仓，或仅留在本机。
+## 正式环境
+
+```bash
+cp scripts/deploy-prod.local.env.example scripts/deploy-prod.local.env
+
+bash scripts/deploy-prod-infra.sh        # 基础设施（首次 / 路由）
+bash scripts/deploy-prod.sh --up         # 业务栈上传 + up
+bash scripts/deploy-prod.sh --skip-build --up
+```
+
+## 打包（上传前）
+
+```bash
+bash scripts/pack-dist-runtime.sh --build       # 正式包
+bash scripts/pack-dist-runtime.sh --build --test # 测试包（过滤部分规则）
+```
+
+## 本地密钥
+
+`*.local.env` **不入库**。仅提交 `*.local.env.example`。
+
+## `lib/`
+
+被 pack / deploy 引用的公共函数，勿单独当入口跑。

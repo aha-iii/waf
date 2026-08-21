@@ -30,17 +30,11 @@ Nerve WAF workspace 通过 **Cargo path** 依赖生态内其它仓。当前解�
 
 ## 检查与拉取
 
-```bash
-# 校验相对路径是否存在
-bash scripts/check-sibling-deps.sh
+同级仓需自行放好（见上表）。发版脚本见 `scripts/README.md`（`deploy-test` / `deploy-prod`）。
 
-# 若你有镜像地址，可设置环境变量后用脚本克隆（见脚本内注释）
-# NERVE_ANTIBODY_GIT=... NERVE_ALERT_GIT=... bash scripts/fetch-sibling-deps.sh
-```
-
-本地开发也可先：
+本地开发：
 
 ```bash
-bash scripts/start-waf.sh      # API :8781
-bash scripts/start-console.sh  # Console（见脚本实际端口）
+cargo run -p nerve-waf-api --release
+cd apps/console-react && npm install && npm run dev
 ```
