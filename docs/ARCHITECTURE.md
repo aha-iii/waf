@@ -1,42 +1,47 @@
-# Nerve WAF architecture
+# Nerve WAF — code architecture
 
-Product name **Nerve WAF** (directory `Nerve-waf/`). This product = **L7 detection** + **control plane** + **WAF-L3 config (pushed to Agent eBPF)** + **edge dataplane**.  
-Crate prefix remains `nerve-waf-*`; see [NAMING.md](./NAMING.md). Sibling deps: [DEPENDENCIES.md](./DEPENDENCIES.md).
+**Runtime architecture (control/data plane, sync, HA):** [architecture-overview.md](./architecture-overview.md)  
+**Product boundaries:** [concepts/boundaries.md](./concepts/boundaries.md)
 
-Platform topology / cluster NetworkPolicy belong to **Nerve-control** (`:8780`), not a long-term responsibility of this repo.
+Nerve WAF = **L7 detection** + **control plane API** + **L7 agent dataplane**.  
+Crate prefix: `nerve-waf-*` · [NAMING.md](./NAMING.md)
 
-## Relation to ecosystem components
+## Crate layers
 
-| Product | Location | Role |
-|---------|----------|------|
-| **Nerve WAF** | `Nerve-waf/Nerve-waf/` | L7 inspect, events, WAF-L3, Console, edge |
-| **Nerve Antibody** | `Nerve-waf/Nerve-antibody/` | Expert engine + rule packs (inspect `expert`) |
-| **Nerve Gateway** | `Nerve-gateway/` | L7 routing / reverse proxy / call `/api/inspect` |
-| **Nerve Agent** | `Nerve/` | eBPF enforcement of WAF-L3 |
-| **Nerve-alert** | `Nerve-alert/` | Alert center (API reports via client) |
+```text
+crates/
+├── contract/       Shared types (nerve-waf-sdk)
+├── engine/         Detection pipeline — no DB, no HTTP
+├── modules/        Pipeline plugins
+├── controlplane/   Controller API, Store, CRS import
+└── dataplane/      nerve-waf-agent, embed runtime, snapshots
+```
 
-## Workspace layers
-
-See `crates/README.md` for the contract / engine / modules / controlplane / dataplane split.
+Details: [crates/README.md](../crates/README.md).
 
 ## Detection pipeline
 
 ```text
 HTTP request
   → normalize / canonical
-  → pipeline stages:
-      expert     : Antibody (needs sibling repo)
-      core       : CRS / signatures
-      custom     : custom / api-sec
-  → optional event persistence + Alert dispatch
+  → stages: expert (optional) → core (CRS) → custom
+  → verdict + optional event persistence
 ```
 
-## Default ports
+Optional `--features expert|alert`: [DEPENDENCIES.md](./DEPENDENCIES.md).
 
-| Service | Port |
-|---------|------|
-| Control API | `8781` (examples may also use `8780`) |
-| Console (Vite) | `5177` |
-| Edge | `8080` |
+## Processes
 
-Config: `config.yml` + `.env` (see `.env.example`).
+| Binary | Crate path | Role |
+|--------|------------|------|
+| `nerve-waf-controller` | controlplane | API + snapshot source |
+| `nerve-waf-agent` | dataplane | Sync + proxy + inspect |
+| `nerve-waf-console` | controlplane bin | Static UI |
+
+Ports: [PORTS.md](./PORTS.md).
+
+## Configuration
+
+`config.yml` + env — [configuration.md](./configuration.md).
+
+Deploy: [../deploy/TOPOLOGY.md](../deploy/TOPOLOGY.md).

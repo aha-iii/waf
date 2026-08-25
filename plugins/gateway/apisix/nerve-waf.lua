@@ -17,7 +17,7 @@ local schema = {
     properties = {
         waf_api = {
             type = "string",
-            default = "http://127.0.0.1:8780",
+            default = "http://127.0.0.1:9000",
         },
         api_key = {
             type = "string",
@@ -329,7 +329,7 @@ function _M.check_schema(conf)
 end
 
 function _M.access(conf, ctx)
-    local waf_api = trim_slash(conf.waf_api or "http://127.0.0.1:8780")
+    local waf_api = trim_slash(conf.waf_api or "http://127.0.0.1:9000")
     local url = waf_api .. "/api/inspect"
     local timeout = conf.timeout or 2000
 

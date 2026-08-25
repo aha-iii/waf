@@ -25,3 +25,6 @@ pub use plugin::{PluginContext, PluginMeta, WafPlugin};
 pub use plugin_manifest::*;
 pub use sensitivity::{rule_matches_sensitivity, sensitivity_paranoia_max, severity_rank};
 pub use types::*;
+
+#[cfg(test)]
+mod test;

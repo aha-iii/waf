@@ -48,16 +48,3 @@ async fn table_exists(pool: &PgPool, table: &str) -> Result<bool, StoreError> {
 pub fn ai_required_tables() -> &'static [&'static str] {
     AI_TABLES
 }
-
-#[cfg(test)]
-mod tests {
-    use super::ai_required_tables;
-
-    #[test]
-    fn ai_required_tables_cover_posture_and_labels() {
-        let tables = ai_required_tables();
-        assert!(tables.contains(&"waf_ml_labels"));
-        assert!(tables.contains(&"waf_posture_scan"));
-        assert!(tables.contains(&"waf_fp_remediation"));
-    }
-}

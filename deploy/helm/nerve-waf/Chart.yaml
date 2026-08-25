@@ -1,8 +1,18 @@
-# Nerve WAF Helm chart metadata (control-plane API: L7 inspect + WAF-L3 SyncPlan).
-# Independent of Nerve-control. Bump version/appVersion when publishing the chart.
+# Nerve WAF Helm Chart — Controller + L7 Agent (Cilium/K8s-style values layout).
+# Bump chart version on packaging changes; appVersion tracks Nerve WAF release (see ../../VERSION).
+
 apiVersion: v2
 name: nerve-waf
-description: Nerve WAF API (L7 inspect + WAF-L3 SyncPlan) — independent of Control
+description: Nerve WAF — L7 WAF Controller API and Agent dataplane
 type: application
-version: 0.1.0
-appVersion: "0.1.0"
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - waf
+  - security
+  - l7
+home: https://github.com/YOUR-ORG/YOUR-REPO/tree/main/Nerve-waf/Nerve-waf
+sources:
+  - https://github.com/YOUR-ORG/YOUR-REPO
+maintainers:
+  - name: Nerve WAF Maintainers

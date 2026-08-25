@@ -1,0 +1,81 @@
+# Nerve WAF — 预构建镜像 + 外置 PostgreSQL（形态 B，无 compose 内 PG）
+#
+# 前置：docker load -i <nerve-waf-controller.tar>  且 .env 中配置 DATABASE_URL
+#
+#   cd Nerve-waf/Nerve-waf/deploy
+#   cp .env.example .env   # 填写 DATABASE_URL
+#   docker compose -f docker-compose.prebuilt.yml up -d
+#
+# Console 内嵌在 controller:9000（WAF_CONSOLE_ATTACH=1）或单独起 nerve-waf-console 容器。
+# 详见 deploy/TOPOLOGY.md §「形态 B」。
+
+name: nerve-waf-prebuilt
+
+services:
+  nerve-waf-controller:
+    image: nerve/nerve-waf-controller:${TAG:-1.0.0}
+    pull_policy: never
+    container_name: nerve-waf-controller
+    ports:
+      - "${PORT:-9000}:9000"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      PORT: "9000"
+      WAF_CONFIG: /etc/nerve-waf/config.yml
+      WAF_CONSOLE_ATTACH: ${WAF_CONSOLE_ATTACH:-1}
+      NERVE_WAF_DATA: /var/lib/nerve-waf/data
+      NERVE_RULES_DIR: /opt/nerve-waf/data/rules/crs
+      DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in .env}
+      NERVE_AUTH_ENABLED: ${NERVE_AUTH_ENABLED:-1}
+      NERVE_API_KEY: ${NERVE_API_KEY:-}
+      NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-off}
+      RUST_LOG: ${RUST_LOG:-info}
+      WAF_ENABLE_LEGACY_TOPOLOGY: "0"
+      WAF_ENABLE_LEGACY_NP: "0"
+    volumes:
+      - ./config/config.yml:/etc/nerve-waf/config.yml:ro
+      - nerve-waf-data:/var/lib/nerve-waf/data
+      - nerve-waf-logs:/var/lib/nerve-waf/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  nerve-waf-agent:
+    image: nerve/nerve-waf-controller:${TAG:-1.0.0}
+    pull_policy: never
+    container_name: nerve-waf-agent
+    depends_on:
+      nerve-waf-controller:
+        condition: service_healthy
+    ports:
+      - "${WAF_AGENT_PORT:-9080}:9080"
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      WAF_AGENT_PORT: "9080"
+      WAF_AGENT_CONTROLLER: http://nerve-waf-controller:9000
+      NERVE_WAF_PLUGINS_DIR: /opt/nerve-waf/plugins
+      NERVE_EXPERT_ENGINE: ${NERVE_EXPERT_ENGINE:-off}
+      RUST_LOG: ${RUST_LOG:-info}
+    entrypoint: ["/usr/local/bin/nerve-waf-agent"]
+    command: ["--port", "9080", "--control", "http://nerve-waf-controller:9000"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  nerve-waf-data:
+  nerve-waf-logs:

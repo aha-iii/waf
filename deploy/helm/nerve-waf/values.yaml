@@ -1,52 +1,107 @@
-# Nerve WAF Helm chart values — publishable defaults for Kubernetes install.
-# Change placeholders (image tag, DATABASE_URL, auth secrets) before production use.
-# 生产务必设 Secret；示例仅占位。
+# Nerve WAF Helm values (defaults for Kubernetes).
+# Override via -f my-values.yaml; never commit production secrets.
+# Structure follows Cilium-style component blocks: controller / agent / ingress.
 
-replicaCount: 2
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
 
 image:
-  repository: nerve/nerve-waf-api
-  tag: "0.1.0"
+  repository: ghcr.io/YOUR-ORG/nerve-waf
+  tag: ""          # defaults to Chart.appVersion when empty
   pullPolicy: IfNotPresent
 
-service:
-  port: 8781
+database:
+  url: "postgres://postgres:CHANGE_ME@postgres:5432/nerve"
 
-# Production: set a Secret; samples are placeholders only.
 auth:
   enabled: true
-  # Prefer existingSecret; otherwise set apiKey (do not commit real keys).
-  # 推荐用 existingSecret；否则用 apiKey（勿提交真实密钥）
   apiKey: ""
   existingSecret: ""
   existingSecretKey: NERVE_API_KEY
 
-env:
-  DATABASE_URL: "postgres://postgres:CHANGE_ME@postgres:5432/nerve"
-  NERVE_URL: "http://nerve-agent:8766"
-  TZ: "Asia/Shanghai"
-  NERVE_EXPERT_ENGINE: "on"
-  NERVE_EXPERT_PACK: "/opt/nerve/native/baseline"
-  NERVE_NATIVE_DEV_PACK: "1"
-  # Topology/NP moved to Control; keep off in production.
-  # 拓扑/NP 已迁 Control；勿在生产打开
-  WAF_ENABLE_LEGACY_TOPOLOGY: "0"
-  WAF_ENABLE_LEGACY_NP: "0"
-  NERVE_AUTH_ENABLED: "1"
-
-resources:
-  requests:
-    cpu: 200m
-    memory: 256Mi
-  limits:
-    memory: 1Gi
-
-podDisruptionBudget:
+controller:
   enabled: true
-  minAvailable: 1
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    port: 9000
+  env:
+    TZ: "Asia/Shanghai"
+    NERVE_EXPERT_ENGINE: "off"
+    NERVE_NATIVE_DEV_PACK: "0"
+    WAF_ENABLE_LEGACY_TOPOLOGY: "0"
+    WAF_ENABLE_LEGACY_NP: "0"
+    NERVE_AUTH_ENABLED: "1"
+    RUST_LOG: "info"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+  probes:
+    livenessPath: /api/health
+    readinessPath: /api/health
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
 
-probes:
-  livenessPath: /api/health
-  readinessPath: /api/health
-  initialDelaySeconds: 10
-  periodSeconds: 10
+agent:
+  enabled: true
+  # deployment: centralized L7 pool; daemonset: one Agent per node
+  mode: deployment
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 9080
+  daemonSet:
+    nodeSelector: {}
+    tolerations: []
+  env:
+    TZ: "Asia/Shanghai"
+    NERVE_EXPERT_ENGINE: "off"
+    WAF_AGENT_SYNC_MODE: "watch"
+    RUST_LOG: "info"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  probes:
+    livenessPath: /health
+    readinessPath: /health
+    initialDelaySeconds: 15
+    periodSeconds: 10
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: nerve-waf.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: controller
+  tls: []
+
+# Optional node Agent (eBPF) URL — not the L7 nerve-waf-agent
+nerveNodeAgent:
+  url: ""
+
+networkPolicy:
+  enabled: false
+
+metrics:
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    labels: {}
+    # requires Prometheus Operator CRD

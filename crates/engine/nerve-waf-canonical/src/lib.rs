@@ -12,3 +12,6 @@ pub use decode_ops::{
 pub use plausibility::{
     is_plausible_b64_candidate, is_plausible_decoded_text, is_plausible_inspect_text,
 };
+
+#[cfg(test)]
+mod test;

@@ -283,3 +283,6 @@ pub async fn auth_middleware(
         Ok(next.run(req).await)
     }
 }
+
+#[cfg(test)]
+mod test;

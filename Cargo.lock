@@ -1898,43 +1898,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fafa6961cabd9c63bcd77a45d7e3b7f3b552b70417831fb0f56db717e72407e"
 
 [[package]]
-name = "nerve-alert-client"
-version = "1.0.0"
-dependencies = [
- "nerve-alert-sdk",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "nerve-alert-core"
-version = "1.0.0"
-dependencies = [
- "chrono",
- "lettre",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "nerve-alert-sdk"
-version = "1.0.0"
-dependencies = [
- "chrono",
- "nerve-alert-core",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "nerve-antibody"
 version = "0.1.0"
 dependencies = [
@@ -2010,7 +1973,6 @@ dependencies = [
  "nerve-antibody-runtime",
  "nerve-antibody-semantic",
  "nerve-antibody-signals",
- "nerve-inspect-trace",
  "parking_lot",
  "serde",
  "thiserror 2.0.18",
@@ -2077,7 +2039,6 @@ dependencies = [
  "nerve-antibody-pipeline",
  "nerve-antibody-semantic",
  "nerve-antibody-signals",
- "nerve-inspect-trace",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
@@ -2106,7 +2067,6 @@ dependencies = [
 name = "nerve-inspect-trace"
 version = "1.0.0"
 dependencies = [
- "nerve-antibody-metrics",
  "nerve-waf-core",
  "serde",
  "serde_json",
@@ -2114,57 +2074,39 @@ dependencies = [
 ]
 
 [[package]]
-name = "nerve-waf-api"
+name = "nerve-waf-agent"
 version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
  "clap 4.6.1",
  "dotenvy",
- "flate2",
- "nerve-alert-client",
- "nerve-alert-sdk",
- "nerve-waf-api-sec",
- "nerve-waf-auth",
- "nerve-waf-behavior",
- "nerve-waf-bot",
- "nerve-waf-cc",
- "nerve-waf-challenge",
- "nerve-waf-client",
- "nerve-waf-core",
- "nerve-waf-crs-import",
  "nerve-waf-dataplane",
  "nerve-waf-embed",
- "nerve-waf-engine",
- "nerve-waf-export",
- "nerve-waf-geo",
- "nerve-waf-inspect",
- "nerve-waf-intel",
  "nerve-waf-l7",
- "nerve-waf-libinjection",
- "nerve-waf-license",
- "nerve-waf-np-compiler",
  "nerve-waf-plugin-host",
- "nerve-waf-rbac",
  "nerve-waf-rules-ops",
  "nerve-waf-sdk",
- "nerve-waf-semantic",
- "nerve-waf-service-policy",
- "nerve-waf-store",
- "nerve-waf-tamper",
- "nerve-waf-triage",
- "nerve-waf-wasm",
- "nerve-waf-whitelist",
  "reqwest",
  "serde",
  "serde_json",
- "tar",
  "tokio",
- "tower-http",
  "tracing",
  "tracing-subscriber",
- "urlencoding",
- "uuid",
+]
+
+[[package]]
+name = "nerve-waf-alert"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "lettre",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2242,6 +2184,58 @@ dependencies = [
 ]
 
 [[package]]
+name = "nerve-waf-controller"
+version = "1.0.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "clap 4.6.1",
+ "dotenvy",
+ "flate2",
+ "nerve-waf-api-sec",
+ "nerve-waf-auth",
+ "nerve-waf-behavior",
+ "nerve-waf-bot",
+ "nerve-waf-cc",
+ "nerve-waf-challenge",
+ "nerve-waf-client",
+ "nerve-waf-core",
+ "nerve-waf-crs-import",
+ "nerve-waf-dataplane",
+ "nerve-waf-embed",
+ "nerve-waf-engine",
+ "nerve-waf-export",
+ "nerve-waf-geo",
+ "nerve-waf-inspect",
+ "nerve-waf-intel",
+ "nerve-waf-l7",
+ "nerve-waf-libinjection",
+ "nerve-waf-license",
+ "nerve-waf-np-compiler",
+ "nerve-waf-plugin-host",
+ "nerve-waf-rbac",
+ "nerve-waf-rules-ops",
+ "nerve-waf-sdk",
+ "nerve-waf-semantic",
+ "nerve-waf-service-policy",
+ "nerve-waf-store",
+ "nerve-waf-tamper",
+ "nerve-waf-triage",
+ "nerve-waf-wasm",
+ "nerve-waf-whitelist",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tar",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "urlencoding",
+ "uuid",
+]
+
+[[package]]
 name = "nerve-waf-coraza"
 version = "1.0.0"
 dependencies = [
@@ -2297,28 +2291,6 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
-]
-
-[[package]]
-name = "nerve-waf-edge"
-version = "1.0.0"
-dependencies = [
- "axum",
- "chrono",
- "clap 4.6.1",
- "dotenvy",
- "nerve-waf-dataplane",
- "nerve-waf-embed",
- "nerve-waf-l7",
- "nerve-waf-plugin-host",
- "nerve-waf-rules-ops",
- "nerve-waf-sdk",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

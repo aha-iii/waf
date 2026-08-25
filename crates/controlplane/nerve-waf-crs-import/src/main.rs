@@ -78,7 +78,7 @@ fn main() {
             if !args.dry_run {
                 eprintln!();
                 eprintln!("Next: reload WAF rules");
-                eprintln!("  curl -X POST http://127.0.0.1:8780/api/rules/packs");
+                eprintln!("  curl -X POST http://127.0.0.1:9000/api/rules/packs");
             }
         }
         Err(e) => {

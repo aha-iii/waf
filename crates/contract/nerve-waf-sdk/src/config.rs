@@ -102,7 +102,7 @@ pub struct ConsoleConfig {
 }
 
 fn default_api_port() -> u16 {
-    8780
+    9000
 }
 
 fn default_console_port() -> u16 {

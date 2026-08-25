@@ -42,7 +42,7 @@ plugins/
 ```bash
 mkdir -p plugins/l7/my-pack/rules
 # Add plugin.json + rules/*.json
-curl -X POST http://127.0.0.1:8780/api/plugins/reload
+curl -X POST http://127.0.0.1:9000/api/plugins/reload
 ```
 
 ## Add a Lua plugin

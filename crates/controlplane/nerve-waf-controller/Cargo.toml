@@ -1,0 +1,83 @@
+[package]
+name = "nerve-waf-controller"
+description = "Nerve WAF Control plane (Axum)"
+version.workspace = true
+edition.workspace = true
+
+[lib]
+name = "nerve_waf_controller"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nerve-waf-controller"
+path = "src/main.rs"
+
+[[bin]]
+name = "nerve-waf-agent-inspect"
+path = "src/bin/agent_inspect.rs"
+
+[[bin]]
+name = "nerve-waf-sync"
+path = "src/bin/sync.rs"
+
+[[bin]]
+name = "nerve-waf-console"
+path = "src/bin/console.rs"
+
+[dependencies]
+nerve-waf-sdk = { workspace = true }
+nerve-waf-dataplane = { workspace = true }
+nerve-waf-core = { workspace = true }
+nerve-waf-inspect = { workspace = true }
+nerve-waf-client = { workspace = true }
+nerve-waf-engine = { workspace = true }
+nerve-waf-l7 = { workspace = true }
+nerve-waf-plugin-host = { workspace = true }
+nerve-waf-store = { workspace = true }
+nerve-waf-cc = { workspace = true }
+nerve-waf-geo = { workspace = true }
+nerve-waf-export = { workspace = true }
+nerve-waf-np-compiler = { workspace = true }
+nerve-waf-service-policy = { workspace = true }
+nerve-waf-auth = { workspace = true }
+nerve-waf-intel = { workspace = true }
+nerve-waf-bot = { workspace = true }
+nerve-waf-challenge = { workspace = true }
+nerve-waf-rules-ops = { workspace = true }
+nerve-waf-crs-import = { workspace = true }
+nerve-waf-api-sec = { workspace = true }
+nerve-waf-rbac = { workspace = true }
+nerve-waf-tamper = { workspace = true }
+nerve-waf-license = { workspace = true }
+nerve-waf-whitelist = { workspace = true }
+nerve-waf-behavior = { workspace = true }
+nerve-waf-semantic = { workspace = true }
+nerve-waf-triage = { workspace = true }
+nerve-waf-libinjection = { workspace = true }
+nerve-waf-wasm = { workspace = true }
+nerve-waf-embed = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
+tower-http = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { workspace = true }
+dotenvy = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "v5"] }
+reqwest = { workspace = true, features = ["blocking"] }
+flate2 = "1"
+tar = "0.4"
+urlencoding = "2"
+
+[features]
+default = ["inspect-trace"]
+# HTTP alert dispatch to Nerve-alert service (no nerve-alert-* crate required).
+alert = []
+expert = ["nerve-waf-inspect/expert"]
+full = ["alert", "expert", "inspect-trace"]
+inspect-trace = ["nerve-waf-embed/inspect-trace"]
+accel-hyperscan = ["nerve-waf-inspect/accel-hyperscan"]
+accel-hyperscan-ffi = ["nerve-waf-inspect/accel-hyperscan-ffi"]

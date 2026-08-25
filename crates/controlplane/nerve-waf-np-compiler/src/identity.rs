@@ -82,16 +82,3 @@ pub fn attach_identity_to_rules(
         })
         .collect()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn stable_id() {
-        assert_eq!(
-            security_id_for("default", "web"),
-            security_id_for("default", "web")
-        );
-    }
-}

@@ -1,0 +1,80 @@
+{{- if .Values.controller.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nerve-waf.controller.fullname" . }}
+  labels:
+    {{- include "nerve-waf.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+spec:
+  replicas: {{ .Values.controller.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "nerve-waf.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller
+  template:
+    metadata:
+      labels:
+        {{- include "nerve-waf.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: controller
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: controller
+          image: "{{ include "nerve-waf.image" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.controller.service.port }}
+          env:
+            - name: PORT
+              value: {{ .Values.controller.service.port | quote }}
+            - name: DATABASE_URL
+              value: {{ .Values.database.url | quote }}
+            - name: TZ
+              value: {{ .Values.controller.env.TZ | quote }}
+            - name: NERVE_EXPERT_ENGINE
+              value: {{ .Values.controller.env.NERVE_EXPERT_ENGINE | quote }}
+            - name: NERVE_NATIVE_DEV_PACK
+              value: {{ .Values.controller.env.NERVE_NATIVE_DEV_PACK | quote }}
+            - name: WAF_ENABLE_LEGACY_TOPOLOGY
+              value: {{ .Values.controller.env.WAF_ENABLE_LEGACY_TOPOLOGY | quote }}
+            - name: WAF_ENABLE_LEGACY_NP
+              value: {{ .Values.controller.env.WAF_ENABLE_LEGACY_NP | quote }}
+            - name: NERVE_AUTH_ENABLED
+              value: {{ .Values.controller.env.NERVE_AUTH_ENABLED | quote }}
+            - name: RUST_LOG
+              value: {{ .Values.controller.env.RUST_LOG | quote }}
+            {{- if .Values.nerveNodeAgent.url }}
+            - name: NERVE_URL
+              value: {{ .Values.nerveNodeAgent.url | quote }}
+            {{- end }}
+            {{- if .Values.auth.enabled }}
+            - name: NERVE_API_KEY
+              {{- if .Values.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.auth.existingSecret }}
+                  key: {{ .Values.auth.existingSecretKey }}
+              {{- else }}
+              value: {{ .Values.auth.apiKey | quote }}
+              {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.controller.probes.livenessPath }}
+              port: http
+            initialDelaySeconds: {{ .Values.controller.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.controller.probes.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.controller.probes.readinessPath }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: {{ .Values.controller.probes.periodSeconds }}
+          resources:
+            {{- toYaml .Values.controller.resources | nindent 12 }}
+{{- end }}

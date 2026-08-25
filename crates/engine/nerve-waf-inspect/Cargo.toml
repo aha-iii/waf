@@ -6,9 +6,11 @@ edition.workspace = true
 
 [features]
 default = []
-inspect-trace = ["dep:nerve-inspect-trace", "nerve-antibody/inspect-trace"]
-accel-hyperscan = ["nerve-antibody/accel-hyperscan"]
-accel-hyperscan-ffi = ["nerve-antibody/accel-hyperscan-ffi"]
+# First-party expert engine (requires sibling Nerve-antibody repo).
+expert = ["dep:nerve-antibody"]
+inspect-trace = ["dep:nerve-inspect-trace"]
+accel-hyperscan = ["expert", "nerve-antibody/accel-hyperscan"]
+accel-hyperscan-ffi = ["expert", "nerve-antibody/accel-hyperscan-ffi"]
 
 [dependencies]
 nerve-waf-core = { workspace = true }
@@ -26,7 +28,7 @@ nerve-waf-libinjection = { workspace = true }
 nerve-waf-semantic = { workspace = true }
 nerve-waf-coraza = { workspace = true }
 nerve-waf-wasm = { workspace = true }
-nerve-antibody = { path = "../../../../Nerve-antibody/crates/integration/nerve-antibody" }
+nerve-antibody = { path = "../../../../Nerve-antibody/crates/integration/nerve-antibody", optional = true }
 nerve-inspect-trace = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

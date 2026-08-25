@@ -1,0 +1,72 @@
+{{- if and .Values.agent.enabled (eq .Values.agent.mode "daemonset") }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "nerve-waf.agent.fullname" . }}
+  labels:
+    {{- include "nerve-waf.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      {{- include "nerve-waf.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      labels:
+        {{- include "nerve-waf.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: agent
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.agent.daemonSet.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.agent.daemonSet.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: agent
+          image: "{{ include "nerve-waf.image" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/local/bin/nerve-waf-agent"]
+          args:
+            - "--port"
+            - {{ .Values.agent.service.port | quote }}
+            - "--control"
+            - {{ include "nerve-waf.controller.url" . | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.agent.service.port }}
+          env:
+            - name: WAF_AGENT_PORT
+              value: {{ .Values.agent.service.port | quote }}
+            - name: WAF_AGENT_CONTROLLER
+              value: {{ include "nerve-waf.controller.url" . | quote }}
+            - name: WAF_AGENT_SYNC_MODE
+              value: {{ .Values.agent.env.WAF_AGENT_SYNC_MODE | quote }}
+            - name: TZ
+              value: {{ .Values.agent.env.TZ | quote }}
+            - name: NERVE_EXPERT_ENGINE
+              value: {{ .Values.agent.env.NERVE_EXPERT_ENGINE | quote }}
+            - name: RUST_LOG
+              value: {{ .Values.agent.env.RUST_LOG | quote }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.agent.probes.livenessPath }}
+              port: http
+            initialDelaySeconds: {{ .Values.agent.probes.initialDelaySeconds }}
+            periodSeconds: {{ .Values.agent.probes.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.agent.probes.readinessPath }}
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: {{ .Values.agent.probes.periodSeconds }}
+          resources:
+            {{- toYaml .Values.agent.resources | nindent 12 }}
+{{- end }}

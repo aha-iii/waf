@@ -4,14 +4,14 @@
 
 waf:
   api:
-    port: 8781
+    port: 9000
   data_dir: "/var/lib/nerve-waf/data"
   plugins_dir: "/opt/nerve-waf/plugins"
   nerve_url: "http://host.docker.internal:8766"
   database:
-    url: "postgres://postgres:CHANGE_ME@127.0.0.1:5432/nerve"
+    url: "postgres://postgres:nerve_waf_dev@postgres:5432/nerve"
   console:
-    port: 5174
+    port: 9090              # nerve-waf-console；Vite dev 常用 5177
 
 logging:
   level: info

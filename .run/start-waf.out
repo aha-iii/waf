@@ -1,0 +1,18 @@
+[start-waf] loaded .env
+[start-waf] WARN: :9000 已被占用（常见：Docker nerve-clickhouse 占 9000）
+[start-waf] WARN: controller 改用 :9002（Windows portproxy 的 9000 仍指向 ClickHouse，Console :9090 可正常用）
+============================================
+ Nerve WAF — local (controller/agent/console)
+ Controller : http://127.0.0.1:9002/api/health
+ Agent      : http://127.0.0.1:9080/health
+ Console    : http://127.0.0.1:9090/
+ Logs       : /mnt/d/workspace/waf/Nerve-waf/Nerve-waf/.run/logs/
+ Windows    : 管理员 PS → scripts/wsl-port-forward.ps1 (9000/9080/9090)
+============================================
+[start-waf] start controller → /mnt/d/workspace/waf/Nerve-waf/Nerve-waf/.run/logs/controller.log
+[start-waf] controller ready (http://127.0.0.1:9002/api/health)
+[start-waf] start agent → /mnt/d/workspace/waf/Nerve-waf/Nerve-waf/.run/logs/agent.log
+[start-waf] agent ready (http://127.0.0.1:9080/health)
+[start-waf] start console → /mnt/d/workspace/waf/Nerve-waf/Nerve-waf/.run/logs/console.log
+[start-waf] console ready (http://127.0.0.1:9090/)
+[start-waf] running (Ctrl+C to stop all)

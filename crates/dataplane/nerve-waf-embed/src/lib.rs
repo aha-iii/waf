@@ -1,6 +1,6 @@
 //! In-process WAF inspect (same process as host, no HTTP hop).
 //!
-//! Used by Nerve Gateway `mode=edge` and `nerve-waf-edge`.
+//! Used by Nerve Gateway `mode=edge` and `nerve-waf-agent`.
 
 use nerve_waf_api_sec::ApiSecConfig;
 use nerve_waf_behavior::BehaviorEngine;

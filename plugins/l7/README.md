@@ -51,10 +51,10 @@ Lua plugins set `"type": "lua"` and `"script": "plugin.lua"`.
 
 ```bash
 # After editing rules/*.json or plugin.lua
-curl -X POST http://127.0.0.1:8780/api/plugins/reload
+curl -X POST http://127.0.0.1:9000/api/plugins/reload
 
 # Verify
-curl -X POST http://127.0.0.1:8780/api/inspect \
+curl -X POST http://127.0.0.1:9000/api/inspect \
   -H "Content-Type: application/json" \
   -d '{"uri":"/search?q=1+or+1%3D1","persist":true}'
 ```

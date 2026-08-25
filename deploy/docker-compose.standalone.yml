@@ -1,0 +1,15 @@
+# 单仓库克隆（无 Nerve-ui）：仅 API + Agent，不启动 Console。
+#
+#   cd Nerve-waf/Nerve-waf/deploy
+#   docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --build
+#
+# 完整 Console 见 deploy/START.md「Monorepo 一键」。
+
+services:
+  nerve-waf-controller:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.standalone
+
+  nerve-waf-console:
+    profiles: ["ui"]

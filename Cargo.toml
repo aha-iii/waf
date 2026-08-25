@@ -14,7 +14,7 @@ members = [
     "crates/engine/nerve-waf-l7",
     "crates/engine/nerve-waf-plugin-host",
     "crates/controlplane/nerve-waf-store",
-    "crates/controlplane/nerve-waf-api",
+    "crates/controlplane/nerve-waf-controller",
     "crates/contract/nerve-waf-dataplane",
     "crates/modules/nerve-waf-cc",
     "crates/modules/nerve-waf-geo",
@@ -32,13 +32,14 @@ members = [
     "crates/controlplane/nerve-waf-license",
     "crates/modules/nerve-waf-whitelist",
     "crates/controlplane/nerve-waf-crs-import",
+    "crates/controlplane/nerve-waf-alert",
     "crates/modules/nerve-waf-behavior",
     "crates/engine/nerve-waf-libinjection",
     "crates/modules/nerve-waf-triage",
     "crates/engine/nerve-waf-canonical",
     "crates/engine/nerve-waf-normalize",
     "crates/engine/nerve-waf-semantic",
-    "crates/dataplane/nerve-waf-edge",
+    "crates/dataplane/nerve-waf-agent",
 ]
 
 [workspace.package]
@@ -101,8 +102,6 @@ nerve-waf-canonical = { path = "crates/engine/nerve-waf-canonical" }
 nerve-waf-normalize = { path = "crates/engine/nerve-waf-normalize" }
 nerve-waf-semantic = { path = "crates/engine/nerve-waf-semantic" }
 nerve-waf-dataplane = { path = "crates/contract/nerve-waf-dataplane" }
-nerve-alert-client = { path = "../../Nerve-alert/crates/nerve-alert-client" }
-nerve-alert-sdk = { path = "../../Nerve-alert/crates/nerve-alert-sdk" }
 glob = "0.3"
 libinjectionrs = "0.1.1"
 mlua = { version = "0.10", features = ["lua54", "vendored"] }

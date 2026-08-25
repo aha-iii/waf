@@ -1,0 +1,100 @@
+# Nerve WAF — Docker Compose 默认镜像（含 Console 静态资源）
+#
+# 构建上下文：monorepo 根目录（须含 Nerve-ui/ 与 Nerve-waf/Nerve-waf/）
+#
+#   cd <monorepo-root>
+#   docker build -f Nerve-waf/Nerve-waf/deploy/docker/Dockerfile.compose \
+#     -t nerve/nerve-waf-controller:1.0.0 .
+
+FROM node:20-bookworm AS console-build
+
+ARG DEBIAN_MIRROR=mirrors.aliyun.com
+ARG NPM_REGISTRY=https://registry.npmmirror.com
+ARG VITE_CONSOLE_TIME_ZONE=Asia/Shanghai
+
+RUN sed -i "s|deb.debian.org|${DEBIAN_MIRROR}|g; s|security.debian.org|${DEBIAN_MIRROR}|g" \
+      /etc/apt/sources.list.d/debian.sources 2>/dev/null || \
+    sed -i "s|deb.debian.org|${DEBIAN_MIRROR}|g; s|security.debian.org|${DEBIAN_MIRROR}|g" \
+      /etc/apt/sources.list
+
+WORKDIR /src
+COPY Nerve-ui /src/Nerve-ui
+COPY Nerve-waf/Nerve-waf/apps/console/package.json \
+     Nerve-waf/Nerve-waf/apps/console/package-lock.json \
+     /src/Nerve-waf/Nerve-waf/apps/console/
+
+WORKDIR /src/Nerve-ui
+RUN npm config set registry "${NPM_REGISTRY}" && npm ci && npm run build
+
+WORKDIR /src/Nerve-waf/Nerve-waf/apps/console
+RUN npm config set registry "${NPM_REGISTRY}" && npm ci
+ENV VITE_CONSOLE_TIME_ZONE=${VITE_CONSOLE_TIME_ZONE}
+RUN npm run build
+
+FROM rust:1-bookworm AS build
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src/Nerve-waf/Nerve-waf
+COPY Nerve-waf/Nerve-waf/ .
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/Nerve-waf/Nerve-waf/target \
+    cargo build --release -p nerve-waf-controller -p nerve-waf-agent \
+    --bin nerve-waf-controller --bin nerve-waf-console --bin nerve-waf-agent
+
+RUN mkdir -p /out && \
+    cp /src/Nerve-waf/Nerve-waf/target/release/nerve-waf-controller /out/ && \
+    cp /src/Nerve-waf/Nerve-waf/target/release/nerve-waf-agent /out/ && \
+    cp /src/Nerve-waf/Nerve-waf/target/release/nerve-waf-console /out/
+
+FROM debian:bookworm-slim
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl libssl3 tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /out/nerve-waf-controller /usr/local/bin/nerve-waf-controller
+COPY --from=build /out/nerve-waf-agent /usr/local/bin/nerve-waf-agent
+COPY --from=build /out/nerve-waf-console /usr/local/bin/nerve-waf-console
+COPY --from=console-build /src/Nerve-waf/Nerve-waf/apps/console/dist /opt/nerve-waf/console
+COPY Nerve-waf/Nerve-waf/deploy/docker/config.docker.yml /etc/nerve-waf/config.yml
+COPY Nerve-waf/Nerve-waf/plugins /opt/nerve-waf/plugins
+COPY Nerve-waf/Nerve-waf/data/rules /opt/nerve-waf/data/rules
+COPY Nerve-waf/Nerve-waf/vendor/coreruleset /opt/nerve-waf/vendor/coreruleset
+
+RUN mkdir -p /var/lib/nerve-waf/data /var/lib/nerve-waf/logs && \
+    chmod 755 /usr/local/bin/nerve-waf-controller /usr/local/bin/nerve-waf-agent /usr/local/bin/nerve-waf-console
+
+ENV TZ=Asia/Shanghai \
+    PORT=9000 \
+    WAF_CONFIG=/etc/nerve-waf/config.yml \
+    NERVE_WAF_DATA=/var/lib/nerve-waf/data \
+    NERVE_RULES_DIR=/opt/nerve-waf/data/rules/crs \
+    NERVE_WAF_PLUGINS_DIR=/opt/nerve-waf/plugins \
+    WAF_CONSOLE_ATTACH=0 \
+    WAF_CONSOLE_DIR=/opt/nerve-waf/console \
+    WAF_CONSOLE_PORT=9090 \
+    WAF_CONTROLLER_UPSTREAM=http://127.0.0.1:9000 \
+    NERVE_AUTH_ENABLED=0 \
+    NERVE_EXPERT_ENGINE=off \
+    NERVE_ALERT_ENABLED=0 \
+    WAF_ENABLE_LEGACY_TOPOLOGY=0 \
+    WAF_ENABLE_LEGACY_NP=0
+
+EXPOSE 9000 9090 9080
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:9000/api/health || exit 1
+
+VOLUME ["/var/lib/nerve-waf/data", "/var/lib/nerve-waf/logs"]
+
+ENTRYPOINT ["/usr/local/bin/nerve-waf-controller"]
+CMD ["--config", "/etc/nerve-waf/config.yml"]

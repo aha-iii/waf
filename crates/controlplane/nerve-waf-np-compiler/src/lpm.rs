@@ -75,15 +75,3 @@ pub fn supplement_l4_with_lpm(l4: &mut Vec<L4Rule>, lpm: &[LpmAllowRule]) {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parse_cidr() {
-        let (p, a) = parse_v4_prefix("10.0.0.0/8").unwrap();
-        assert_eq!(p, 8);
-        assert_eq!(a, Ipv4Addr::new(10, 0, 0, 0));
-    }
-}

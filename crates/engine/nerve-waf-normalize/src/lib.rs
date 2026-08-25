@@ -9,3 +9,6 @@ pub use decode::{
 pub use locate::{
     locate_params, locate_params_scoped, DetectionScope, ParamKind, ParamSlice,
 };
+
+#[cfg(test)]
+mod test;

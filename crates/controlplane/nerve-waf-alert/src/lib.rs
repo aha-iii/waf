@@ -304,7 +304,7 @@ pub struct DispatchResult {
     pub detail: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChannelResult {
     pub channel: String,
     pub ok: bool,
@@ -510,7 +510,24 @@ impl AlertDispatcher {
         }
 
         let delivered = channels.iter().filter(|c| c.ok).count();
-        DispatchResult { delivered, channels }
+        let status = if delivered > 0 {
+            "sent".into()
+        } else if channels.is_empty() {
+            "no_channel".into()
+        } else {
+            "failed".into()
+        };
+        let detail = channels
+            .iter()
+            .map(|c| format!("{}:{}", c.channel, if c.ok { "ok" } else { "fail" }))
+            .collect::<Vec<_>>()
+            .join("; ");
+        DispatchResult {
+            delivered,
+            channels,
+            status,
+            detail,
+        }
     }
 }
 
@@ -558,7 +575,7 @@ fn has_any_channel(cfg: &AlertConfig) -> bool {
 }
 
 /// Migrate legacy WeCom webhook into the wecom section.
-fn normalize_config(mut cfg: AlertConfig) -> AlertConfig {
+pub(crate) fn normalize_config(mut cfg: AlertConfig) -> AlertConfig {
     if cfg.wecom.webhook_url.is_empty() {
         let mut wecom_urls: Vec<String> = cfg
             .webhooks
@@ -621,7 +638,7 @@ fn category_label(category: &str) -> String {
     }
 }
 
-fn render_template(tpl: &str, payload: &AlertPayload) -> String {
+pub(crate) fn render_template(tpl: &str, payload: &AlertPayload) -> String {
     let mut out = tpl.to_string();
     let pairs: [(&str, String); 14] = [
         ("severity", payload.severity.clone()),
@@ -897,37 +914,4 @@ impl Default for AlertDispatcher {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn render_template_vars() {
-        let payload = AlertPayload {
-            ts: Utc::now(),
-            severity: "high".into(),
-            category: "sqli".into(),
-            action: "block".into(),
-            src_ip: Some("1.2.3.4".into()),
-            host: Some("api.test".into()),
-            uri: Some("/x".into()),
-            message: "test".into(),
-            site_id: Some("default".into()),
-            trace_id: Some("a1b2c3d4-e5f6-7890-abcd-ef1234567890".into()),
-            span_id: Some("9f8e7d6c-5b4a-3210-fedc-ba9876543210".into()),
-        };
-        let s = render_template("级别${severity_label} trace=${trace_id}", &payload);
-        assert!(s.contains("高危"));
-        assert!(s.contains("a1b2c3d4"));
-    }
-
-    #[test]
-    fn migrate_wecom_from_legacy_webhooks() {
-        let cfg = normalize_config(AlertConfig {
-            enabled: true,
-            webhooks: vec!["https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=abc".into()],
-            ..Default::default()
-        });
-        assert!(cfg.wecom.webhook_url.contains("qyapi.weixin.qq.com"));
-        assert!(cfg.webhooks.is_empty());
-    }
-}
+mod test;

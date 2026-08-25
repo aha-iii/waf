@@ -185,13 +185,4 @@ fn truncate(s: &str, n: usize) -> String {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn disabled_without_env() {
-        std::env::remove_var("NERVE_WAF_CORAZA_URL");
-        std::env::remove_var("NERVE_WAF_CRS_ENGINE");
-        assert!(!coraza_enabled());
-    }
-}
+mod test;

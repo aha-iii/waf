@@ -1,6 +1,6 @@
 # APISIX + Nerve WAF integration
 
-Copy `nerve-waf.lua` into the APISIX plugins directory. After the route mounts the plugin, each request `POST`s to WAF `:8781/api/inspect` (HTTP bypass path; coexists with the Agent Unix socket path). Change admin keys and WAF URLs before use.
+Copy `nerve-waf.lua` into the APISIX plugins directory. After the route mounts the plugin, each request `POST`s to WAF `:9000/api/inspect` (HTTP bypass path; coexists with the Agent Unix socket path). Change admin keys and WAF URLs before use.
 
 ## 1. Install the plugin
 
@@ -35,11 +35,11 @@ curl -s "$ADMIN/apisix/admin/routes/nerve-waf-demo" \
   "uri": "/*",
   "upstream": {
     "type": "roundrobin",
-    "nodes": { "127.0.0.1:8080": 1 }
+    "nodes": { "127.0.0.1:9080": 1 }
   },
   "plugins": {
     "nerve-waf": {
-      "waf_api": "http://127.0.0.1:8781",
+      "waf_api": "http://127.0.0.1:9000",
       "api_key": "",
       "app_id": "default",
       "block_on_hit": true,
@@ -51,7 +51,7 @@ curl -s "$ADMIN/apisix/admin/routes/nerve-waf-demo" \
 }'
 ```
 
-**Docker note:** From an APISIX container to host WAF, use `http://host.docker.internal:8780` or `--network host`.
+**Docker note:** From an APISIX container to host WAF, use `http://host.docker.internal:9000` or `--network host`.
 
 ## 3. Attack tests
 
@@ -76,7 +76,7 @@ curl -i "$GW/api/health"
 ## 4. Verify persistence (Console)
 
 ```bash
-curl -s 'http://127.0.0.1:8780/api/events?limit=5&category=sqli' | jq '.events[0]'
+curl -s 'http://127.0.0.1:9000/api/events?limit=5&category=sqli' | jq '.events[0]'
 ```
 
 In Console: Security ops → Attack logs → refresh, filter SQL injection.
@@ -85,7 +85,7 @@ In Console: Security ops → Attack logs → refresh, filter SQL injection.
 
 | Field | Default | Meaning |
 |-------|---------|---------|
-| `waf_api` | `http://127.0.0.1:8780` | WAF Control API |
+| `waf_api` | `http://127.0.0.1:9000` | WAF Controller API |
 | `api_key` | empty | Required if WAF API Key auth is enabled |
 | `app_id` | `default` | Protected app id (Console app id; default uses system rules) |
 | `block_on_hit` | `true` | Block on hit |
@@ -97,6 +97,6 @@ In Console: Security ops → Attack logs → refresh, filter SQL injection.
 
 ## 6. Prerequisites
 
-- Nerve WAF Control API on `:8780` is running
+- Nerve WAF Controller on `:9000` is running
 - `plugins/l7/` rules are loaded (`POST /api/plugins/reload`)
 - APISIX can reach the WAF address

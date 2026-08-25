@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 pub use crate::snapshot::{GlobalInspectOverlay, SiteInspectSnapshot};
 
-/// Control-plane loaded data; filled by `nerve-waf-api` from AppState.
+/// Control-plane loaded data; filled by `nerve-waf-controller` from AppState.
 #[derive(Debug, Clone, Default)]
 pub struct WafEdgeBuildInput {
     pub generation: u64,

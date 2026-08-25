@@ -284,25 +284,3 @@ fn truncate(s: &str, max: usize) -> String {
         format!("{}…", &s[..max])
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use nerve_waf_sdk::ProtectionModules;
-
-    #[test]
-    fn detects_sqli_in_query() {
-        let cfg = LibInjectionConfig::default();
-        let modules = ProtectionModules::default();
-        let hit = inspect_libinjection(
-            &cfg,
-            &modules,
-            &InspectRequest {
-                uri: "/?id=1' OR '1'='1".into(),
-                ..Default::default()
-            },
-        );
-        assert!(hit.is_some());
-        assert_eq!(hit.unwrap().rule_id, "942100");
-    }
-}

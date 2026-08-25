@@ -87,15 +87,3 @@ fn keyword_intent(lower: &str) -> (SqlIntent, u8) {
     }
     (SqlIntent::Unknown, 40)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parses_union_select() {
-        let (intent, score) = classify_sql_intent("1 union select null,null");
-        assert!(matches!(intent, SqlIntent::Query | SqlIntent::Unknown));
-        assert!(score >= 40);
-    }
-}

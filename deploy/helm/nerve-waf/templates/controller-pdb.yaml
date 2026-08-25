@@ -1,0 +1,15 @@
+{{- if and .Values.controller.enabled .Values.controller.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "nerve-waf.controller.fullname" . }}
+  labels:
+    {{- include "nerve-waf.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+spec:
+  minAvailable: {{ .Values.controller.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "nerve-waf.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: controller
+{{- end }}

@@ -673,7 +673,7 @@ impl<'a> InspectPipeline<'a> {
 }
 
 /// When `modules.mode == detect`, downgrade block/challenge to log (record only).
-fn soften_action_for_detect_mode(mode: &str, action: WafAction) -> WafAction {
+pub(crate) fn soften_action_for_detect_mode(mode: &str, action: WafAction) -> WafAction {
     if mode.eq_ignore_ascii_case("detect")
         && matches!(action, WafAction::Block | WafAction::Challenge)
     {
@@ -763,39 +763,5 @@ impl HitPatch for InspectHit {
     fn with_category(mut self, category: &str) -> Self {
         self.category = category.into();
         self
-    }
-}
-
-#[cfg(test)]
-mod detect_mode_tests {
-    use super::soften_action_for_detect_mode;
-    use nerve_waf_core::WafAction;
-
-    #[test]
-    fn detect_mode_softens_block_and_challenge() {
-        assert_eq!(
-            soften_action_for_detect_mode("detect", WafAction::Block),
-            WafAction::Log
-        );
-        assert_eq!(
-            soften_action_for_detect_mode("DETECT", WafAction::Challenge),
-            WafAction::Log
-        );
-        assert_eq!(
-            soften_action_for_detect_mode("detect", WafAction::Log),
-            WafAction::Log
-        );
-    }
-
-    #[test]
-    fn block_mode_keeps_enforcement() {
-        assert_eq!(
-            soften_action_for_detect_mode("block", WafAction::Block),
-            WafAction::Block
-        );
-        assert_eq!(
-            soften_action_for_detect_mode("block", WafAction::Challenge),
-            WafAction::Challenge
-        );
     }
 }

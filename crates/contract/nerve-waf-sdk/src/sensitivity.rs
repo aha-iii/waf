@@ -31,28 +31,3 @@ pub fn rule_matches_sensitivity(paranoia_level: u8, severity: &str, sensitivity:
     paranoia_level <= sensitivity_paranoia_max(sensitivity)
         && severity_rank(severity) >= min_severity_rank_for_sensitivity(sensitivity)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn low_sensitivity_high_severity_pl1_only() {
-        assert!(rule_matches_sensitivity(1, "critical", "low"));
-        assert!(!rule_matches_sensitivity(2, "critical", "low"));
-        assert!(!rule_matches_sensitivity(1, "medium", "low"));
-    }
-
-    #[test]
-    fn high_sensitivity_includes_all() {
-        assert!(rule_matches_sensitivity(4, "low", "high"));
-        assert!(rule_matches_sensitivity(2, "medium", "high"));
-    }
-
-    #[test]
-    fn medium_cumulative() {
-        assert!(rule_matches_sensitivity(2, "medium", "medium"));
-        assert!(!rule_matches_sensitivity(3, "medium", "medium"));
-        assert!(!rule_matches_sensitivity(2, "low", "medium"));
-    }
-}

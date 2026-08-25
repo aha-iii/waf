@@ -17,3 +17,6 @@ pub use stats::{
     now_iso, InMemorySemanticStats, InspectTimer, SemanticCounters, SemanticFeedback,
     SemanticSample, SemanticStatsHandle, SemanticStatsRecorder, SemanticStatsSnapshot,
 };
+
+#[cfg(test)]
+mod test;

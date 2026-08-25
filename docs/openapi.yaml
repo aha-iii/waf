@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: Nerve WAF Controller API
+  description: |
+    Subset of the public HTTP API for integration and smoke tests.
+    Full behavior may extend beyond this spec; controller version in /api/health.
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:9000
+    description: Local Controller
+
+paths:
+  /api/health:
+    get:
+      summary: Control plane health
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service healthy
+
+  /api/inspect:
+    post:
+      summary: HTTP bypass inspection
+      operationId: postInspect
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InspectRequest"
+      responses:
+        "200":
+          description: Inspect result
+        "401":
+          description: Unauthorized
+        "403":
+          description: Blocked by policy
+
+  /api/waf/edge/dataplane:
+    get:
+      summary: Full dataplane snapshot for L7 Agent
+      operationId: getDataplane
+      responses:
+        "200":
+          description: Snapshot envelope with generation and dataplane
+
+  /api/waf/edge/watch:
+    get:
+      summary: Long-poll for snapshot changes (Agent sync)
+      operationId: watchDataplane
+      parameters:
+        - name: since
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: timeout_sec
+          in: query
+          schema:
+            type: integer
+            default: 30
+      responses:
+        "200":
+          description: New snapshot or unchanged flag
+
+  /api/waf/edge/ack:
+    post:
+      summary: Agent acknowledges applied generation
+      operationId: ackDataplane
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                generation:
+                  type: integer
+                  format: int64
+      responses:
+        "200":
+          description: Ack recorded
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    InspectRequest:
+      type: object
+      required:
+        - method
+        - uri
+      properties:
+        method:
+          type: string
+          example: GET
+        uri:
+          type: string
+          example: /search?q=1+or+1%3D1
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        body:
+          type: string

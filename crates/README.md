@@ -16,7 +16,7 @@ Workspace paths: repo-root `Cargo.toml`. Sibling deps: [docs/DEPENDENCIES.md](..
 
 ## Test layout
 
-Keep production code and tests **physically separated**: each crate puts `test_*.rs` under `src/test/`; `lib.rs` ends with only:
+Keep production code and tests **physically separated**: each crate puts `test_*.rs` under `src/test/`; crate root (`lib.rs` / `main.rs`) ends with only:
 
 ```rust
 #[cfg(test)]
@@ -32,5 +32,4 @@ src/
 ```
 
 - Run: `cargo test -p <crate-name>`
-- **Reference crates**: `nerve-waf-dataplane`, `nerve-waf-embed`, `nerve-waf-l7`, `nerve-waf-core`
-- Migrate old `#[cfg(test)] mod tests` blocks gradually (new tests should use `src/test/` directly)
+- Do **not** put `#[cfg(test)] mod tests { … }` inside production modules; add new tests under `src/test/` only.

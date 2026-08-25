@@ -1,0 +1,72 @@
+# Nerve WAF — standalone image (single-repo build, no Nerve-alert / Nerve-antibody required).
+# Build context: Nerve-waf/Nerve-waf (this product root).
+#
+#   cd Nerve-waf/Nerve-waf
+#   docker build -f deploy/docker/Dockerfile.standalone -t nerve/nerve-waf-controller:1.0.0 .
+
+FROM rust:1-bookworm AS build
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+COPY . .
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target \
+    cargo build --release -p nerve-waf-controller -p nerve-waf-agent \
+    --bin nerve-waf-controller --bin nerve-waf-console --bin nerve-waf-agent
+
+RUN mkdir -p /out && \
+    cp /src/target/release/nerve-waf-controller /out/ && \
+    cp /src/target/release/nerve-waf-agent /out/ && \
+    cp /src/target/release/nerve-waf-console /out/
+
+FROM debian:bookworm-slim
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl libssl3 tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /out/nerve-waf-controller /usr/local/bin/nerve-waf-controller
+COPY --from=build /out/nerve-waf-agent /usr/local/bin/nerve-waf-agent
+COPY --from=build /out/nerve-waf-console /usr/local/bin/nerve-waf-console
+COPY deploy/docker/config.docker.yml /etc/nerve-waf/config.yml
+COPY plugins /opt/nerve-waf/plugins
+COPY data/rules /opt/nerve-waf/data/rules
+COPY vendor/coreruleset /opt/nerve-waf/vendor/coreruleset
+
+RUN mkdir -p /var/lib/nerve-waf/data /var/lib/nerve-waf/logs /opt/nerve-waf/console && \
+    chmod 755 /usr/local/bin/nerve-waf-controller /usr/local/bin/nerve-waf-agent /usr/local/bin/nerve-waf-console
+
+ENV TZ=Asia/Shanghai \
+    PORT=9000 \
+    WAF_CONFIG=/etc/nerve-waf/config.yml \
+    NERVE_WAF_DATA=/var/lib/nerve-waf/data \
+    NERVE_RULES_DIR=/opt/nerve-waf/data/rules/crs \
+    NERVE_WAF_PLUGINS_DIR=/opt/nerve-waf/plugins \
+    WAF_CONSOLE_ATTACH=0 \
+    WAF_CONSOLE_DIR=/opt/nerve-waf/console \
+    WAF_CONSOLE_PORT=9090 \
+    WAF_CONTROLLER_UPSTREAM=http://127.0.0.1:9000 \
+    NERVE_AUTH_ENABLED=0 \
+    NERVE_EXPERT_ENGINE=off \
+    NERVE_ALERT_ENABLED=0 \
+    WAF_ENABLE_LEGACY_TOPOLOGY=0 \
+    WAF_ENABLE_LEGACY_NP=0
+
+EXPOSE 9000 9090 9080
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+  CMD curl -fsS http://127.0.0.1:9000/api/health || exit 1
+
+VOLUME ["/var/lib/nerve-waf/data", "/var/lib/nerve-waf/logs"]
+
+ENTRYPOINT ["/usr/local/bin/nerve-waf-controller"]
+CMD ["--config", "/etc/nerve-waf/config.yml"]

@@ -52,6 +52,7 @@ Thumbs.db
 !/ops/README.md
 /scripts/*
 !/scripts/README.md
+!/scripts/apply-migrations.sh
 /deploy/scripts/*
 !/deploy/scripts/README.md
 # stub 目录：仅保留指向 ops/ 的 README

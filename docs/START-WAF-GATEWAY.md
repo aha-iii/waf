@@ -1,10 +1,13 @@
 # Starting Nerve WAF and Nerve Gateway separately
 
+> **Note:** Optional sibling integration — **not required** to run Nerve WAF.  
+> Product boundaries: [concepts/boundaries.md](./concepts/boundaries.md) · WAF-only install: [installation.md](./installation.md).
+
 The two products are **independent directories + independent processes**:
 
 | Product | Directory | Process | Port | Start |
 |---------|-----------|---------|------|-------|
-| Nerve WAF | `Nerve-waf/Nerve-waf` | `nerve-waf-api` (+ Console) | API `:8780`/`:8781` | `scripts/start-waf.sh` or cargo |
+| Nerve WAF | `Nerve-waf/Nerve-waf` | `nerve-waf-controller` (+ Console) | Controller `:9000` | `scripts/start-waf.sh` or cargo |
 | Nerve Gateway | `Nerve-gateway` | Gateway dataplane | often `:9080` | `scripts/start.sh` |
 
 ## Dependency
@@ -24,7 +27,7 @@ Gateway **requires** the WAF Control API first; WAF alone does not need Gateway.
 cd Nerve-waf/Nerve-waf && ./scripts/start-waf.sh
 
 # Terminal 2 — Console (optional)
-cd apps/console-react && npm run dev
+cd apps/console && npm run dev
 
 # Terminal 3 — Gateway
 cd Nerve-gateway && ./scripts/start.sh
@@ -59,4 +62,4 @@ cd Nerve-gateway && ./scripts/start.sh    # terminal 2
 | `DATABASE_URL` | (required) | WAF API |
 | `NERVE_API_KEY` | — | WAF / clients |
 | `UPSTREAM_URL` | `:8080` | Gateway default backend |
-| `NERVE_WAF_API` | `:8780` | Gateway → WAF API address |
+| `NERVE_WAF_CONTROLLER` | `:9000` | Gateway → WAF controller |

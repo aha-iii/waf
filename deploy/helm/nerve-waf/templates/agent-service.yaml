@@ -1,0 +1,18 @@
+{{- if .Values.agent.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nerve-waf.agent.fullname" . }}
+  labels:
+    {{- include "nerve-waf.labels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+spec:
+  type: {{ .Values.agent.service.type }}
+  selector:
+    {{- include "nerve-waf.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: agent
+  ports:
+    - name: http
+      port: {{ .Values.agent.service.port }}
+      targetPort: http
+{{- end }}

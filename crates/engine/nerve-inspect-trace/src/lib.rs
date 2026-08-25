@@ -9,7 +9,7 @@ pub use scope::InspectTraceCtx;
 pub use sink::{
     clear_thread_sink, current_thread_path, current_thread_sink, record_native_path,
     record_native_plan, record_native_stages, set_thread_path, set_thread_sink,
-    tracing_sink_active,
+    tracing_sink_active, NativeInspectStages,
 };
 
 use nerve_waf_core::InspectTimingReport;

@@ -245,3 +245,6 @@ fn mask_url(url: &str) -> String {
     }
     "***".into()
 }
+
+#[cfg(test)]
+mod test;

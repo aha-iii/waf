@@ -37,10 +37,10 @@ Implementation: `crates/engine/nerve-waf-plugins/src/`
 
 ```bash
 # Rust plugins require rebuilding the API
-cd Nerve-waf && cargo build -p nerve-waf-api --release
+cd Nerve-waf && cargo build -p nerve-waf-controller --release
 
 # Config changes only need Sync (no Agent restart)
-curl -X POST http://127.0.0.1:8780/api/sync
+curl -X POST http://127.0.0.1:9000/api/sync
 ```
 
 ## Add a Rust plugin

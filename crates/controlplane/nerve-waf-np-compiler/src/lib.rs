@@ -261,3 +261,6 @@ pub fn merge_plans(plans: &[SyncPlan]) -> SyncPlan {
         l7_bundle: None,
     }
 }
+
+#[cfg(test)]
+mod test;

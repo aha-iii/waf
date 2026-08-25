@@ -1,35 +1,66 @@
-# Sibling dependencies (why you cannot “clone only this directory”)
+# Sibling dependencies (optional integrations)
 
-The Nerve WAF workspace depends on other ecosystem repos via **Cargo path**. Current resolution (relative to this repo root `Nerve-waf/Nerve-waf/`):
+Nerve WAF builds and runs **standalone** by default (CRS/WASM inspect, control API, Edge).  
+Optional features use sibling repos via Cargo path + feature flags.
 
-| Dependency | Cargo coord | Expected path on disk | Purpose |
-|------------|-------------|------------------------|---------|
-| Antibody integration | `nerve-antibody` | `../Nerve-antibody/crates/integration/nerve-antibody` | inspect `expert` stage |
-| Antibody metrics | `nerve-antibody-metrics` | `../Nerve-antibody/crates/engine/facade/nerve-antibody-metrics` | optional tracing |
-| Alert client/sdk | `nerve-alert-client` / `nerve-alert-sdk` | `../../Nerve-alert/crates/...` | alert dispatch / Console proxy |
+## Default (standalone clone)
 
-Matching monorepo layout:
-
-```text
-<workspace-root>/                 # e.g. waf/
-├── Nerve-alert/                  # alerts (needed for full API build)
-└── Nerve-waf/
-    ├── Nerve-waf/                # this repo
-    └── Nerve-antibody/           # expert engine + rule packs
+```bash
+git clone <nerve-waf-repo> Nerve-waf/Nerve-waf
+cd Nerve-waf/Nerve-waf
+cargo build -p nerve-waf-controller --release
 ```
 
-## Minimal runnable combinations
+No `Nerve-antibody` or `Nerve-alert` directory required.
 
-| Goal | Needs |
-|------|-------|
-| Build L7 / core / modules only (no expert, no alert API) | Still keep Antibody: `nerve-waf-inspect` **hard-depends** on the `nerve-antibody` path today |
-| Full WAF API + Console | Nerve-waf + Antibody + Alert + PostgreSQL |
-| Edge dataplane | Nerve-waf (wasm CRS) + config; expert needs Antibody packs |
+| Capability | Default build |
+|------------|---------------|
+| L7 inspect (WASM/Coraza, modules) | Yes |
+| Control API + PostgreSQL | Yes |
+| Edge dataplane | Yes |
+| Expert engine (`nerve-antibody`) | No — enable `--features expert` |
+| Alert dispatch (`nerve-alert`) | No — enable `--features alert` |
 
-> Even when a path dependency is marked optional, Cargo still requires the directory to exist at resolve time. True single-repo crates.io publish needs versioned or git deps for client/sdk/antibody later; until then, clone siblings side-by-side.
+## Optional siblings
 
-## Check and fetch
+| Feature flag | Dependency | Expected path (from `Nerve-waf/Nerve-waf/`) | Purpose |
+|--------------|------------|---------------------------------------------|---------|
+| `alert` | HTTP dispatch to Nerve-alert service (`--features alert`, env `NERVE_ALERT_URL`) | No separate `nerve-alert` crate required |
+| `expert` | `nerve-antibody` | `../Nerve-antibody/` (under outer `Nerve-waf/`) | First-party expert inspect stage |
 
-Place sibling repos yourself (table above). Release scripts: `scripts/README.md` (`deploy-test` / `deploy-prod`).
+Full monorepo layout (all features):
 
-Local development: see repo-root [README.md](../README.md) and [deploy/START.md](../deploy/START.md).
+```text
+<workspace-root>/
+├── Nerve-alert/
+└── Nerve-waf/
+    ├── Nerve-waf/          # this repo
+    └── Nerve-antibody/
+```
+
+Build with all integrations:
+
+```bash
+cargo build -p nerve-waf-controller --release --features full
+```
+
+Environment toggles (runtime, even when compiled in):
+
+| Variable | Effect |
+|----------|--------|
+| `NERVE_EXPERT_ENGINE=off` | Skip expert stage at runtime |
+| `NERVE_ALERT_ENABLED=0` | Disable alert HTTP dispatch |
+
+## Database
+
+PostgreSQL schema is **not** applied by the API process. Use:
+
+```bash
+bash scripts/apply-migrations.sh
+```
+
+Docker Compose runs the same script via the `db-migrate` service.
+
+## Console UI
+
+`apps/console` depends on `@nerve/ui` (`Nerve-ui` in the wider monorepo). API/Edge docker image builds without Console static assets; add Nerve-ui to build the full Console bundle.

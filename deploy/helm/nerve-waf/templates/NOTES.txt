@@ -1,8 +1,22 @@
-Nerve WAF API
-  Service: {{ include "nerve-waf.fullname" . }}:{{ .Values.service.port }}
-  Auth:    NERVE_AUTH_ENABLED={{ .Values.env.NERVE_AUTH_ENABLED }} (生产保持 1)
-  Agent:   {{ .Values.env.NERVE_URL }}
+Nerve WAF {{ .Chart.AppVersion }} 已安装。
 
-拓扑 / 集群 NP 请使用 Nerve-control (:8780)，勿开启 WAF_ENABLE_LEGACY_*。
+  Controller API
+    Service: {{ include "nerve-waf.controller.fullname" . }}:{{ .Values.controller.service.port }}
+    Auth:    NERVE_AUTH_ENABLED={{ .Values.controller.env.NERVE_AUTH_ENABLED }}
 
-故障排查见：docs/runbooks/PRODUCTION.md
+{{- if .Values.agent.enabled }}
+  L7 Agent
+    Service: {{ include "nerve-waf.agent.fullname" . }}:{{ .Values.agent.service.port }}
+{{- end }}
+
+  验证:
+    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "nerve-waf.controller.fullname" . }} 9000:{{ .Values.controller.service.port }}
+    curl -fsS http://127.0.0.1:9000/api/health
+{{- if .Values.agent.enabled }}
+    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "nerve-waf.agent.fullname" . }} 9080:{{ .Values.agent.service.port }}
+    curl -fsS http://127.0.0.1:9080/health
+{{- end }}
+
+  文档: deploy/helm/nerve-waf/README.md · docs/runbooks/PRODUCTION.md
+
+  升级: helm upgrade nerve-waf ./deploy/helm/nerve-waf -n {{ .Release.Namespace }}

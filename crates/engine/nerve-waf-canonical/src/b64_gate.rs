@@ -46,21 +46,3 @@ fn split_b64_tokens(text: &str) -> impl Iterator<Item = &str> {
     })
     .filter(|t| !t.is_empty())
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn skips_plain_query() {
-        assert!(!text_may_contain_b64_payload(
-            "tenant=coretest1&mchOrderNo=M1902534480440528898"
-        ));
-    }
-
-    #[test]
-    fn detects_embedded_b64() {
-        assert!(text_may_contain_b64_payload("x=PGlmcmFtZQ=="));
-        assert!(text_may_contain_b64_payload("name=PGlmcmFtZQ==&x=1"));
-    }
-}

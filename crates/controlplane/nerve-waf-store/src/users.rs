@@ -351,7 +351,7 @@ fn row_to_user(row: &sqlx::postgres::PgRow) -> Result<ConsoleUser, UsersError> {
     })
 }
 
-fn hash_password(password: &str) -> Result<String, UsersError> {
+pub(crate) fn hash_password(password: &str) -> Result<String, UsersError> {
     let salt = SaltString::generate(&mut OsRng);
     Argon2::default()
         .hash_password(password.as_bytes(), &salt)
@@ -359,7 +359,7 @@ fn hash_password(password: &str) -> Result<String, UsersError> {
         .map_err(|e| UsersError::Crypto(e.to_string()))
 }
 
-fn verify_password(password: &str, stored: &str) -> bool {
+pub(crate) fn verify_password(password: &str, stored: &str) -> bool {
     let Ok(parsed) = PasswordHash::new(stored) else {
         return false;
     };
@@ -373,23 +373,4 @@ fn is_unique_violation(err: &sqlx::Error) -> bool {
         err,
         sqlx::Error::Database(db) if db.code().as_deref() == Some("23505")
     )
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn password_hash_roundtrip() {
-        let hash = hash_password("secret").expect("hash");
-        assert!(verify_password("secret", &hash));
-        assert!(!verify_password("wrong", &hash));
-    }
-
-    #[test]
-    fn normalize_roles() {
-        assert_eq!(normalize_role("Admin").as_deref(), Some("admin"));
-        assert_eq!(normalize_role("viewer").as_deref(), Some("viewer"));
-        assert!(normalize_role("guest").is_none());
-    }
 }

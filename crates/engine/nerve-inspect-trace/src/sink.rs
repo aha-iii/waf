@@ -1,6 +1,15 @@
-use nerve_antibody_metrics::InspectStages;
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
+
+/// Native expert engine stage timings (microseconds). Decoupled from `nerve-antibody-metrics`.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct NativeInspectStages {
+    pub decode_us: u64,
+    pub aho_us: u64,
+    pub regex_us: u64,
+    pub semantic_us: u64,
+    pub fusion_us: u64,
+}
 
 thread_local! {
     static THREAD_SINK: RefCell<Option<Arc<Mutex<Vec<nerve_waf_core::InspectNodeTiming>>>>> =
@@ -52,7 +61,7 @@ fn push_thread(name: &'static str, us: u64) {
     });
 }
 
-pub fn record_native_stages(stages: &InspectStages) {
+pub fn record_native_stages(stages: &NativeInspectStages) {
     if !crate::trace_enabled() {
         return;
     }

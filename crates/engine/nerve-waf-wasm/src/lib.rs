@@ -14,3 +14,6 @@ pub use runtime::{
     load_runtime_config, resolve_wasm_path, runtime_status, save_runtime_config, set_wasm_loaded,
     CrsCapability, CrsEnginePreference, CrsRuntimeConfig, CrsRuntimeStatus, EffectiveCrsEngine,
 };
+
+#[cfg(test)]
+mod test;

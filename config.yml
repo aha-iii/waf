@@ -5,7 +5,7 @@
 
 waf:
   api:
-    port: 8781
+    port: 9000
   data_dir: "./data"
   plugins_dir: "./plugins"
   nerve_url: "http://127.0.0.1:8766"

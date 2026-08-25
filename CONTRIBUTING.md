@@ -4,9 +4,9 @@ Thanks for contributing. The product name is **Nerve WAF**; Rust crates keep the
 
 ## Before you start
 
-1. Read [README.md](./README.md) and [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md)
-2. Place sibling repos per DEPENDENCIES (Antibody / Alert)
-3. Rust: see `rust-toolchain.toml`; Node 20+ (Console)
+1. Read [README.md](./README.md) and [docs/architecture-overview.md](./docs/architecture-overview.md)
+2. Read [docs/DEPENDENCIES.md](./docs/DEPENDENCIES.md) for optional features
+3. Rust: see `rust-toolchain.toml`; Node 20+ (Console dev only)
 
 ```bash
 cp .env.example .env          # edit as needed; do not commit .env
@@ -16,12 +16,12 @@ cp .env.example .env          # edit as needed; do not commit .env
 
 | Check | Command / convention |
 |-------|----------------------|
-| Build | `cargo build -p nerve-waf-api` |
+| Build | `cargo build -p nerve-waf-controller` |
 | Related unit tests | `cargo test -p <changed-crate>` |
 | Format | `cargo fmt --all -- --check` |
 | Clippy (touched crates) | `cargo clippy -p <crate> -- -D warnings` (preferred) |
 
-CI entrypoint: monorepo-root `.github/workflows/waf-ai-ci.yml`. Locally, at least run tests for crates you changed.
+CI entrypoint: monorepo-root `.github/workflows/nerve-waf-ci.yml`. Locally: `make test`, `make helm-lint`.
 
 ## Test layout
 
@@ -49,7 +49,7 @@ mod test;
 
 | Path | For contributors? |
 |------|-------------------|
-| `crates/`, `apps/console-react/` | Yes — main work areas |
+| `crates/`, `apps/console/` | Yes — main work areas |
 | `ops/` (local release/deploy scripts) | No — **not on GitLab** (see `ops/README.md`) |
 | `vendor/coreruleset` | Upstream CRS snapshot; see `vendor/README.md` |
 | `dist/`, `data/`, `logs/` | No — local artifacts; do not commit |
