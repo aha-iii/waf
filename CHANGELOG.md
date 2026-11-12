@@ -20,6 +20,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   并在 `console.rs` 增加对旧变量名的兼容回退，避免既有环境升级后再次静默回落。
   判据：`curl /api/sites` 由 `502` 变为 `401`（未带登录态），`/api/health` 为 `200`。
 
+- **文档断链与占位符**：`docs/NAMING.md` 写 `./docs/PORTS.md`（应为 `./PORTS.md`）、
+  `docs/releases/v1.0.0.md` 写 `../CHANGELOG.md`（应为 `../../CHANGELOG.md`），均差一层；
+  `docs/deployment-modes.md`、`docs/what-is-waf.md` 使用 `/waf/`、`/ddos/` 站点绝对路由，
+  在仓库视图下全部 404，改为相对路径或纯文本；`plugins/gateway/README.md` 指向本仓库不存在的
+  同级目录；README 的 CI 徽章注释残留 `YOUR-ORG/YOUR-REPO` 占位，且托管平台是 Gitea 而非 GitHub。
+  修正后全仓 223 条本地链接全部可达。
+
 ## [1.0.0] - 2026-11-12
 
 首个正式发布版本。相比 `develop/1.0` 分支此前状态，本次补齐了开源合规、CI 与一键安装链路，

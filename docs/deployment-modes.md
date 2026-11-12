@@ -6,8 +6,8 @@
 
 | 模式 | 适用场景 | 数据面形态 | 入口 |
 |------|----------|------------|------|
-| **Compose** | 本地 PoC、CI、功能验证 | Docker Compose 多容器 | [安装指南 · Compose](/waf/installation) |
-| **Kubernetes** | 生产集群、HA、GitOps | Helm：Deployment / DaemonSet Agent | [Helm Chart](/waf/deploy/helm) |
+| **Compose** | 本地 PoC、CI、功能验证 | Docker Compose 多容器 | [安装指南 · Compose](installation.md) |
+| **Kubernetes** | 生产集群、HA、GitOps | Helm：Deployment / DaemonSet Agent | [Helm Chart](../deploy/helm/) |
 
 ## Compose 模式
 
@@ -23,7 +23,7 @@
 
 ## 与 DDoS 串联（可选）
 
-生产常见 `Client → DDoS Edge → WAF Agent → 上游`。两产品独立部署，无硬依赖。见 [DDoS 部署](/ddos/deployment)。
+生产常见 `Client → DDoS Edge → WAF Agent → 上游`。两产品独立部署，无硬依赖。DDoS 部署文档见 Nerve DDoS 仓库。
 
 ## 如何选择
 

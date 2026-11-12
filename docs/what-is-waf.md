@@ -24,7 +24,7 @@ Nerve WAF 在 **HTTP/HTTPS 应用层（L7）** 识别并拦截常见 Web 攻击�
 **分层说明：**
 
 - **L7 Web 攻击**（上表）→ 由 Nerve WAF 检测与裁决（拦截 / 挑战 / 放行）。
-- **L3/L4 洪泛、SYN flood 等** → 由 [Nerve DDoS](/ddos/) 负责，不在 WAF 范围内。
+- **L3/L4 洪泛、SYN flood 等** → 由 [Nerve DDoS]（独立产品） 负责，不在 WAF 范围内。
 
 编码绕过（双重 URL、Base64 等）在 decode 管线中解码后再匹配，详见 [怎么工作](./how-it-works.md)。
 
@@ -50,7 +50,7 @@ WAF **不是单进程**，而是三个可独立扩缩的角色：
 
 ## 在 Nerve 平台中的位置
 
-- WAF 负责 **L7 应用层检测**；L3/L4 清洗由 [Nerve DDoS](/ddos/) 负责（可选串联）。
+- WAF 负责 **L7 应用层检测**；L3/L4 清洗由 [Nerve DDoS]（独立产品） 负责（可选串联）。
 - 生产常见路径：`Client → [DDoS] → WAF Agent → 上游`（DDoS 可选）。
 - 平台总览：[Nerve 系统架构](../../../docs/SYSTEM-ARCHITECTURE.md) · 产品边界：[boundaries.md](./concepts/boundaries.md)
 

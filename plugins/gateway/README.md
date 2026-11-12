@@ -1,3 +1,3 @@
 # Gateway plugins (moved)
 
-Gateway plugins now live under `Nerve-gateway/plugins/`. See [../../Nerve-gateway/plugins/README.md](../../Nerve-gateway/plugins/README.md).
+Gateway plugins now live in the separate `Nerve-gateway` repository, under its `plugins/` directory.
