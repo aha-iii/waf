@@ -7,7 +7,7 @@ The two products are **independent directories + independent processes**:
 
 | Product | Directory | Process | Port | Start |
 |---------|-----------|---------|------|-------|
-| Nerve WAF | `Nerve-waf/Nerve-waf` | `nerve-waf-controller` (+ Console) | Controller `:9000` | `scripts/start-waf.sh` or cargo |
+| Nerve WAF | 仓库根（this repo） | `nerve-waf-controller` (+ Console) | Controller `:9000` | `scripts/start-waf.sh` or cargo |
 | Nerve Gateway | `Nerve-gateway` | Gateway dataplane | often `:9080` | `scripts/start.sh` |
 
 ## Dependency
@@ -20,11 +20,13 @@ Gateway ──HTTP──▶ WAF Control API
 
 Gateway **requires** the WAF Control API first; WAF alone does not need Gateway.
 
+> `Nerve-gateway` 是**独立仓库**，不包含在本仓库内。本页仅说明两者的对接与启动顺序；只跑 WAF 请看 [installation.md](./installation.md)。
+
 ## Minimal start (WSL / Linux)
 
 ```bash
 # Terminal 1 — WAF
-cd Nerve-waf/Nerve-waf && ./scripts/start-waf.sh
+cd nerve-waf && ./scripts/start-waf.sh
 
 # Terminal 2 — Console (optional)
 cd apps/console && npm run dev
@@ -36,13 +38,13 @@ cd Nerve-gateway && ./scripts/start.sh
 ## WAF only
 
 ```bash
-cd Nerve-waf/Nerve-waf && ./scripts/start-waf.sh
+cd nerve-waf && ./scripts/start-waf.sh
 ```
 
 ## Gateway only (still needs a running WAF API)
 
 ```bash
-cd Nerve-waf && ./scripts/start-waf.sh    # terminal 1
+cd nerve-waf && ./scripts/start-waf.sh    # terminal 1
 cd Nerve-gateway && ./scripts/start.sh    # terminal 2
 ```
 

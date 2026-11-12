@@ -34,7 +34,7 @@ helm upgrade --install nerve-waf . \
 | `agent.mode` | 工作负载 | 适用 |
 |--------------|----------|------|
 | `deployment` | Deployment + Service | 集中式 L7 入口、HPA 扩缩 |
-| `daemonset` | DaemonSet + Service | 每节点 Agent，类似节点级代理 |
+| `daemonset` | DaemonSet + Service | 每节点 Agent，DaemonSet 节点级部署 |
 
 ```yaml
 agent:

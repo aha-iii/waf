@@ -1,6 +1,6 @@
 # 快速启动
 
-工作目录：`Nerve-waf/Nerve-waf/deploy`。  
+工作目录：`deploy/`（仓库根下）。  
 架构说明：[TOPOLOGY.md](./TOPOLOGY.md) · 排障：[../docs/runbooks/PRODUCTION.md](../docs/runbooks/PRODUCTION.md)。
 
 ## 1. 前置条件
@@ -14,14 +14,14 @@
 
 ## 2. Docker Compose（推荐）
 
-### 2.1 完整 monorepo
+### 2.1 一键安装
 
 ```bash
-git clone <your-repo-url> nerve
-cd nerve/Nerve-waf/Nerve-waf/deploy
-cp .env.example .env
-bash scripts/up.sh
+cd deploy
+bash install.sh
 ```
+
+自动完成：依赖自检 → 生成 `.env` → 构建启动 → 等健康 → 冒烟。安装后打印实际端口地址。
 
 | 服务 | 验证 |
 |------|------|
@@ -29,17 +29,24 @@ bash scripts/up.sh
 | Console | 浏览器打开 http://127.0.0.1:9090/ |
 | Agent | `curl -fsS http://127.0.0.1:9080/health` |
 
-停止：`bash scripts/up.sh --down`
+停止：`bash install.sh --down` · 其他参数：`bash install.sh --help`
 
-Windows：`powershell -File scripts/up.ps1`
+Windows：`powershell -ExecutionPolicy Bypass -File install.ps1`
 
-### 2.2 单目录（无 Nerve-ui）
+### 2.2 无 Console UI（standalone）
+
+独立仓库默认没有 `Nerve-ui` 前端源码，`install.sh` 会自动降级为 standalone（仅 Controller + Agent）。
+也可显式指定：
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --build
+bash install.sh --standalone
 ```
 
-不启动 Console 容器。需要 UI 时：在 monorepo 内 `cd apps/console && npm run dev`（Node 20+）。
+需要 Console 时，指向前端源码目录后重跑：
+
+```bash
+NERVE_UI_DIR=/path/to/Nerve-ui bash install.sh
+```
 
 ### 2.3 预构建镜像 + 外置数据库
 
@@ -52,7 +59,7 @@ docker compose -f docker-compose.prebuilt.yml up -d
 ## 3. 从源码启动
 
 ```bash
-cd Nerve-waf/Nerve-waf
+cd nerve-waf
 export DATABASE_URL=postgres://postgres:nerve_waf_dev@127.0.0.1:5432/nerve
 bash scripts/apply-migrations.sh
 cp .env.example .env
@@ -97,9 +104,11 @@ curl -fsS http://127.0.0.1:9000/api/health
 
 | 现象 | 处理 |
 |------|------|
-| 构建失败，找不到 Nerve-ui | 使用 standalone overlay 或克隆完整 monorepo |
-| 9000 端口占用 | `deploy/.env` 设 `PORT=9002`，或源码用 `start-waf.sh` |
-| Console 404 | 确认走完整 monorepo 构建，访问 :9090 而非 Vite :5177 |
+| 提示未找到 Nerve-ui | 正常：独立仓库无前端源码，已自动降级 standalone；需要 UI 时设 `NERVE_UI_DIR` |
+| 9000 端口占用 | `bash install.sh --port 9100`，或 `deploy/.env` 设 `PORT=9002` |
+| Console 404 | standalone 模式不含 Console；完整栈访问 :9090（不是 Vite :5178） |
+| **检测全部 allow，攻击没被拦** | 站点未绑定防护策略。绑定 `tpl-standard` 后 `custom-rules/reload`，见 [installation.md §关键一步](../docs/installation.md) |
+| curl 访问 127.0.0.1 返回 502 | 系统级 `HTTP_PROXY` 拦截了本地回环，加 `--noproxy '*'` |
 | 更多 | [PRODUCTION.md](../docs/runbooks/PRODUCTION.md) |
 
 ## 8. 可选构建

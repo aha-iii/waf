@@ -15,14 +15,19 @@ Docker / Helm 示例与配置文件。**克隆仓库后的公开部署入口**�
 ## 最快上手
 
 ```bash
-cd Nerve-waf/Nerve-waf/deploy
+git clone <your-repo-url> nerve-waf
+cd nerve-waf/deploy
+bash install.sh          # 一键：依赖自检 → .env → 构建启动 → 健康检查 → 冒烟
+```
+
+手动分步等价命令：
+
+```bash
 cp .env.example .env
 bash scripts/up.sh
 bash ../scripts/smoke-test.sh
 
-Console（需完整 monorepo 构建）：http://127.0.0.1:9090/
-
-停止：`bash scripts/up.sh --down`
+停止：`bash scripts/up.sh --down` 或 `bash install.sh --down`
 
 ## 文件说明
 
@@ -31,7 +36,8 @@ Console（需完整 monorepo 构建）：http://127.0.0.1:9090/
 | `docker-compose.yml` | 开发栈：PG + 迁移 + Controller + Console + Agent |
 | `docker-compose.standalone.yml` | 无 `Nerve-ui` 时的 overlay（无 Console） |
 | `docker-compose.prebuilt.yml` | 预构建镜像 + 外置 PG |
-| `scripts/up.sh` / `up.ps1` | 检测 monorepo 并启动 |
+| `install.sh` / `install.ps1` | 一键安装（自检 + 启动 + 健康检查 + 冒烟） |
+| `scripts/up.sh` / `up.ps1` | 启动/停止（自动探测 Console 源码，无则降级 standalone） |
 | `.env.example` | Compose 环境变量（复制为 `.env`） |
 | `config/config.yml` | WAF 示例配置 |
 | `docker/` | Dockerfile |
@@ -39,10 +45,10 @@ Console（需完整 monorepo 构建）：http://127.0.0.1:9090/
 
 ## 克隆范围
 
-| 你有的代码 | Console Docker 镜像 | 命令 |
-|------------|---------------------|------|
-| 完整 monorepo + `Nerve-ui/` | ✅ | `bash scripts/up.sh` |
-| 仅 `Nerve-waf/Nerve-waf` | ❌ | 加 `-f docker-compose.standalone.yml` |
+| 你的情况 | Console Docker 镜像 | 命令 |
+|----------|---------------------|------|
+| 有前端源码（设 `NERVE_UI_DIR`，或放在同级 `Nerve-ui/`） | ✅ | `bash scripts/up.sh` |
+| 仅本仓库（默认，无前端源码） | ❌ | `bash install.sh`（自动降级 standalone） |
 
 端口：[../docs/PORTS.md](../docs/PORTS.md)。
 

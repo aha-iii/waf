@@ -7,12 +7,13 @@ DEPLOY := $(PRODUCT_ROOT)/deploy
 HELM_CHART := $(DEPLOY)/helm/nerve-waf
 IMAGE ?= ghcr.io/$(shell echo $(GITHUB_REPOSITORY) | tr '[:upper:]' '[:lower:]')/nerve-waf:$(VERSION)
 
-.PHONY: help version build test fmt clippy helm-lint helm-template docker-build smoke \
+.PHONY: help version install build test fmt clippy helm-lint helm-template docker-build smoke \
         migrate install-tools
 
 help:
 	@echo "Nerve WAF $(VERSION)"
 	@echo ""
+	@echo "  make install        One-shot Docker install (deploy/install.sh)"
 	@echo "  make build          Release-build controller + agent + console"
 	@echo "  make test           cargo test (controller store)"
 	@echo "  make fmt            cargo fmt --all"
@@ -26,6 +27,9 @@ help:
 version:
 	@echo $(VERSION)
 
+install:
+	bash $(DEPLOY)/install.sh
+
 build:
 	cd $(PRODUCT_ROOT) && cargo build --release \
 		-p nerve-waf-controller -p nerve-waf-agent -p nerve-waf-console \
@@ -33,7 +37,7 @@ build:
 
 test:
 	cd $(PRODUCT_ROOT) && cargo test -p nerve-waf-store --lib
-	cd $(PRODUCT_ROOT) && cargo test -p nerve-waf-controller policy_sim incident baseline --
+	cd $(PRODUCT_ROOT) && cargo test -p nerve-waf-controller -- policy_sim incident baseline
 
 fmt:
 	cd $(PRODUCT_ROOT) && cargo fmt --all

@@ -2,7 +2,7 @@
 
 **完整架构（同步、HA、故障域）：** [../docs/architecture-overview.md](../docs/architecture-overview.md)
 
-产品根目录：`Nerve-waf/Nerve-waf/`。本文描述 **运行时** 组件与 Compose / Helm 形态。
+产品根目录：仓库根（`deploy/` 的上一级）。本文描述 **运行时** 组件与 Compose / Helm 形态。
 
 ## 组件
 
@@ -77,7 +77,7 @@ helm upgrade --install nerve-waf ./deploy/helm/nerve-waf \
 ## 源码开发（非容器）
 
 ```bash
-cd Nerve-waf/Nerve-waf
+cd ..            # 回到仓库根
 export DATABASE_URL=postgres://postgres:nerve_waf_dev@127.0.0.1:5432/nerve
 bash scripts/apply-migrations.sh
 bash scripts/start-waf.sh --build

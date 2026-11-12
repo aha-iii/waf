@@ -19,7 +19,7 @@ Helm `agent.mode`：
 | 模式 | 适用 | 说明 |
 |------|------|------|
 | **`deployment`**（默认） | 集中式 L7 入口、少量大流量 Pod | `replicaCount` + `Service` LoadBalancer/ClusterIP |
-| **`daemonset`** | 每节点流量、NodePort/HostNetwork 场景 | 每 Node 一个 Agent，与 Cilium Node 级代理类似 |
+| **`daemonset`** | 每节点流量、NodePort/HostNetwork 场景 | 每 Node 一个 Agent，DaemonSet 节点级部署 |
 
 ```yaml
 agent:

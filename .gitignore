@@ -46,15 +46,24 @@ Thumbs.db
 .local/
 .deploy-stage/
 
-# 发版 / 部署脚本：仅本机保留，不上 GitLab（内容在 ops/）
+# 发版 / 部署脚本：内部发版脚本仅本机保留（内容在 ops/，见 ops/README.md）
 # /ops/* 已覆盖 ops/prod、ops/mars-test、ops/scripts 等（仅 README 例外）
+# scripts/ 下"用户可用的安装/运维脚本"随仓库分发（见 scripts/README.md），内部修复脚本仍忽略
 /ops/*
 !/ops/README.md
 /scripts/*
 !/scripts/README.md
 !/scripts/apply-migrations.sh
+!/scripts/smoke-test.sh
+!/scripts/start-waf.sh
+!/scripts/start-waf.ps1
+!/scripts/start-waf.cmd
+!/scripts/wsl-port-forward.ps1
+!/scripts/wsl-port-forward.cmd
 /deploy/scripts/*
 !/deploy/scripts/README.md
+!/deploy/scripts/up.sh
+!/deploy/scripts/up.ps1
 # stub 目录：仅保留指向 ops/ 的 README
 /deploy/prod/*
 !/deploy/prod/README.md
@@ -75,4 +84,4 @@ Thumbs.db
 
 # Local blazehttp；CRS 上游嵌套 CI
 vendor/blazehttp
-vendor/coreruleset/.github/
+/vendor/coreruleset/

@@ -32,7 +32,7 @@ Agent 拉取配置：`WAF_AGENT_CONTROLLER=http://<controller-host>:9000`
 
 WSL2 内服务监听 `0.0.0.0` 时，从 Windows 局域网 IP 访问需 `netsh portproxy`（WSL 重启后 IP 可能变化）。
 
-产品根 `Nerve-waf/Nerve-waf`，**管理员 PowerShell**：
+仓库根（repo root）下执行，**管理员 PowerShell**：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/wsl-port-forward.ps1

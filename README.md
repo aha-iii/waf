@@ -5,11 +5,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](VERSION)
 
-<!-- CI badge: replace YOUR-ORG/YOUR-REPO after publishing to GitHub -->
-[![Nerve WAF CI](https://github.com/YOUR-ORG/YOUR-REPO/actions/workflows/nerve-waf-ci.yml/badge.svg)](https://github.com/YOUR-ORG/YOUR-REPO/actions/workflows/nerve-waf-ci.yml)
+<!-- CI badge：推送到 GitHub/Gitea 后，将 YOUR-ORG/YOUR-REPO 替换为实际路径并取消注释。
+     Workflow 文件已就位：.github/workflows/nerve-waf-ci.yml -->
+<!-- [![Nerve WAF CI](https://github.com/YOUR-ORG/YOUR-REPO/actions/workflows/nerve-waf-ci.yml/badge.svg)](https://github.com/YOUR-ORG/YOUR-REPO/actions/workflows/nerve-waf-ci.yml) -->
 
 Nerve WAF 对 HTTP/S 流量做规范化与规则检测（CRS / 自定义 / 可选 Expert 引擎），并提供策略与快照下发。  
-仓库路径：`Nerve-waf/Nerve-waf`（monorepo 内）· crate：`nerve-waf-*`
+crate：`nerve-waf-*`（本仓库独立发版；检测引擎子产品见 Nerve Antibody）
 
 **架构总览（建议先读）：** [docs/what-is-waf.md](./docs/what-is-waf.md) → [capabilities.md](./docs/capabilities.md) → [how-it-works.md](./docs/how-it-works.md) → [architecture-overview.md](./docs/architecture-overview.md)
 
@@ -49,21 +50,29 @@ Nerve WAF 对 HTTP/S 流量做规范化与规则检测（CRS / 自定义 / 可�
 | K8s HA / Agent 选型 | [docs/ha-deployment.md](./docs/ha-deployment.md) |
 | 产品边界 | [docs/concepts/boundaries.md](./docs/concepts/boundaries.md) |
 
-## 快速开始（Docker）
+## 快速开始（Docker 一键安装）
 
 ```bash
-git clone <your-repo-url> nerve
-cd nerve/Nerve-waf/Nerve-waf/deploy
-cp .env.example .env
-bash scripts/up.sh
-bash ../scripts/smoke-test.sh
+git clone <your-repo-url> nerve-waf
+cd nerve-waf/deploy
+bash install.sh          # 依赖自检 → 生成 .env → 构建启动 → 等健康 → 冒烟验证
 ```
 
-无 Console UI 构建链时（**不依赖 Nerve-ui**）：
+安装脚本会自动判断是否带 Console UI：找不到 `Nerve-ui` 时自动降级为 standalone（仅 Controller + Agent），不会中断。
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --build
-bash ../scripts/smoke-test.sh
+bash install.sh --standalone   # 强制无 Console
+bash install.sh --no-build     # 复用已有镜像
+bash install.sh --skip-smoke   # 跳过冒烟
+bash install.sh --down         # 停止并清理容器
+```
+
+Windows：`powershell -ExecutionPolicy Bypass -File install.ps1`（经 WSL 执行）。
+
+需要 Console UI 时先指定前端源码目录：
+
+```bash
+NERVE_UI_DIR=/path/to/Nerve-ui bash install.sh
 ```
 
 ## 文档

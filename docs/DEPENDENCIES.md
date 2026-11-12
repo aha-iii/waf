@@ -6,8 +6,8 @@ Optional features use sibling repos via Cargo path + feature flags.
 ## Default (standalone clone)
 
 ```bash
-git clone <nerve-waf-repo> Nerve-waf/Nerve-waf
-cd Nerve-waf/Nerve-waf
+git clone <nerve-waf-repo> nerve-waf
+cd nerve-waf
 cargo build -p nerve-waf-controller --release
 ```
 
@@ -23,19 +23,17 @@ No `Nerve-antibody` or `Nerve-alert` directory required.
 
 ## Optional siblings
 
-| Feature flag | Dependency | Expected path (from `Nerve-waf/Nerve-waf/`) | Purpose |
+| Feature flag | Dependency | Expected path (from repo root) | Purpose |
 |--------------|------------|---------------------------------------------|---------|
 | `alert` | HTTP dispatch to Nerve-alert service (`--features alert`, env `NERVE_ALERT_URL`) | No separate `nerve-alert` crate required |
-| `expert` | `nerve-antibody` | `../Nerve-antibody/` (under outer `Nerve-waf/`) | First-party expert inspect stage |
+| `expert` | `nerve-antibody` | `../Nerve-antibody/`（与本仓库并列克隆） | First-party expert inspect stage |
 
-Full monorepo layout (all features):
+Side-by-side sibling layout (all features):
 
 ```text
-<workspace-root>/
-├── Nerve-alert/
-└── Nerve-waf/
-    ├── Nerve-waf/          # this repo
-    └── Nerve-antibody/
+<parent>/
+├── nerve-waf/            # this repo
+└── Nerve-antibody/       # sibling clone (--features expert)
 ```
 
 Build with all integrations:

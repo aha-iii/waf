@@ -146,7 +146,7 @@ HTTP 请求
 ## 8. 代码仓库结构
 
 ```text
-Nerve-waf/Nerve-waf/
+nerve-waf/   # repo root
 ├── crates/
 │   ├── contract/      跨层类型
 │   ├── engine/        检测引擎（无 DB/HTTP）
