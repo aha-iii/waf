@@ -4,7 +4,6 @@ use crate::l4::L4Rule;
 use crate::selector::labels_match_full;
 use crate::PodSnapshot;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Nerve CNPolicy: app-level semantics and L7 path hints on top of K8s NP.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -81,7 +80,11 @@ fn compile_cnp_flow(
     for path in &rule.http_paths {
         out.l7_path_hints.push(format!(
             "{}/{} {} {} path={}",
-            pod.namespace, pod.name, direction, rule.to_apps.join(","), path
+            pod.namespace,
+            pod.name,
+            direction,
+            rule.to_apps.join(","),
+            path
         ));
     }
     for app in &rule.to_apps {

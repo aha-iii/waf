@@ -60,10 +60,7 @@ impl FileEventStore {
                     .as_ref()
                     .map(|c| &e.category == c)
                     .unwrap_or(true)
-                    && q.action
-                        .as_ref()
-                        .map(|a| &e.action == a)
-                        .unwrap_or(true)
+                    && q.action.as_ref().map(|a| &e.action == a).unwrap_or(true)
                     && q.src_ip
                         .as_ref()
                         .map(|ip| e.src_ip.as_deref() == Some(ip.as_str()))
@@ -85,17 +82,21 @@ impl FileEventStore {
             .collect();
         filtered.sort_by(|a, b| b.ts.cmp(&a.ts));
         let total = filtered.len() as u64;
-        let limit = q.limit.max(1).min(500) as usize;
+        let limit = q.limit.clamp(1, 500) as usize;
         let offset = q.offset as usize;
         let events = filtered.into_iter().skip(offset).take(limit).collect();
         Ok(EventQueryResult { total, events })
     }
 
     pub async fn stats_overview(&self) -> Result<StatsOverview, StoreError> {
-        self.stats_since(Utc::now() - chrono::Duration::hours(24)).await
+        self.stats_since(Utc::now() - chrono::Duration::hours(24))
+            .await
     }
 
-    pub async fn stats_since(&self, since: chrono::DateTime<Utc>) -> Result<StatsOverview, StoreError> {
+    pub async fn stats_since(
+        &self,
+        since: chrono::DateTime<Utc>,
+    ) -> Result<StatsOverview, StoreError> {
         let cache = self.cache.read().unwrap();
         let recent: Vec<_> = cache.iter().filter(|e| e.ts >= since).collect();
         let total_events = recent.len() as u64;
@@ -140,6 +141,8 @@ impl FileEventStore {
         days: i64,
     ) -> Result<serde_json::Value, StoreError> {
         let cache = self.cache.read().unwrap();
-        Ok(crate::network_stats::file_network_stats(&cache, since, days))
+        Ok(crate::network_stats::file_network_stats(
+            &cache, since, days,
+        ))
     }
 }

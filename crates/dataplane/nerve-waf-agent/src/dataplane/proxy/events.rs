@@ -30,6 +30,8 @@ fn truncate(s: &str, max_len: usize) -> String {
     t
 }
 
+// Event payload mirrors the control-plane report schema field-by-field.
+#[allow(clippy::too_many_arguments)]
 pub async fn report_block_event(
     client: &reqwest::Client,
     api: &str,

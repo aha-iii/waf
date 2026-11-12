@@ -9,10 +9,12 @@ pub mod controlplane;
 pub mod dataplane;
 
 // --- Stable public exports (shared lives under controlplane) ---
+#[cfg(unix)]
+pub use controlplane::shared::inspect_daemon;
 pub use controlplane::shared::AppState;
 pub use controlplane::shared::{
-    bootstrap, inspect_daemon, logging, phase11_middleware, platform, trace_bind, trace_middleware,
-    triage_ai, triage_service,
+    bootstrap, logging, phase11_middleware, platform, trace_bind, trace_middleware, triage_ai,
+    triage_service,
 };
 
 // --- Legacy path aliases ---
@@ -38,7 +40,7 @@ pub use dataplane::site_inspect;
 
 // Legacy name.
 pub use controlplane as control;
-pub use controlplane::shared as shared;
+pub use controlplane::shared;
 
 #[cfg(test)]
 mod test;

@@ -92,7 +92,9 @@ async fn list_labels(
         tracing::error!("list ml labels: {e}");
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
-    Ok(Json(json!({ "ok": true, "labels": labels, "count": labels.len() })))
+    Ok(Json(
+        json!({ "ok": true, "labels": labels, "count": labels.len() }),
+    ))
 }
 
 async fn label_stats(
@@ -107,7 +109,7 @@ async fn label_stats(
             "backeed": "file"
         })));
     };
-    let since = Utc::now() - Duration::days(q.days.max(1).min(365));
+    let since = Utc::now() - Duration::days(q.days.clamp(1, 365));
     let stats = nerve_waf_store::ml_label_stats(&pool, since)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;

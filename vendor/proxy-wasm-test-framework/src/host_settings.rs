@@ -23,6 +23,12 @@ pub struct HostHandle {
     pub staged: HostSettings,
 }
 
+impl Default for HostHandle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HostHandle {
     pub fn new() -> HostHandle {
         HostHandle {
@@ -61,8 +67,8 @@ pub struct HostSettings {
 impl HostSettings {
     pub fn new(abi_version: AbiVersion, quiet: bool) -> HostSettings {
         HostSettings {
-            abi_version: abi_version,
-            quiet: quiet,
+            abi_version,
+            quiet,
             effective_context_id: -1,
             tick_period_millis: Duration::new(0, 0),
             header_map_pairs: default_header_map_pairs(),

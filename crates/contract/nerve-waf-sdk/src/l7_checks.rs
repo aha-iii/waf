@@ -172,6 +172,8 @@ impl L7UpstreamChecks {
     }
 }
 
+/// Maps the legacy health-check fields 1:1; parameter set mirrors the schema.
+#[allow(clippy::too_many_arguments)]
 pub fn l7_legacy_health_check_to_checks(
     enabled: bool,
     hc_type: &str,
@@ -266,8 +268,8 @@ fn default_active_unhealthy_statuses() -> Vec<u16> {
 
 fn default_passive_healthy_statuses() -> Vec<u16> {
     vec![
-        200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306,
-        307, 308,
+        200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307,
+        308,
     ]
 }
 

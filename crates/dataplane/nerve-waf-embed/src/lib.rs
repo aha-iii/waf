@@ -11,12 +11,10 @@ use nerve_waf_dataplane::{GlobalInspectOverlay, SiteInspectSnapshot};
 use nerve_waf_geo::GeoEngine;
 use nerve_waf_inspect::InspectPipeline;
 #[cfg(feature = "inspect-trace")]
-use nerve_waf_inspect::{
-    finish_and_maybe_log, init_from_env, InspectTraceCtx, InspectTraceMeta,
-};
+use nerve_waf_inspect::{finish_and_maybe_log, init_from_env, InspectTraceCtx, InspectTraceMeta};
 use nerve_waf_intel::IntelFeed;
-use nerve_waf_libinjection::LibInjectionConfig;
 use nerve_waf_l7::{compile_rules, embedded_rules, L7Engine};
+use nerve_waf_libinjection::LibInjectionConfig;
 use nerve_waf_plugin_host::{HostedL7, PluginHost};
 use nerve_waf_sdk::ProtectionModules;
 use nerve_waf_semantic::SemanticConfig;
@@ -181,11 +179,10 @@ impl EmbeddedWaf {
     pub fn prepare_site_inspect(&self, site: &SiteInspectSnapshot) -> PreparedSiteInspect {
         let g = self.inner.read().unwrap();
         let host = PluginHost::new(g.plugins_dir.clone());
-        let crs_rules = compile_rules(site.l7_rules.clone(), "edge-snapshot")
-            .unwrap_or_else(|e| {
-                tracing::warn!("compile edge l7_rules: {e}");
-                Vec::new()
-            });
+        let crs_rules = compile_rules(site.l7_rules.clone(), "edge-snapshot").unwrap_or_else(|e| {
+            tracing::warn!("compile edge l7_rules: {e}");
+            Vec::new()
+        });
         let site_l7 = host.build_merged_engine(&site.modules, crs_rules);
         PreparedSiteInspect {
             site_l7,
@@ -199,7 +196,8 @@ impl EmbeddedWaf {
         prepared: &PreparedSiteInspect,
         global: &GlobalInspectOverlay,
     ) -> EmbedInspectResponse {
-        let verdict = self.inspect_prepared_verdict(req, prepared, global, InspectPreparedOptions::default());
+        let verdict =
+            self.inspect_prepared_verdict(req, prepared, global, InspectPreparedOptions::default());
         Self::response_from_verdict(verdict)
     }
 
@@ -215,7 +213,8 @@ impl EmbeddedWaf {
     }
 
     pub fn response_from_verdict(verdict: InspectVerdict) -> EmbedInspectResponse {
-        let mut resp = Self::verdict_to_response(verdict.action, verdict.allowed, verdict.hits.first());
+        let mut resp =
+            Self::verdict_to_response(verdict.action, verdict.allowed, verdict.hits.first());
         resp.timing = verdict.timing;
         resp
     }
@@ -229,10 +228,7 @@ impl EmbeddedWaf {
     ) -> InspectVerdict {
         // Reuse global engines built by apply_global_overlay / dataplane sync; avoid rebuilding Cc/Geo/Behavior per request.
         let global_rt = &g.global;
-        let mut bot = prepared
-            .site
-            .modules
-            .merge_bot_config(&global_rt.bot);
+        let mut bot = prepared.site.modules.merge_bot_config(&global_rt.bot);
         if opts.bot_challenge_verified {
             bot.enabled = false;
         }
@@ -293,7 +289,7 @@ impl EmbeddedWaf {
                 );
                 verdict.timing = Some(report);
             }
-            return verdict;
+            verdict
         }
         #[cfg(not(feature = "inspect-trace"))]
         {
@@ -359,7 +355,8 @@ impl EmbeddedWaf {
             custom_rules,
         };
         let verdict = Self::inspect_pipeline_with_optional_trace(&pipeline, tx, &trace_req, None);
-        let mut resp = Self::verdict_to_response(verdict.action, verdict.allowed, verdict.hits.first());
+        let mut resp =
+            Self::verdict_to_response(verdict.action, verdict.allowed, verdict.hits.first());
         resp.timing = verdict.timing;
         resp
     }

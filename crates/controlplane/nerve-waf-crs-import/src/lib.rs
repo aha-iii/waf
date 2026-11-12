@@ -252,10 +252,12 @@ pub(crate) fn parse_chain_group(chunks: &[String], paranoia_max: u8) -> Option<R
     }
     let parent = &chunks[0];
     let lower = parent.to_lowercase();
-    if lower.contains("pass,") && !lower.contains("block,") && !lower.contains("deny,") {
-        if !lower.contains("severity:") {
-            return None;
-        }
+    if lower.contains("pass,")
+        && !lower.contains("block,")
+        && !lower.contains("deny,")
+        && !lower.contains("severity:")
+    {
+        return None;
     }
     let pl = extract_paranoia_level(parent);
     if pl > paranoia_max {
@@ -547,9 +549,7 @@ fn parse_single_quoted(s: &str) -> Option<(String, usize)> {
 fn extract_kv(chunk: &str, key: &str) -> Option<String> {
     let pos = chunk.find(key)?;
     let rest = &chunk[pos + key.len()..];
-    let end = rest
-        .find(|c: char| c == ',' || c == ' ' || c == '"')
-        .unwrap_or(rest.len());
+    let end = rest.find([',', ' ', '"']).unwrap_or(rest.len());
     Some(rest[..end].trim().to_string())
 }
 

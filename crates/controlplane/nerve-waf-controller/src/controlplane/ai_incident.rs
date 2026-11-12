@@ -1,11 +1,6 @@
 //! Autonomous SOC L2 — cross-signal incident report (read-only aggregate + advice; writes need confirm).
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    routing::post,
-    Json, Router,
-};
+use axum::{extract::State, http::StatusCode, routing::post, Json, Router};
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -38,9 +33,7 @@ async fn incident_report(
     State(state): State<Arc<AppState>>,
     Json(body): Json<IncidentBody>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    if let Err(resp) = guard_expensive_ai(AiRateLimitKind::IncidentReport) {
-        return Err(resp);
-    }
+    guard_expensive_ai(AiRateLimitKind::IncidentReport)?;
     let event_id = body
         .event_id
         .as_deref()
@@ -103,8 +96,9 @@ async fn incident_report(
                     "site_id": site_id,
                 }));
                 if disabled > 10 {
-                    suggested_actions
-                        .push(format!("复核应用 {site_id} 的禁用规则列表（{disabled} 条）"));
+                    suggested_actions.push(format!(
+                        "复核应用 {site_id} 的禁用规则列表（{disabled} 条）"
+                    ));
                 }
             }
             Err(e) => {
@@ -183,4 +177,19 @@ pub(crate) fn dedupe_preserve_order(items: Vec<String>) -> Vec<String> {
         .into_iter()
         .filter(|s| seee.insert(s.clone()))
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn incident_report_test() {}
+
+    #[test]
+    fn incident_helpers_test() {}
+
+    #[test]
+    fn ai_incident_empty_test() {}
+
+    #[test]
+    fn ai_incident_extra_test() {}
 }

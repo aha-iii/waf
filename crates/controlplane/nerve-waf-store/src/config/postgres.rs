@@ -35,21 +35,19 @@ impl PostgresConfigStore {
     }
 
     pub async fn import_from_files_if_empty(&self) -> Result<bool, ConfigError> {
-        let count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_l3_policies WHERE site_id = $1",
-        )
-        .bind(&self.site_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_l3_policies WHERE site_id = $1")
+                .bind(&self.site_id)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
 
-        let l7_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_l7_routes WHERE site_id = $1",
-        )
-        .bind(&self.site_id)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let l7_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_l7_routes WHERE site_id = $1")
+                .bind(&self.site_id)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
 
         if count > 0 || l7_count > 0 {
             return Ok(false);
@@ -78,10 +76,7 @@ impl PostgresConfigStore {
         let mut routes = self.load_l3_routes().await?;
         routes.extend(self.load_l7_routes().await?);
         routes.sort_by_key(|r| r.priority);
-        Ok(WafConfig {
-            version: 1,
-            routes,
-        })
+        Ok(WafConfig { version: 1, routes })
     }
 
     async fn load_l3_routes(&self) -> Result<Vec<WafRoute>, ConfigError> {
@@ -218,33 +213,22 @@ impl PostgresConfigStore {
             }
         }
 
-        sqlx::query(
-            "DELETE FROM waf_l3_policies WHERE site_id = $1 AND NOT (id = ANY($2))",
-        )
-        .bind(&self.site_id)
-        .bind(&l3_ids)
-        .execute(tx.as_mut())
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        sqlx::query("DELETE FROM waf_l3_policies WHERE site_id = $1 AND NOT (id = ANY($2))")
+            .bind(&self.site_id)
+            .bind(&l3_ids)
+            .execute(tx.as_mut())
+            .await
+            .map_err(|e| ConfigError::Db(e.to_string()))?;
 
-        sqlx::query(
-            "DELETE FROM waf_l7_routes WHERE site_id = $1 AND NOT (id = ANY($2))",
-        )
-        .bind(&self.site_id)
-        .bind(&l7_ids)
-        .execute(tx.as_mut())
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        sqlx::query("DELETE FROM waf_l7_routes WHERE site_id = $1 AND NOT (id = ANY($2))")
+            .bind(&self.site_id)
+            .bind(&l7_ids)
+            .execute(tx.as_mut())
+            .await
+            .map_err(|e| ConfigError::Db(e.to_string()))?;
 
-        self.write_revision(
-            &mut tx,
-            "routes",
-            "all",
-            "update",
-            &json!(config),
-            operator,
-        )
-        .await?;
+        self.write_revision(&mut tx, "routes", "all", "update", &json!(config), operator)
+            .await?;
 
         tx.commit()
             .await
@@ -344,10 +328,10 @@ impl PostgresConfigStore {
         .bind(&route.name)
         .bind(route.priority)
         .bind(route.enabled)
-        .bind(&l7.and_then(|x| x.host.clone()))
-        .bind(&l7.and_then(|x| x.path_prefix.clone()))
-        .bind(&l7.and_then(|x| x.methods.clone()))
-        .bind(&l7.and_then(|x| x.uri_regex.clone()))
+        .bind(l7.and_then(|x| x.host.clone()))
+        .bind(l7.and_then(|x| x.path_prefix.clone()))
+        .bind(l7.and_then(|x| x.methods.clone()))
+        .bind(l7.and_then(|x| x.uri_regex.clone()))
         .bind(&route.upstream_id)
         .bind(operator)
         .execute(tx.as_mut())
@@ -402,11 +386,9 @@ impl PostgresConfigStore {
     pub async fn load_global_pipeline(
         &self,
     ) -> Result<nerve_waf_semantic::SemanticConfig, ConfigError> {
-        Ok(
-            crate::global_config::pg::load_global_pipeline(&self.pool)
-                .await?
-                .unwrap_or_default(),
-        )
+        Ok(crate::global_config::pg::load_global_pipeline(&self.pool)
+            .await?
+            .unwrap_or_default())
     }
 
     pub async fn save_global_pipeline(
@@ -423,7 +405,8 @@ impl PostgresConfigStore {
         modules: &ProtectionModules,
         operator: &str,
     ) -> Result<(), ConfigError> {
-        self.save_modules_for(&self.site_id, modules, operator).await
+        self.save_modules_for(&self.site_id, modules, operator)
+            .await
     }
 
     pub async fn save_modules_for(
@@ -751,11 +734,17 @@ impl PostgresConfigStore {
         Ok(())
     }
 
-    pub async fn load_app_crs_binding(&self, site_id: &str) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
+    pub async fn load_app_crs_binding(
+        &self,
+        site_id: &str,
+    ) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
         crate::app_crs::pg::load_binding(&self.pool, site_id).await
     }
 
-    pub async fn load_app_crs_history(&self, site_id: &str) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
+    pub async fn load_app_crs_history(
+        &self,
+        site_id: &str,
+    ) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
         crate::app_crs::pg::load_history(&self.pool, site_id).await
     }
 
@@ -794,39 +783,14 @@ fn route_layer(route: &WafRoute) -> &'static str {
         "l7"
     } else if route.layer == "l3" {
         "l3"
-    } else if route
-        .match_
-        .l7
-        .as_ref()
-        .is_some_and(|l7| {
-            l7.host.is_some()
-                || l7.path_prefix.is_some()
-                || l7.methods.as_ref().is_some_and(|m| !m.is_empty())
-                || l7.uri_regex.is_some()
-        }) {
+    } else if route.match_.l7.as_ref().is_some_and(|l7| {
+        l7.host.is_some()
+            || l7.path_prefix.is_some()
+            || l7.methods.as_ref().is_some_and(|m| !m.is_empty())
+            || l7.uri_regex.is_some()
+    }) {
         "l7"
     } else {
         "l3"
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

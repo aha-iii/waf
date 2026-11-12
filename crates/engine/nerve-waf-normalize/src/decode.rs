@@ -154,13 +154,11 @@ fn try_base64(s: &str) -> Option<String> {
     {
         return None;
     }
-    if trimmed.len() % 4 != 0 {
+    if !trimmed.len().is_multiple_of(4) {
         return None;
     }
     let decoded = base64::Engine::decode(&base64::engine::general_purpose::STANDARD, trimmed)
-        .or_else(|_| {
-            base64::Engine::decode(&base64::engine::general_purpose::URL_SAFE, trimmed)
-        })
+        .or_else(|_| base64::Engine::decode(&base64::engine::general_purpose::URL_SAFE, trimmed))
         .ok()?;
     if decoded.is_empty() || decoded.len() > 8192 {
         return None;
@@ -208,14 +206,13 @@ fn try_hex(s: &str) -> Option<String> {
         }
     }
 
-    let stripped = s
-        .trim()
-        .trim_start_matches("0x")
-        .trim_start_matches("0X");
+    let stripped = s.trim().trim_start_matches("0x").trim_start_matches("0X");
     if stripped.len() >= 4
-        && stripped.len() % 2 == 0
+        && stripped.len().is_multiple_of(2)
         && stripped.chars().all(|c| c.is_ascii_hexdigit())
-        && !stripped.chars().any(|c| c.is_ascii_alphabetic() && c.to_ascii_lowercase() > 'f')
+        && !stripped
+            .chars()
+            .any(|c| c.is_ascii_alphabetic() && c.to_ascii_lowercase() > 'f')
     {
         let mut bytes = Vec::with_capacity(stripped.len() / 2);
         for chunk in stripped.as_bytes().chunks(2) {
@@ -299,9 +296,7 @@ fn read_fixed_hex(bytes: &[u8], n: usize) -> Option<(&str, usize)> {
     if bytes.len() < n || !bytes[..n].iter().all(|b| b.is_ascii_hexdigit()) {
         return None;
     }
-    std::str::from_utf8(&bytes[..n])
-        .ok()
-        .map(|h| (h, n))
+    std::str::from_utf8(&bytes[..n]).ok().map(|h| (h, n))
 }
 
 fn read_hex_run(bytes: &[u8]) -> Option<(&str, usize)> {
@@ -327,12 +322,17 @@ fn try_chr(s: &str) -> Option<String> {
     let mut out = s.to_string();
     let mut changed = false;
     let mut search = 0;
-    while let Some(idx) = lower[search..].find("char(").or_else(|| lower[search..].find("chr(")) {
+    while let Some(idx) = lower[search..]
+        .find("char(")
+        .or_else(|| lower[search..].find("chr("))
+    {
         let start = search + idx;
         let open = lower[start..].find('(')? + start;
         let close = lower[open..].find(')')? + open;
         let inner = &s[open + 1..close].trim();
-        let code: u32 = if let Some(hex) = inner.strip_prefix("0x").or_else(|| inner.strip_prefix("0X"))
+        let code: u32 = if let Some(hex) = inner
+            .strip_prefix("0x")
+            .or_else(|| inner.strip_prefix("0X"))
         {
             u32::from_str_radix(hex, 16).ok()?
         } else {
@@ -355,8 +355,8 @@ fn try_chr(s: &str) -> Option<String> {
 pub fn is_static_asset_path(uri: &str) -> bool {
     let path = uri.split('?').next().unwrap_or(uri).to_ascii_lowercase();
     [
-        ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".woff", ".woff2", ".ico",
-        ".webp", ".map", ".ttf", ".eot",
+        ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".woff", ".woff2", ".ico", ".webp",
+        ".map", ".ttf", ".eot",
     ]
     .iter()
     .any(|ext| path.ends_with(ext))
@@ -368,9 +368,29 @@ pub fn looks_suspicious(s: &str) -> bool {
     }
     let lower = s.to_ascii_lowercase();
     [
-        "select", "union", "insert", "update", "delete", "drop", "sleep", "benchmark",
-        "<script", "javascript:", "onerror", "onload", "../", "..\\", "cmd=", "exec(",
-        "' or ", " or 1", "1=1", "0x", "char(", "waitfor", "/etc/passwd",
+        "select",
+        "union",
+        "insert",
+        "update",
+        "delete",
+        "drop",
+        "sleep",
+        "benchmark",
+        "<script",
+        "javascript:",
+        "onerror",
+        "onload",
+        "../",
+        "..\\",
+        "cmd=",
+        "exec(",
+        "' or ",
+        " or 1",
+        "1=1",
+        "0x",
+        "char(",
+        "waitfor",
+        "/etc/passwd",
     ]
     .iter()
     .any(|m| lower.contains(m))

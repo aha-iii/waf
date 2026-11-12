@@ -13,11 +13,11 @@ pub struct NativeInspectStages {
 
 thread_local! {
     static THREAD_SINK: RefCell<Option<Arc<Mutex<Vec<nerve_waf_core::InspectNodeTiming>>>>> =
-        RefCell::new(None);
+        const { RefCell::new(None) };
 }
 
 thread_local! {
-    static THREAD_PATH: RefCell<Option<Arc<Mutex<Option<String>>>>> = RefCell::new(None);
+    static THREAD_PATH: RefCell<Option<Arc<Mutex<Option<String>>>>> = const { RefCell::new(None) };
 }
 
 pub fn set_thread_sink(sink: Option<Arc<Mutex<Vec<nerve_waf_core::InspectNodeTiming>>>>) {

@@ -136,7 +136,7 @@ pub fn html_entity_decode(s: &str) -> String {
         .replace("&amp;", "&")
 }
 
-fn ascii_digits<'a>(bytes: &'a [u8], start: usize, end: usize) -> Option<&'a str> {
+fn ascii_digits(bytes: &[u8], start: usize, end: usize) -> Option<&str> {
     if end > bytes.len() || start >= end {
         return None;
     }

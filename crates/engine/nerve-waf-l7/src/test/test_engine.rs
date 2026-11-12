@@ -170,3 +170,46 @@ fn chain_requires_all_steps() {
     assert!(hit.is_some(), "expected chain hit");
     assert_eq!(hit.unwrap().rule_id, "chain-1");
 }
+
+#[test]
+fn sql_comment_blocks_auth_bypass_tail() {
+    let engine = L7Engine::new(ProtectionModules::default());
+    let hit = engine.inspect(&InspectRequest {
+        uri: "/login?user=admin'--".into(),
+        ..Default::default()
+    });
+    assert!(hit.is_some(), "expected sql-003 hit");
+    assert_eq!(hit.unwrap().rule_id, "sql-003");
+}
+
+#[test]
+fn sql_comment_ignores_crm_server_type_dashes() {
+    let engine = L7Engine::new(ProtectionModules::default());
+    let body = r#"{"workers":[{"server_type":"道路机械--维修,star产品线--"}]}"#;
+    let hit = engine.inspect(&InspectRequest {
+        method: "POST".into(),
+        uri: "/open/api/ai/dispatch/upload".into(),
+        body: body.into(),
+        ..Default::default()
+    });
+    assert!(
+        hit.as_ref().map(|h| h.rule_id.as_str()) != Some("sql-003"),
+        "CRM server_type dashes must not trigger sql-003, got {:?}",
+        hit
+    );
+}
+
+#[test]
+fn dispatch_username_fullwidth_parens_not_encoded_evasion() {
+    let engine = L7Engine::new(ProtectionModules::default());
+    let uri = "/open/api/ai/dispatch/get_serverrole?tenantCode=demo&username=%E9%A9%AC%E5%AD%9F%E6%B5%A9%EF%BC%88%E5%86%85%E9%83%A8%E7%94%A8%E6%88%B7%EF%BC%89";
+    let hit = engine.inspect(&InspectRequest {
+        uri: uri.into(),
+        ..Default::default()
+    });
+    assert!(
+        hit.is_none(),
+        "fullwidth parens in username must not be blocked by L7, got {:?}",
+        hit
+    );
+}

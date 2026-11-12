@@ -118,7 +118,10 @@ fn truncate(s: &str, max: usize) -> String {
     out
 }
 
-fn base_metadata(ctx: &WafJourneyContext, extra: HashMap<String, String>) -> HashMap<String, String> {
+fn base_metadata(
+    ctx: &WafJourneyContext,
+    extra: HashMap<String, String>,
+) -> HashMap<String, String> {
     let mut m = extra;
     m.insert("hop_layer".into(), "security".into());
     m.insert("site_id".into(), ctx.site_id.clone());
@@ -149,6 +152,8 @@ fn base_metadata(ctx: &WafJourneyContext, extra: HashMap<String, String>) -> Has
     m
 }
 
+// Internal hop builder; parameters mirror the journey schema 1:1.
+#[allow(clippy::too_many_arguments)]
 fn build_hop(
     ctx: &WafJourneyContext,
     step_order: u32,
@@ -167,7 +172,10 @@ fn build_hop(
         "location".into(),
         format!(
             "WAF · {}{}",
-            ctx.namespace.as_deref().map(|n| format!("{n}/")).unwrap_or_default(),
+            ctx.namespace
+                .as_deref()
+                .map(|n| format!("{n}/"))
+                .unwrap_or_default(),
             ctx.pod.as_deref().unwrap_or("sidecar")
         ),
     );
@@ -253,10 +261,7 @@ fn hit_metadata(hit: &InspectHit) -> HashMap<String, String> {
 pub fn build_waf_journey_hops(ctx: &WafJourneyContext, verdict: &InspectVerdict) -> Vec<Value> {
     let hit = verdict.hits.first();
     let hit_phase = hit.map(|h| h.phase);
-    let blocked = matches!(
-        verdict.action,
-        WafAction::Block | WafAction::Challenge
-    );
+    let blocked = matches!(verdict.action, WafAction::Block | WafAction::Challenge);
 
     let mut hops = Vec::new();
     let phases = &verdict.phases;

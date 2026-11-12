@@ -18,7 +18,10 @@ use crate::AppState;
 
 pub fn ai_settings_router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/api/semantic/config", get(get_semantic_config).put(put_semantic_config))
+        .route(
+            "/api/semantic/config",
+            get(get_semantic_config).put(put_semantic_config),
+        )
         .route(
             "/api/global/semantic/config",
             get(get_global_semantic_config).put(put_global_semantic_config),
@@ -55,49 +58,35 @@ pub fn ai_settings_router() -> Router<Arc<AppState>> {
         )
         .route("/api/semantic/stats", get(get_semantic_stats))
         .route("/api/semantic/feedback", post(post_semantic_feedback))
-        .route("/api/triage/llm-config", get(get_llm_config).put(put_llm_config))
+        .route(
+            "/api/triage/llm-config",
+            get(get_llm_config).put(put_llm_config),
+        )
         .route("/api/ai-settings", get(get_ai_settings))
 }
-
-
 
 #[derive(Deserialize)]
 
 struct SiteQuery {
-
     #[serde(default = "default_site")]
-
     site_id: String,
-
 }
-
-
 
 fn default_site() -> String {
-
     "default".into()
-
 }
-
-
 
 fn resolve_site_id(q: &SiteQuery) -> &str {
-
     if q.site_id.trim().is_empty() {
-
         "default"
-
     } else {
-
         q.site_id.trim()
-
     }
-
 }
 
-
-
-async fn get_global_semantic_config(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {
+async fn get_global_semantic_config(
+    State(state): State<Arc<AppState>>,
+) -> Result<Json<Value>, StatusCode> {
     let cfg = state
         .config
         .load_global_pipeline()
@@ -141,6 +130,8 @@ struct ProtectionLevelsBody {
     expert_level: Option<String>,
     /// Legacy field; ignored.
     #[serde(default)]
+    /// Accepted for API compatibility; not yet applied.
+    #[allow(dead_code)]
     expert_level_override: Option<bool>,
     /// Strategy-library template id bound to the app (app side only).
     #[serde(default)]
@@ -231,7 +222,10 @@ async fn get_app_protection_levels(
     // App snapshot is independent: default expert tier persists as medium; no runtime follow of global.
     if cfg.expert_level.is_none() {
         cfg.expert_level = Some(ExpertLevel::Medium);
-        let _ = state.ai_settings.set_semantic_for(&site_id, cfg.clone()).await;
+        let _ = state
+            .ai_settings
+            .set_semantic_for(&site_id, cfg.clone())
+            .await;
     }
     let mut out = protection_levels_json(&cfg, "app", false);
     if let Some(obj) = out.as_object_mut() {
@@ -483,7 +477,9 @@ async fn create_protection_strategy(
         tracing::error!("create app strategy wrote to global table unexpectedly");
         return Err(StatusCode::INTERNAL_SERVER_ERROR);
     }
-    Ok(Json(json!({ "ok": true, "template": template_json(&saved) })))
+    Ok(Json(
+        json!({ "ok": true, "template": template_json(&saved) }),
+    ))
 }
 
 async fn update_protection_strategy(
@@ -554,7 +550,9 @@ async fn update_protection_strategy(
             .rebind_sites_away_from_strategy(&saved.id, "console")
             .await;
     }
-    Ok(Json(json!({ "ok": true, "template": template_json(&saved) })))
+    Ok(Json(
+        json!({ "ok": true, "template": template_json(&saved) }),
+    ))
 }
 
 async fn delete_protection_strategy(
@@ -626,11 +624,7 @@ async fn apply_protection_strategy(
                 .ok_or(StatusCode::BAD_REQUEST)?
                 .to_string();
             if !tpl.visible_to_site(&site_id) {
-                tracing::warn!(
-                    "strategy {} not visible to site {}",
-                    id,
-                    site_id
-                );
+                tracing::warn!("strategy {} not visible to site {}", id, site_id);
                 return Err(StatusCode::FORBIDDEN);
             }
             if !tpl.enabled {
@@ -703,18 +697,13 @@ async fn get_semantic_config(
     })))
 }
 
-
-
 async fn put_semantic_config(
-
     State(state): State<Arc<AppState>>,
 
     Query(q): Query<SiteQuery>,
 
     Json(cfg): Json<SemanticConfig>,
-
 ) -> Result<Json<Value>, StatusCode> {
-
     let site_id = resolve_site_id(&q).to_string();
     state
         .config
@@ -724,19 +713,13 @@ async fn put_semantic_config(
     let cfg = cfg.normalized();
 
     state
-
         .ai_settings
-
         .set_semantic_for(&site_id, cfg.clone())
-
         .await
-
         .map_err(|e| {
-
             tracing::error!("save semantic config: {e}");
 
             StatusCode::INTERNAL_SERVER_ERROR
-
         })?;
 
     crate::dataplane::bump_after_mutation(&state);
@@ -751,33 +734,22 @@ async fn put_semantic_config(
         "backend": state.ai_settings.backend_name(),
 
     })))
-
 }
 
-
-
 async fn get_semantic_stats(
-
     State(state): State<Arc<AppState>>,
 
     Query(q): Query<SiteQuery>,
-
 ) -> Json<Value> {
-
     let site_id = resolve_site_id(&q);
 
     Json(json!(state.semantic_stats.as_ref().snapshot(site_id)))
-
 }
-
-
 
 #[derive(Deserialize)]
 
 struct FeedbackPut {
-
     #[serde(default = "default_site")]
-
     site_id: String,
 
     event_id: Option<String>,
@@ -789,69 +761,41 @@ struct FeedbackPut {
     param_path: Option<String>,
 
     uri: Option<String>,
-
 }
 
-
-
 async fn post_semantic_feedback(
-
     State(state): State<Arc<AppState>>,
 
     Json(body): Json<FeedbackPut>,
-
 ) -> Result<Json<Value>, StatusCode> {
-
     let site_id = if body.site_id.trim().is_empty() {
-
         "default".to_string()
-
     } else {
-
         body.site_id.trim().to_string()
-
     };
-
-
 
     let mut param_path = body.param_path;
 
     let mut uri = body.uri;
 
     if param_path.is_none() || uri.is_none() {
-
         if let Ok(ev) = resolve_event(&state, None, body.event_id.clone()).await {
-
             if param_path.is_none() {
-
                 param_path = ev.message.as_ref().and_then(|m| {
-
                     m.split("param=")
-
                         .nth(1)
-
                         .map(|s| s.split_whitespace().next().unwrap_or("").to_string())
-
                         .filter(|s| !s.is_empty())
-
                 });
-
             }
 
             if uri.is_none() {
-
                 uri = ev.uri.clone();
-
             }
-
         }
-
     }
 
-
-
     let mut fb = SemanticFeedback {
-
         ts: now_iso(),
 
         site_id: site_id.clone(),
@@ -867,10 +811,7 @@ async fn post_semantic_feedback(
         uri,
 
         applied_action: None,
-
     };
-
-
 
     let mut auto_tune_result = None;
 
@@ -878,10 +819,7 @@ async fn post_semantic_feedback(
 
     let mut updated_config = None;
 
-
-
     if body.verdict == "false_positive" {
-
         let mut cfg = state.ai_settings.semantic_config_for(&site_id).normalized();
 
         let auto_tune = cfg.auto_tune.clone();
@@ -891,23 +829,16 @@ async fn post_semantic_feedback(
         let tune = apply_auto_tune(&mut cfg, &auto_tune, &history, &fb);
 
         if tune.config_changed {
-
             cfg = cfg.normalized();
 
             state
-
                 .ai_settings
-
                 .set_semantic_for(&site_id, cfg.clone())
-
                 .await
-
                 .map_err(|e| {
-
                     tracing::error!("auto-tune save: {e}");
 
                     StatusCode::INTERNAL_SERVER_ERROR
-
                 })?;
 
             fb.applied_action = Some(tune.actions.join(";"));
@@ -917,18 +848,12 @@ async fn post_semantic_feedback(
             updated_config = Some(cfg);
 
             auto_tune_result = Some(tune);
-
         }
-
     }
-
-
 
     state.semantic_stats.as_ref().add_feedback(fb.clone());
 
     let _ = state.semantic_stats.flush_dirty().await;
-
-
 
     Ok(Json(json!({
 
@@ -943,13 +868,9 @@ async fn post_semantic_feedback(
         "config": updated_config,
 
     })))
-
 }
 
-
-
 async fn get_llm_config(State(state): State<Arc<AppState>>) -> Json<Value> {
-
     let cfg = state.ai_settings.triage_llm_config();
 
     Json(json!({
@@ -959,69 +880,45 @@ async fn get_llm_config(State(state): State<Arc<AppState>>) -> Json<Value> {
         "backend": state.ai_settings.backend_name(),
 
     }))
-
 }
 
-
-
 async fn put_llm_config(
-
     State(state): State<Arc<AppState>>,
 
     Json(body): Json<LlmConfigPut>,
-
 ) -> Result<Json<Value>, StatusCode> {
-
     let mut cfg = state.ai_settings.triage_llm_config();
 
     if let Some(v) = body.enabled {
-
         cfg.enabled = v;
-
     }
 
     if let Some(v) = body.auto_explain {
-
         cfg.auto_explain = v;
-
     }
 
     if let Some(v) = body.api_url {
-
         cfg.api_url = v;
-
     }
 
     if let Some(v) = body.model {
-
         cfg.model = v;
-
     }
 
     if let Some(v) = body.api_key {
-
         if !v.is_empty() && v != "***" {
-
             cfg.api_key = v;
-
         }
-
     }
 
     state
-
         .ai_settings
-
         .set_triage_llm(cfg.clone())
-
         .await
-
         .map_err(|e| {
-
             tracing::error!("save llm config: {e}");
 
             StatusCode::INTERNAL_SERVER_ERROR
-
         })?;
 
     Ok(Json(json!({
@@ -1033,13 +930,9 @@ async fn put_llm_config(
         "backend": state.ai_settings.backend_name(),
 
     })))
-
 }
 
-
-
 async fn get_ai_settings(State(state): State<Arc<AppState>>) -> Json<Value> {
-
     Json(json!({
 
         "semantic": state.ai_settings.semantic_config(),
@@ -1049,15 +942,11 @@ async fn get_ai_settings(State(state): State<Arc<AppState>>) -> Json<Value> {
         "backend": state.ai_settings.backend_name(),
 
     }))
-
 }
-
-
 
 #[derive(serde::Deserialize)]
 
 struct LlmConfigPut {
-
     enabled: Option<bool>,
 
     auto_explain: Option<bool>,
@@ -1067,13 +956,9 @@ struct LlmConfigPut {
     api_key: Option<String>,
 
     model: Option<String>,
-
 }
 
-
-
 fn redact_llm_config(cfg: &TriageLlmConfig) -> Value {
-
     json!({
 
         "enabled": cfg.enabled,
@@ -1089,7 +974,4 @@ fn redact_llm_config(cfg: &TriageLlmConfig) -> Value {
         "llm_ready": cfg.llm_ready(),
 
     })
-
 }
-
-

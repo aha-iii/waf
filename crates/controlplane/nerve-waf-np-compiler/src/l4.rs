@@ -65,7 +65,10 @@ pub fn compile_k8s_np_l4(
 }
 
 /// Backward-compatible wrapper without namespace snapshots.
-pub fn compile_k8s_np_l4_pods(spec: &K8sNetworkPolicySpec, all_pods: &[PodSnapshot]) -> CompiledL4Policy {
+pub fn compile_k8s_np_l4_pods(
+    spec: &K8sNetworkPolicySpec,
+    all_pods: &[PodSnapshot],
+) -> CompiledL4Policy {
     compile_k8s_np_l4_inner(spec, all_pods, &[])
 }
 
@@ -81,7 +84,9 @@ fn compile_k8s_np_l4_inner(
 
     let selected: Vec<&PodSnapshot> = all_pods
         .iter()
-        .filter(|p| p.namespace == spec.namespace && labels_match_full(&spec.pod_selector, &p.labels))
+        .filter(|p| {
+            p.namespace == spec.namespace && labels_match_full(&spec.pod_selector, &p.labels)
+        })
         .collect();
 
     if selected.is_empty() {
@@ -170,6 +175,8 @@ pub fn merge_l4_policies(policies: &[CompiledL4Policy]) -> CompiledL4Policy {
     merged
 }
 
+// Peer rule expansion mirrors the NetworkPolicy peer schema field-by-field.
+#[allow(clippy::too_many_arguments)]
 fn append_peer_rules(
     rules: &mut Vec<L4Rule>,
     lpm_rules: &mut Vec<LpmAllowRule>,
@@ -269,17 +276,32 @@ fn peer_pod_matches(
     np_namespace: &str,
     all_namespaces: &[NamespaceSnapshot],
 ) -> bool {
-    if !peer.namespace_selector.as_object().map(|o| o.is_empty()).unwrap_or(true) {
+    if !peer
+        .namespace_selector
+        .as_object()
+        .map(|o| o.is_empty())
+        .unwrap_or(true)
+    {
         if !namespace_selector_matches(&peer.namespace_selector, &pod.namespace, all_namespaces) {
             return false;
         }
-    } else if peer.pod_selector.as_object().map(|o| !o.is_empty()).unwrap_or(false) {
+    } else if peer
+        .pod_selector
+        .as_object()
+        .map(|o| !o.is_empty())
+        .unwrap_or(false)
+    {
         // podSelector-only peer in same NP namespace
         if pod.namespace != np_namespace {
             return false;
         }
     }
-    if peer.pod_selector.as_object().map(|o| !o.is_empty()).unwrap_or(false) {
+    if peer
+        .pod_selector
+        .as_object()
+        .map(|o| !o.is_empty())
+        .unwrap_or(false)
+    {
         return labels_match_full(&peer.pod_selector, &pod.labels);
     }
     pod.namespace == np_namespace

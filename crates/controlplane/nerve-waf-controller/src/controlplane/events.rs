@@ -4,25 +4,29 @@ use axum::{
     Json,
 };
 use chrono::{DateTime, Utc};
+use nerve_waf_challenge::{ChallengeStore, CHALLENGE_HEADER};
 use nerve_waf_core::{build_waf_journey_hops, WafJourneyContext};
 use nerve_waf_embed::EmbedInspectRequest;
-use nerve_waf_challenge::{ChallengeStore, CHALLENGE_HEADER};
 use nerve_waf_l7::InspectRequest;
 use nerve_waf_sdk::{
-    parse_traceparent, parse_tracestate, RequestTrace, HEADER_NERVE_JOURNEY_ID,
-    HEADER_NERVE_PARENT_JOURNEY_ID, HEADER_NERVE_SPAN_ID, HEADER_NERVE_TRACE_ID,
-    HEADER_TRACEPARENT, HEADER_TRACESTATE, HEADER_X_NERVE_TRACE_ID, HEADER_X_TRACE_ID,
-    EventQuery, ProtectionModules, WafEventRecord,
+    parse_traceparent, parse_tracestate, EventQuery, ProtectionModules, RequestTrace,
+    WafEventRecord, HEADER_NERVE_JOURNEY_ID, HEADER_NERVE_PARENT_JOURNEY_ID, HEADER_NERVE_SPAN_ID,
+    HEADER_NERVE_TRACE_ID, HEADER_TRACEPARENT, HEADER_TRACESTATE, HEADER_X_NERVE_TRACE_ID,
+    HEADER_X_TRACE_ID,
 };
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::controlplane::alert_integration::{product::WAF, AlertPayload, DispatchRequest, CategoryCount, SourceStatsOverview};
+use crate::controlplane::alert_integration::{
+    product::WAF, AlertPayload, CategoryCount, DispatchRequest, SourceStatsOverview,
+};
 use crate::logging;
 use crate::trace_middleware::NerveTrace;
-use crate::triage_service::{should_suppress_alert, triage_alert_line, triage_many, triage_one, triage_to_json};
+use crate::triage_service::{
+    should_suppress_alert, triage_alert_line, triage_many, triage_one, triage_to_json,
+};
 use crate::AppState;
 
 #[derive(Deserialize)]
@@ -396,10 +400,14 @@ fn resolve_inspect_trace(req: &InspectBody, trace: &NerveTrace) -> RequestTrace 
         .or_else(|| {
             header_from_inspect(
                 &req.headers,
-                &[HEADER_NERVE_TRACE_ID, HEADER_X_NERVE_TRACE_ID, HEADER_X_TRACE_ID],
+                &[
+                    HEADER_NERVE_TRACE_ID,
+                    HEADER_X_NERVE_TRACE_ID,
+                    HEADER_X_TRACE_ID,
+                ],
             )
         })
-        .or_else(|| (!tp_trace.is_empty()).then(|| tp_trace))
+        .or_else(|| (!tp_trace.is_empty()).then_some(tp_trace))
         .unwrap_or_else(|| trace.nerve_trace_id.clone());
 
     let journey_id = req
@@ -426,7 +434,7 @@ fn resolve_inspect_trace(req: &InspectBody, trace: &NerveTrace) -> RequestTrace 
         .or_else(|| trace.parent_journey_id.clone());
 
     let parent_span = header_from_inspect(&req.headers, &[HEADER_NERVE_SPAN_ID])
-        .or_else(|| (!tp_span.is_empty()).then(|| tp_span));
+        .or_else(|| (!tp_span.is_empty()).then_some(tp_span));
 
     RequestTrace::new_waf(
         Some(nerve_trace_id),
@@ -439,7 +447,10 @@ fn resolve_inspect_trace(req: &InspectBody, trace: &NerveTrace) -> RequestTrace 
     )
 }
 
-fn challenge_token_from_request(headers_raw: &str, headers_json: &Option<serde_json::Value>) -> Option<String> {
+fn challenge_token_from_request(
+    headers_raw: &str,
+    headers_json: &Option<serde_json::Value>,
+) -> Option<String> {
     if let Some(obj) = headers_json.as_ref().and_then(|v| v.as_object()) {
         let header_lower = CHALLENGE_HEADER.to_lowercase();
         if let Some(t) = obj
@@ -486,10 +497,10 @@ fn should_persist_inspect_hit(persist: bool, record: &WafEventRecord, blocked: b
 }
 
 fn journey_report_enabled() -> bool {
-    match std::env::var("NERVE_JOURNEY_REPORT").as_deref() {
-        Ok("0") | Ok("false") | Ok("off") => false,
-        _ => true,
-    }
+    !matches!(
+        std::env::var("NERVE_JOURNEY_REPORT").as_deref(),
+        Ok("0") | Ok("false") | Ok("off")
+    )
 }
 
 pub async fn execute_inspect(state: &AppState, req: InspectBody) -> Result<Value, String> {
@@ -522,7 +533,11 @@ pub async fn execute_inspect_traced(
     let response_body = req.response_body.clone();
 
     if journey_report_enabled() {
-        let bind_host = if host.is_empty() { "upstream" } else { host.as_str() };
+        let bind_host = if host.is_empty() {
+            "upstream"
+        } else {
+            host.as_str()
+        };
         let mut bind_trace = trace_ctx.clone();
         if bind_trace.site_id.is_none() {
             bind_trace.site_id = Some(site_id.clone());
@@ -621,12 +636,10 @@ pub async fn execute_inspect_traced(
     }
 
     if blocked
-        && state
-            .platform
-            .should_auto_deny(
-                hit.map(|h| h.category.as_str()).unwrap_or("-"),
-                hit.map(|h| h.severity.as_str()).unwrap_or("medium"),
-            )
+        && state.platform.should_auto_deny(
+            hit.map(|h| h.category.as_str()).unwrap_or("-"),
+            hit.map(|h| h.severity.as_str()).unwrap_or("medium"),
+        )
     {
         if let Err(e) = state.nerve.deny_ip(&l7_req.src_ip).await {
             tracing::warn!("auto_deny ip={} failed: {e}", l7_req.src_ip);
@@ -649,7 +662,11 @@ pub async fn execute_inspect_traced(
         );
         let need_persist = should_persist_inspect_hit(persist, &record, blocked);
         if need_persist {
-            match state.events.insert_batch(&[record.clone()]).await {
+            match state
+                .events
+                .insert_batch(std::slice::from_ref(&record))
+                .await
+            {
                 Ok(_) => {
                     event_id = Some(record.id.clone());
                     persisted = true;
@@ -670,7 +687,9 @@ pub async fn execute_inspect_traced(
             crate::triage_ai::TriageAiService::merge_ai_into_json(&mut tj, &ai);
         }
         triage_json = Some(tj);
-        state.triage_ai.spawn_background(record.clone(), triage.clone());
+        state
+            .triage_ai
+            .spawn_background(record.clone(), triage.clone());
         if should_alert_waf_event(&record) {
             if persisted || !need_persist {
                 spawn_alert_dispatch(state, &record, Some(triage));
@@ -688,7 +707,10 @@ pub async fn execute_inspect_traced(
         let ctx = WafJourneyContext {
             trace_id: Some(trace_ctx.nerve_trace_id.clone()),
             journey_id: trace_ctx.journey_id.clone(),
-            session_id: trace_ctx.session_id.clone().or(trace_ctx.journey_id.clone()),
+            session_id: trace_ctx
+                .session_id
+                .clone()
+                .or(trace_ctx.journey_id.clone()),
             parent_journey_id: trace_ctx.parent_journey_id.clone(),
             site_id: site_id.clone(),
             src_ip: l7_req.src_ip.clone(),
@@ -780,11 +802,15 @@ pub async fn post_inspect(
         })
 }
 
-pub async fn poll_nerve_events(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {
+pub async fn poll_nerve_events(
+    State(state): State<Arc<AppState>>,
+) -> Result<Json<Value>, StatusCode> {
     let records = match collect_nerve_events(&state).await {
         Ok(r) => r,
         Err(e) => {
-            return Ok(Json(json!({ "ok": false, "error": e.to_string(), "inserted": 0 })));
+            return Ok(Json(
+                json!({ "ok": false, "error": e.to_string(), "inserted": 0 }),
+            ));
         }
     };
     let n = state
@@ -807,7 +833,9 @@ pub async fn poll_nerve_events(State(state): State<Arc<AppState>>) -> Result<Jso
     })))
 }
 
-async fn collect_nerve_events(state: &AppState) -> Result<Vec<WafEventRecord>, nerve_waf_client::NerveClientError> {
+async fn collect_nerve_events(
+    state: &AppState,
+) -> Result<Vec<WafEventRecord>, nerve_waf_client::NerveClientError> {
     let mut out = Vec::new();
 
     let audit = state.nerve.get_audit_export(200).await?;
@@ -837,15 +865,22 @@ async fn collect_nerve_events(state: &AppState) -> Result<Vec<WafEventRecord>, n
 fn audit_to_event(rec: &Value) -> WafEventRecord {
     let kind = rec.get("kind").and_then(|v| v.as_str()).unwrap_or("audit");
     let action = rec.get("action").and_then(|v| v.as_str()).unwrap_or("log");
-    let src_ip = rec.get("src_ip").and_then(|v| v.as_str()).map(str::to_string);
-    let dst_ip = rec.get("dst_ip").and_then(|v| v.as_str()).map(str::to_string);
-    let message = rec.get("message").and_then(|v| v.as_str()).map(str::to_string);
+    let src_ip = rec
+        .get("src_ip")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+    let dst_ip = rec
+        .get("dst_ip")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
+    let message = rec
+        .get("message")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
     // Legacy policy_deny rows may only have dst_ip; normalize for display.
     let display_ip = src_ip.clone().or(dst_ip.clone());
     let payload_sample = match kind {
-        "policy_deny" => display_ip
-            .as_ref()
-            .map(|ip| format!("deny_ip={ip}")),
+        "policy_deny" => display_ip.as_ref().map(|ip| format!("deny_ip={ip}")),
         "policy_hit" => message.clone(),
         _ => message.clone(),
     };
@@ -854,7 +889,11 @@ fn audit_to_event(rec: &Value) -> WafEventRecord {
         ts: parse_time(rec.get("time")),
         site_id: "default".into(),
         layer: "l3".into(),
-        action: if action == "deny" { "block".into() } else { action.into() },
+        action: if action == "deny" {
+            "block".into()
+        } else {
+            action.into()
+        },
         category: map_kind_category(kind),
         rule_id: None,
         rule_name: Some(kind.into()),
@@ -885,8 +924,14 @@ fn audit_to_event(rec: &Value) -> WafEventRecord {
 }
 
 fn anomaly_to_event(rec: &Value) -> WafEventRecord {
-    let typ = rec.get("type").and_then(|v| v.as_str()).unwrap_or("anomaly");
-    let mut message = rec.get("message").and_then(|v| v.as_str()).map(str::to_string);
+    let typ = rec
+        .get("type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("anomaly");
+    let mut message = rec
+        .get("message")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
     if let Some(signals) = rec.get("signals").and_then(|v| v.as_array()) {
         let parts: Vec<String> = signals
             .iter()
@@ -918,16 +963,28 @@ fn anomaly_to_event(rec: &Value) -> WafEventRecord {
             .and_then(|v| v.as_str())
             .unwrap_or("medium")
             .into(),
-        src_ip: rec.get("src_ip").and_then(|v| v.as_str()).map(str::to_string),
-        dst_ip: rec.get("dst_ip").and_then(|v| v.as_str()).map(str::to_string),
+        src_ip: rec
+            .get("src_ip")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
+        dst_ip: rec
+            .get("dst_ip")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
         dst_port: rec.get("dport").and_then(|v| v.as_u64()).map(|p| p as u16),
         method: None,
         host: None,
-        uri: rec.get("access_addr").and_then(|v| v.as_str()).map(str::to_string),
+        uri: rec
+            .get("access_addr")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
         user_agent: None,
         headers: None,
         body: None,
-        payload_sample: rec.get("message").and_then(|v| v.as_str()).map(str::to_string),
+        payload_sample: rec
+            .get("message")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
         matched_field: None,
         route_id: None,
         pod: rec.get("pod").and_then(|v| v.as_str()).map(str::to_string),
@@ -954,7 +1011,10 @@ fn policy_hit_to_event(rec: &Value) -> WafEventRecord {
         rule_id: Some("policy_hit".into()),
         rule_name: Some("TC Policy Hit".into()),
         severity: "high".into(),
-        src_ip: rec.get("src_ip").and_then(|v| v.as_str()).map(str::to_string),
+        src_ip: rec
+            .get("src_ip")
+            .and_then(|v| v.as_str())
+            .map(str::to_string),
         dst_ip: None,
         dst_port: rec.get("dport").and_then(|v| v.as_u64()).map(|p| p as u16),
         method: None,
@@ -1076,6 +1136,8 @@ fn semantic_event_message(hit: &nerve_waf_core::InspectHit) -> Option<String> {
     }
 }
 
+// Reserved: hit->event conversion for the legacy pipeline.
+#[allow(dead_code)]
 fn inspect_hit_to_event(req: &InspectRequest, hit: &nerve_waf_l7::InspectResult) -> WafEventRecord {
     WafEventRecord {
         id: Uuid::new_v4().to_string(),
@@ -1173,12 +1235,7 @@ pub fn should_alert_network_event(ev: &WafEventRecord) -> bool {
     match ev.severity.as_str() {
         "critical" | "high" => true,
         "low" | "info" => false,
-        _ => {
-            !matches!(
-                ev.category.as_str(),
-                "orphan_connect" | "anomaly"
-            )
-        }
+        _ => !matches!(ev.category.as_str(), "orphan_connect" | "anomaly"),
     }
 }
 
@@ -1210,7 +1267,11 @@ fn parse_time(v: Option<&Value>) -> DateTime<Utc> {
 
 fn stable_id(seed: &str) -> String {
     use uuid::{uuid, Uuid};
-    Uuid::new_v5(&uuid!("f47ac10b-58cc-4372-a567-0e02b2c3d479"), seed.as_bytes()).to_string()
+    Uuid::new_v5(
+        &uuid!("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+        seed.as_bytes(),
+    )
+    .to_string()
 }
 
 pub fn spawn_nerve_poller(state: Arc<AppState>) {

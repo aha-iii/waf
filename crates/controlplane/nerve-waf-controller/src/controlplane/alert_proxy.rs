@@ -57,7 +57,9 @@ pub fn build_upstream_uri(base: &str, path_and_query: &str) -> Result<Uri, Strin
         .parse::<Uri>()
         .map_err(|e| format!("invalid upstream uri {full}: {e}"))?;
     if uri.scheme().is_none() || uri.host().is_none() {
-        return Err(format!("alert upstream must be absolute URL with host: {full}"));
+        return Err(format!(
+            "alert upstream must be absolute URL with host: {full}"
+        ));
     }
     Ok(uri)
 }
@@ -66,7 +68,7 @@ fn filter_request_headers(src: &HeaderMap) -> HeaderMap {
     let mut out = HeaderMap::new();
     for (name, value) in src.iter() {
         let lower = name.as_str();
-        if HOP_BY_HOP.iter().any(|h| *h == lower) {
+        if HOP_BY_HOP.contains(&lower) {
             continue;
         }
         out.insert(name.clone(), value.clone());
@@ -78,7 +80,7 @@ fn filter_response_headers(src: &reqwest::header::HeaderMap) -> HeaderMap {
     let mut out = HeaderMap::new();
     for (name, value) in src.iter() {
         let lower = name.as_str();
-        if HOP_BY_HOP.iter().any(|h| *h == lower) {
+        if HOP_BY_HOP.contains(&lower) {
             continue;
         }
         if let (Ok(n), Ok(v)) = (

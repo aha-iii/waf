@@ -83,7 +83,11 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
         evidence.push(evidence_row("action_block", 35, "WAF 已执行拦截"));
     } else if action == "log" {
         score += 10;
-        evidence.push(evidence_row("action_log", 10, "检测模式仅记录，需结合其他信号"));
+        evidence.push(evidence_row(
+            "action_log",
+            10,
+            "检测模式仅记录，需结合其他信号",
+        ));
     }
 
     match severity.as_str() {
@@ -114,7 +118,11 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
         "cc" | "bot" | "intel" => {
             score += 15;
             attack_signals += 1;
-            evidence.push(evidence_row("category_abuse", 15, &format!("滥用类：{category}")));
+            evidence.push(evidence_row(
+                "category_abuse",
+                15,
+                &format!("滥用类：{category}"),
+            ));
         }
         "l3_policy" | "anomaly" => {
             score += 12;
@@ -142,11 +150,12 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
     if ctx.intel_malicious {
         score += 28;
         attack_signals += 1;
-        let cat = ctx
-            .intel_category
-            .as_deref()
-            .unwrap_or("threat_intel");
-        evidence.push(evidence_row("intel_hit", 28, &format!("威胁情报命中：{cat}")));
+        let cat = ctx.intel_category.as_deref().unwrap_or("threat_intel");
+        evidence.push(evidence_row(
+            "intel_hit",
+            28,
+            &format!("威胁情报命中：{cat}"),
+        ));
     }
 
     if ctx.ip_blocked_count >= 3 {
@@ -190,11 +199,7 @@ pub fn analyze_event(event: &WafEventRecord, ctx: &TriageContext) -> TriageResul
     if ctx.global_mode == "detect" && action == "log" {
         score -= 8;
         fp_signals += 1;
-        evidence.push(evidence_row(
-            "detect_only",
-            -8,
-            "全局检测模式，未实际拦截",
-        ));
+        evidence.push(evidence_row("detect_only", -8, "全局检测模式，未实际拦截"));
     }
 
     if likely_benign_search(&category, uri, payload) {
@@ -264,8 +269,8 @@ fn payload_has_attack_markers(payload: &str, uri: &str, category: &str) -> bool 
 fn is_static_asset(uri: &str) -> bool {
     let path = uri.split('?').next().unwrap_or(uri).to_ascii_lowercase();
     [
-        ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".woff", ".woff2", ".ico",
-        ".map", ".webp",
+        ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".woff", ".woff2", ".ico", ".map",
+        ".webp",
     ]
     .iter()
     .any(|ext| path.ends_with(ext))
@@ -276,14 +281,14 @@ fn likely_benign_search(category: &str, uri: &str, payload: &str) -> bool {
         return false;
     }
     let q = uri.to_ascii_lowercase();
-    let benign_keys = ["q=", "query=", "search=", "keyword=", "page=", "sort=", "name="];
+    let benign_keys = [
+        "q=", "query=", "search=", "keyword=", "page=", "sort=", "name=",
+    ];
     if !benign_keys.iter().any(|k| q.contains(k)) {
         return false;
     }
     let sample = payload.to_ascii_lowercase();
-    !sample.contains("union")
-        && !sample.contains("<script")
-        && !sample.contains("../")
+    !sample.contains("union") && !sample.contains("<script") && !sample.contains("../")
 }
 
 fn verdict_from_score(score: i16, attack: u8, fp: u8) -> TriageVerdict {
@@ -291,8 +296,6 @@ fn verdict_from_score(score: i16, attack: u8, fp: u8) -> TriageVerdict {
         TriageVerdict::ConfirmedAttack
     } else if score >= 40 || (score >= 30 && attack >= 1) {
         TriageVerdict::LikelyAttack
-    } else if score <= 15 && fp >= 1 {
-        TriageVerdict::LikelyFalsePositive
     } else if fp >= 1 && score < 35 {
         TriageVerdict::LikelyFalsePositive
     } else {
@@ -323,7 +326,7 @@ fn summary_for(verdict: &TriageVerdict, category: &str, action: &str) -> String 
             "证据不充分或信号冲突，建议人工复核后再调整规则/白名单".into()
         }
         TriageVerdict::LikelyFalsePositive => {
-            format!("较大概率为误报（如静态资源/业务参数），可考虑按 URL 或规则 ID 加白")
+            "较大概率为误报（如静态资源/业务参数），可考虑按 URL 或规则 ID 加白".to_string()
         }
     }
 }

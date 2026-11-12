@@ -18,10 +18,14 @@ pub fn is_plausible_b64_candidate(tok: &str) -> bool {
             return false;
         }
     }
-    if !t.contains('+') && !t.contains('/') && !t.ends_with('=') {
-        if t.len() >= 8 && t.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()) {
-            return false;
-        }
+    if !t.contains('+')
+        && !t.contains('/')
+        && !t.ends_with('=')
+        && t.len() >= 8
+        && t.bytes()
+            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
+    {
+        return false;
     }
     true
 }

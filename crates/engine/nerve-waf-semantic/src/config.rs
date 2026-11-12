@@ -52,7 +52,10 @@ pub fn normalize_pipeline_order(order: &[String]) -> Vec<String> {
             continue;
         }
         seen.insert(*id);
-        let canon_idx = PIPELINE_STAGE_IDS.iter().position(|s| *s == *id).unwrap_or(0);
+        let canon_idx = PIPELINE_STAGE_IDS
+            .iter()
+            .position(|s| *s == *id)
+            .unwrap_or(0);
         let mut insert_at = result.len();
         for (i, existing) in result.iter().enumerate() {
             let existing_idx = PIPELINE_STAGE_IDS
@@ -228,16 +231,10 @@ fn default_pipeline_editor_mode() -> String {
 }
 
 /// Pipeline orchestration editor state (Console list/flowchart dual mode).
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct PipelineNodeLayout {
     pub x: i32,
     pub y: i32,
-}
-
-impl Default for PipelineNodeLayout {
-    fn default() -> Self {
-        Self { x: 0, y: 0 }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
@@ -349,9 +346,7 @@ impl Default for SemanticConfig {
 
 impl SemanticConfig {
     pub fn effective_expert_level(&self, global: Option<ExpertLevel>) -> ExpertLevel {
-        self.expert_level
-            .or(global)
-            .unwrap_or(ExpertLevel::Medium)
+        self.expert_level.or(global).unwrap_or(ExpertLevel::Medium)
     }
 
     /// Historical: semantic used to be a pipeline segment. Explicitly disabling it migrates to disable semantic enhancement.
@@ -368,7 +363,8 @@ impl SemanticConfig {
         }
         self.intent_enabled = self.engines.sql_intent;
         self.engines.normalize_pipeline();
-        self.performance.max_slices_per_request = self.performance.max_slices_per_request.clamp(1, 512);
+        self.performance.max_slices_per_request =
+            self.performance.max_slices_per_request.clamp(1, 512);
         self.performance.slow_path_sample_rate = self.performance.slow_path_sample_rate.min(100);
         self.decode.max_depth = self.decode.max_depth.clamp(1, 32);
         self.auto_tune.false_positive_threshold = self.auto_tune.false_positive_threshold.max(1);

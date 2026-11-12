@@ -3,7 +3,7 @@
 use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
-    routing::{delete, get, put},
+    routing::{get, put},
     Json, Router,
 };
 use nerve_waf_auth::AuthMethod;
@@ -57,9 +57,7 @@ fn bearer_from_headers(headers: &HeaderMap) -> Option<&str> {
 }
 
 fn api_key_from_headers(headers: &HeaderMap) -> Option<&str> {
-    headers
-        .get("x-api-key")
-        .and_then(|v| v.to_str().ok())
+    headers.get("x-api-key").and_then(|v| v.to_str().ok())
 }
 
 async fn require_authenticated(
@@ -84,7 +82,10 @@ async fn require_authenticated(
     Ok((method, username, role))
 }
 
-async fn require_admin(state: &AppState, headers: &HeaderMap) -> Result<(String, String), StatusCode> {
+async fn require_admin(
+    state: &AppState,
+    headers: &HeaderMap,
+) -> Result<(String, String), StatusCode> {
     let (_, username, role) = require_authenticated(state, headers).await?;
     if role != nerve_waf_store::ROLE_ADMIN {
         return Err(StatusCode::FORBIDDEN);
@@ -97,8 +98,14 @@ async fn list_users(
     headers: HeaderMap,
 ) -> Result<Json<Value>, StatusCode> {
     require_admin(&state, &headers).await?;
-    let store = state.users_store.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
-    let users = store.list().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let store = state
+        .users_store
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let users = store
+        .list()
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let items: Vec<UserJson> = users.into_iter().map(UserJson::from).collect();
     Ok(Json(json!({ "total": items.len(), "users": items })))
 }
@@ -126,7 +133,10 @@ async fn create_user(
     Json(body): Json<CreateUserBody>,
 ) -> Result<Json<Value>, StatusCode> {
     let (operator, _) = require_admin(&state, &headers).await?;
-    let store = state.users_store.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let store = state
+        .users_store
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let user = store
         .create(
             &body.username,
@@ -157,13 +167,14 @@ async fn update_user(
     Json(body): Json<UpdateUserBody>,
 ) -> Result<Json<Value>, StatusCode> {
     let (operator, _) = require_admin(&state, &headers).await?;
-    let store = state.users_store.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let store = state
+        .users_store
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let display_name = if body.clear_display_name {
         Some(None)
-    } else if let Some(ref name) = body.display_name {
-        Some(Some(name.as_str()))
     } else {
-        None
+        body.display_name.as_ref().map(|name| Some(name.as_str()))
     };
     let user = store
         .update(
@@ -185,11 +196,11 @@ async fn delete_user(
     Path(id): Path<String>,
 ) -> Result<Json<Value>, StatusCode> {
     let (operator, _) = require_admin(&state, &headers).await?;
-    let store = state.users_store.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
-    store
-        .delete(&id, &operator)
-        .await
-        .map_err(map_users_err)?;
+    let store = state
+        .users_store
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    store.delete(&id, &operator).await.map_err(map_users_err)?;
     Ok(Json(json!({ "ok": true })))
 }
 

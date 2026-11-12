@@ -11,13 +11,15 @@ use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
 
-use crate::dataplane::inspect::{build_embed_request, inspect_for_site_blocking, SharedInspectCache};
+use crate::dataplane::inspect::{
+    build_embed_request, inspect_for_site_blocking, SharedInspectCache,
+};
 use crate::dataplane::runtime::{pick_upstream_url, SharedRuntime};
 use nerve_waf_embed::EmbeddedWaf;
 
 use super::block_page::{self, BlockPageFields};
-use super::events::report_block_event;
 use super::client_ip::resolve_client_ip;
+use super::events::report_block_event;
 
 /// Align GitLab push / artifacts with front TLS `client_max_body_size` (256m).
 fn max_body_bytes() -> usize {
@@ -68,10 +70,7 @@ fn smuggle_diag_headers(headers: &HeaderMap) -> String {
     let cl = header_str(headers, "content-length").unwrap_or_default();
     let x_orig = header_str(headers, "x-original-url").unwrap_or_default();
     let x_rewrite = header_str(headers, "x-rewrite-url").unwrap_or_default();
-    let host_count = headers
-        .get_all(header::HOST)
-        .into_iter()
-        .count();
+    let host_count = headers.get_all(header::HOST).into_iter().count();
     format!(
         "te={te:?} cl={cl:?} x-original-url={x_orig:?} x-rewrite-url={x_rewrite:?} host_count={host_count}"
     )
@@ -87,6 +86,7 @@ fn edge_timing_log_all() -> bool {
     })
 }
 
+#[allow(clippy::too_many_arguments)]
 fn log_edge_request_timing(
     method: &Method,
     path_q: &str,
@@ -228,16 +228,7 @@ pub async fn proxy_handler(
         let route_us = t_total.elapsed().as_micros() as u64 - body_us;
         if let (true, Some(base)) = (passthrough_unmatched(), force_base.as_ref()) {
             return forward_upstream(
-                &state,
-                &method,
-                &host,
-                &path_q,
-                &headers,
-                &body,
-                base,
-                body_us,
-                route_us,
-                0,
+                &state, &method, &host, &path_q, &headers, &body, base, body_us, route_us, 0,
                 t_total,
             )
             .await;
@@ -371,10 +362,7 @@ pub async fn proxy_handler(
         if block_page::prefers_json(&headers) {
             return (
                 StatusCode::FORBIDDEN,
-                [(
-                    header::CONTENT_TYPE,
-                    "application/json; charset=utf-8",
-                )],
+                [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
                 block_page::render_json(&fields, inspect.rule_name.as_deref()),
             )
                 .into_response();
@@ -403,6 +391,7 @@ pub async fn proxy_handler(
     .await
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn forward_upstream(
     state: &EdgeState,
     method: &Method,
@@ -523,8 +512,7 @@ fn copy_forward_headers(
         let name = k.as_str();
         if matches!(
             name,
-            "host" | "connection" | "transfer-encoding" | "content-length"
-                | "accept-encoding"
+            "host" | "connection" | "transfer-encoding" | "content-length" | "accept-encoding"
         ) {
             continue;
         }

@@ -59,7 +59,7 @@ pub fn mock(mock_settings: MockSettings) -> Result<Tester> {
         host_settings,
         expectations,
     );
-    return Ok(tester);
+    Ok(tester)
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -96,6 +96,8 @@ enum FunctionCall {
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
+// Vendored snapshot: keep upstream naming; suppress workspace-wide clippy gate.
+#[allow(clippy::enum_variant_names)]
 enum FunctionType {
     ReturnVoid,
     ReturnBool,
@@ -153,14 +155,14 @@ impl Tester {
         self
     }
 
-    pub fn expect_get_current_time_nanos(&mut self) -> ExpectGetCurrentTimeNanos {
+    pub fn expect_get_current_time_nanos(&mut self) -> ExpectGetCurrentTimeNanos<'_> {
         ExpectGetCurrentTimeNanos::expecting(self)
     }
 
     pub fn expect_get_buffer_bytes(
         &mut self,
         buffer_type: Option<BufferType>,
-    ) -> ExpectGetBufferBytes {
+    ) -> ExpectGetBufferBytes<'_> {
         ExpectGetBufferBytes::expecting(self, buffer_type.map(|data| data as i32))
     }
 
@@ -178,7 +180,7 @@ impl Tester {
     pub fn expect_get_header_map_pairs(
         &mut self,
         map_type: Option<MapType>,
-    ) -> ExpectGetHeaderMapPairs {
+    ) -> ExpectGetHeaderMapPairs<'_> {
         ExpectGetHeaderMapPairs::expecting(self, map_type.map(|data| data as i32))
     }
 
@@ -197,7 +199,7 @@ impl Tester {
         &mut self,
         map_type: Option<MapType>,
         header_map_key: Option<&'static str>,
-    ) -> ExpectGetHeaderMapValue {
+    ) -> ExpectGetHeaderMapValue<'_> {
         ExpectGetHeaderMapValue::expecting(self, map_type.map(|data| data as i32), header_map_key)
     }
 
@@ -264,7 +266,7 @@ impl Tester {
         body: Option<&'static str>,
         trailers: Option<Vec<(&'static str, &'static str)>>,
         timeout: Option<u64>,
-    ) -> ExpectHttpCall {
+    ) -> ExpectHttpCall<'_> {
         ExpectHttpCall::expecting(self, upstream, headers, body, trailers, timeout)
     }
 
@@ -292,7 +294,7 @@ impl Tester {
         self
     }
 
-    pub fn set_default_buffer_bytes(&mut self, buffer_type: BufferType) -> DefaultBufferBytes {
+    pub fn set_default_buffer_bytes(&mut self, buffer_type: BufferType) -> DefaultBufferBytes<'_> {
         DefaultBufferBytes::expecting(self, buffer_type as i32)
     }
 
@@ -301,13 +303,13 @@ impl Tester {
         self
     }
 
-    pub fn set_default_header_map_pairs(&mut self, map_type: MapType) -> DefaultHeaderMapPairs {
+    pub fn set_default_header_map_pairs(&mut self, map_type: MapType) -> DefaultHeaderMapPairs<'_> {
         DefaultHeaderMapPairs::expecting(self, map_type as i32)
     }
 
     /* ------------------------------------- Utility Functions ------------------------------------- */
 
-    pub fn get_expect_handle(&self) -> MutexGuard<ExpectHandle> {
+    pub fn get_expect_handle(&self) -> MutexGuard<'_, ExpectHandle> {
         self.expect.lock().unwrap()
     }
 
@@ -326,7 +328,7 @@ impl Tester {
         self.expect.lock().unwrap().assert_stage();
     }
 
-    pub fn get_settings_handle(&self) -> MutexGuard<HostHandle> {
+    pub fn get_settings_handle(&self) -> MutexGuard<'_, HostHandle> {
         self.defaults.lock().unwrap()
     }
 
@@ -352,7 +354,7 @@ impl Tester {
         assert_eq!(self.function_call.len(), expect_callback.len());
         assert_eq!(self.function_call.len(), self.function_type.len());
         assert_eq!(self.function_call.len(), 0);
-        while expect_callback.len() > 0 {
+        while !expect_callback.is_empty() {
             self.execute_and_expect(expect_callback.remove(0))?;
         }
         Ok(())
@@ -555,7 +557,8 @@ impl Tester {
                     )))?;
                 println!(
                     "[host->vm] proxy_on_dowestream_coneectioe_close(context_id={}, peer_data={})",
-                    context_id, peer_type as i32
+                    context_id,
+                    { peer_type }
                 );
                 proxy_on_dowestream_coneectioe_close
                     .call(&mut self.store, (context_id, peer_type))?;
@@ -598,7 +601,8 @@ impl Tester {
                     )))?;
                 println!(
                     "[host->vm] proxy_on_upstream_coneectioe_close(context_id={}, peer_data={})",
-                    context_id, peer_type as i32
+                    context_id,
+                    { peer_type }
                 );
                 proxy_on_upstream_coneectioe_close
                     .call(&mut self.store, (context_id, peer_type))?;
@@ -955,7 +959,7 @@ impl Tester {
         match expect_wasm {
             ReturnType::None => {
                 assert_eq!(self.function_type.remove(0), FunctionType::ReturnVoid);
-                assert_eq!(return_wasm.is_none(), true);
+                assert!(return_wasm.is_none());
             }
             ReturnType::Bool(expect_bool) => {
                 assert_eq!(self.function_type.remove(0), FunctionType::ReturnBool);
@@ -967,7 +971,7 @@ impl Tester {
             }
         }
 
-        if self.function_call.len() == 0 {
+        if self.function_call.is_empty() {
             self.assert_expect_stage();
             self.update_expect_stage();
         }
@@ -1429,10 +1433,7 @@ impl Tester {
                 .call(&mut self.store, (context_id, eum_headers))?,
             AbiVersion::ProxyAbiVersion0_2_0 => self
                 .instance
-                .get_typed_func::<(i32, i32, i32), i32>(
-                    &mut self.store,
-                    "proxy_on_request_headers",
-                )
+                .get_typed_func::<(i32, i32, i32), i32>(&mut self.store, "proxy_on_request_headers")
                 .or(Err(anyhow::format_err!(
                     "missing proxy_on_request_headers export"
                 )))?

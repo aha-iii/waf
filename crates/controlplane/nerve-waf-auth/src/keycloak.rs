@@ -1,7 +1,7 @@
 //! Keycloak OIDC JWT validation (JWKS).
 
-use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use jsonwebtoken::jwk::{Jwk, JwkSet};
+use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use serde::Deserialize;
 use std::sync::RwLock;
 use std::time::{Duration, Instant};
@@ -27,6 +27,9 @@ pub struct KeycloakValidator {
 
 #[derive(Debug, Deserialize)]
 struct JwtClaims {
+    /// Deserialization requires the claim; expiry itself is enforced by
+    /// `jsonwebtoken::Validation` (validate_exp defaults to true).
+    #[allow(dead_code)]
     exp: usize,
     iss: String,
     aud: Option<serde_json::Value>,
@@ -47,8 +50,7 @@ impl KeycloakValidator {
             return None;
         }
         let realm = std::env::var("KEYCLOAK_REALM").unwrap_or_else(|_| "saascrmplatformdev".into());
-        let client_id =
-            std::env::var("KEYCLOAK_CLIENT_ID").unwrap_or_else(|_| "crm".into());
+        let client_id = std::env::var("KEYCLOAK_CLIENT_ID").unwrap_or_else(|_| "crm".into());
         let issuer = format!("{auth_server_url}/realms/{realm}");
         let jwks_url = format!("{issuer}/protocol/openid-connect/certs");
         Some(Self {

@@ -2,7 +2,7 @@ use nerve_waf_dataplane::{SiteInspectSnapshot, WafEdgeSnapshot};
 use nerve_waf_sdk::L7Upstream;
 use std::collections::HashMap;
 
-pub use nerve_waf_dataplane::{EdgeRoute, EdgeSiteMeta, GlobalInspectOverlay};
+pub use nerve_waf_dataplane::{EdgeRoute, GlobalInspectOverlay};
 
 #[derive(Debug, Clone, Default)]
 pub struct EdgeRuntime {

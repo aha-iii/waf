@@ -34,7 +34,7 @@ fn candidate_looks_like_b64(s: &str) -> bool {
     if !has_b64_markers {
         return false;
     }
-    if t.len() % 4 != 0 && !t.contains('+') && !t.contains('/') {
+    if !t.len().is_multiple_of(4) && !t.contains('+') && !t.contains('/') {
         return false;
     }
     is_plausible_b64_candidate(t)

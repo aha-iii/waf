@@ -1,7 +1,7 @@
 #[cfg(feature = "inspect-trace")]
 pub use nerve_inspect_trace::{
-    clear_thread_sink, finish_and_maybe_log, init_from_env, maybe_trace, set_thread_path,
-    set_thread_sink, trace_enabled, InspectTraceCtx, InspectTraceMeta,
+    finish_and_maybe_log, init_from_env, maybe_trace, trace_enabled, InspectTraceCtx,
+    InspectTraceMeta,
 };
 
 #[cfg(not(feature = "inspect-trace"))]

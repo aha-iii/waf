@@ -106,7 +106,7 @@ impl CcEngine {
         let key = format!("{}|{}|{}", req.src_ip, req.host, req.uri);
 
         if let Some(url) = &cfg.redis_url {
-            if let Some(result) = self.check_redis(url, &key, &cfg) {
+            if let Some(result) = self.check_redis(url, &key, cfg) {
                 return result;
             }
         }

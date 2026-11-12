@@ -21,14 +21,23 @@ pub fn router() -> Router<Arc<AppState>> {
         .route("/api/plugins/reload", post(reload_plugins))
         .route("/api/expert/reload", post(expert_reload))
         .route("/api/expert/health", get(expert_health))
-        .route("/api/routes", get(get_routes).put(put_routes).post(post_route))
+        .route(
+            "/api/routes",
+            get(get_routes).put(put_routes).post(post_route),
+        )
         .route("/api/routes/{id}", delete(delete_route))
-        .route("/api/modules", get(events::get_modules).put(events::put_modules))
+        .route(
+            "/api/modules",
+            get(events::get_modules).put(events::put_modules),
+        )
         .route(
             "/api/global/modules",
             get(events::get_global_modules).put(events::put_global_modules),
         )
-        .route("/api/global/modules/publish", post(events::publish_global_modules))
+        .route(
+            "/api/global/modules/publish",
+            post(events::publish_global_modules),
+        )
         .route("/api/events", get(events::get_events))
         .route("/api/events/batch", post(events::post_events_batch))
         .route("/api/events/poll", post(events::poll_nerve_events))
@@ -43,12 +52,21 @@ pub fn router() -> Router<Arc<AppState>> {
         .route("/api/nerve/observer/sessions", get(nerve_observer_sessions))
         .route("/api/nerve/observer/session", get(nerve_observer_session))
         .route("/api/nerve/observer/baseline", get(nerve_observer_baseline))
-        .route("/api/nerve/observer/anomalies", get(nerve_observer_anomalies))
-        .route("/api/nerve/observer/policy-hits", get(nerve_observer_policy_hits))
+        .route(
+            "/api/nerve/observer/anomalies",
+            get(nerve_observer_anomalies),
+        )
+        .route(
+            "/api/nerve/observer/policy-hits",
+            get(nerve_observer_policy_hits),
+        )
         .route("/api/nerve/observer/explain", get(nerve_observer_explain))
         .route("/api/nerve/observer/journeys", get(nerve_observer_journeys))
         .route("/api/nerve/observer/journey", get(nerve_observer_journey))
-        .route("/api/nerve/observer/trace/genealogy", get(nerve_observer_trace_genealogy))
+        .route(
+            "/api/nerve/observer/trace/genealogy",
+            get(nerve_observer_trace_genealogy),
+        )
         .route("/api/policy/deny", post(policy_deny))
         .route("/api/policy/allow", post(policy_allow))
         .route("/api/policy/blacklist", get(policy_blacklist))
@@ -127,12 +145,12 @@ async fn expert_reload() -> Result<Json<Value>, StatusCode> {
 async fn expert_health() -> Json<Value> {
     #[cfg(not(feature = "expert"))]
     {
-        return Json(json!({
+        Json(json!({
             "ok": false,
             "error": "expert engine not compiled (build with --features expert)",
             "last_load_error": nerve_waf_inspect::expert_last_load_error(),
             "enabled": nerve_waf_inspect::expert_engine_enabled(),
-        }));
+        }))
     }
 
     #[cfg(feature = "expert")]
@@ -162,7 +180,11 @@ async fn expert_health() -> Json<Value> {
 
 #[cfg(feature = "expert")]
 fn avg_us(sum: u64, n: u64) -> u64 {
-    if n == 0 { 0 } else { sum / n }
+    if n == 0 {
+        0
+    } else {
+        sum / n
+    }
 }
 
 async fn get_routes(State(state): State<Arc<AppState>>) -> Result<Json<WafConfig>, StatusCode> {
@@ -275,9 +297,12 @@ async fn sync(
 ) -> Result<Json<SyncResult>, (StatusCode, Json<Value>)> {
     let plan = match body {
         Some(Json(plan)) => plan,
-        None => build_sync_plan(&state)
-            .await
-            .map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, Json(json!({ "error": "compile failed" }))))?,
+        None => build_sync_plan(&state).await.map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "compile failed" })),
+            )
+        })?,
     };
 
     let result = sync_to_nerve(&state.nerve, &plan).await;
@@ -477,7 +502,12 @@ struct PolicyIpBody {
 }
 
 fn resolve_temp_expires_at(body: &PolicyIpBody) -> Option<chrono::DateTime<chrono::Utc>> {
-    if let Some(raw) = body.expires_at.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(raw) = body
+        .expires_at
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(raw) {
             return Some(dt.with_timezone(&chrono::Utc));
         }
@@ -505,11 +535,7 @@ async fn policy_deny(
         add_ip_to_declarative_blacklist(&state, &body.ip, source)
             .await
             .map_err(map_config_err)?;
-        state
-            .nerve
-            .deny_ip(&body.ip)
-            .await
-            .map_err(map_nerve_err)?;
+        state.nerve.deny_ip(&body.ip).await.map_err(map_nerve_err)?;
         return Ok(Json(json!({
             "ip": body.ip,
             "status": "denied",
@@ -532,11 +558,7 @@ async fn policy_deny(
         .await
         .map_err(map_config_err)?;
 
-    state
-        .nerve
-        .deny_ip(&body.ip)
-        .await
-        .map_err(map_nerve_err)?;
+    state.nerve.deny_ip(&body.ip).await.map_err(map_nerve_err)?;
 
     Ok(Json(json!({
         "ip": body.ip,
@@ -551,8 +573,7 @@ async fn policy_allow(
     State(state): State<Arc<AppState>>,
     Json(body): Json<PolicyIpBody>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    let remove_config = body.remove_from_config == Some(true)
-        || policy_kind(&body) == "permanent";
+    let remove_config = body.remove_from_config == Some(true) || policy_kind(&body) == "permanent";
 
     state
         .config
@@ -564,14 +585,12 @@ async fn policy_allow(
         remove_ip_from_declarative_blacklist(&state, &body.ip, "api")
             .await
             .map_err(map_config_err)?;
-        let plan = build_sync_plan(&state)
-            .await
-            .map_err(|_| {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json(json!({ "error": "sync compile failed" })),
-                )
-            })?;
+        let plan = build_sync_plan(&state).await.map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(json!({ "error": "sync compile failed" })),
+            )
+        })?;
         sync_to_nerve(&state.nerve, &plan).await;
     } else {
         state

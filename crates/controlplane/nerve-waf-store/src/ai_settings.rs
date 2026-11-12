@@ -84,6 +84,8 @@ pub struct AiSettings {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
+// File-format compat enum; both variants are small and short-lived.
+#[allow(clippy::large_enum_variant)]
 enum AiSettingsFileFormat {
     Legacy(AiSettings),
     Multi { sites: HashMap<String, AiSettings> },
@@ -112,7 +114,10 @@ pub struct AiSettingsStore {
 }
 
 impl AiSettingsStore {
-    pub async fn open(database_url: Option<&str>, data_dir: &Path) -> Result<Self, AiSettingsError> {
+    pub async fn open(
+        database_url: Option<&str>,
+        data_dir: &Path,
+    ) -> Result<Self, AiSettingsError> {
         let file_path = data_dir.join("ai_settings.json");
         #[cfg(feature = "postgres")]
         let pool = if let Some(url) = database_url.filter(|u| !u.trim().is_empty()) {
@@ -137,7 +142,10 @@ impl AiSettingsStore {
             save_lock: tokio::sync::Mutex::new(()),
         };
         let loaded = settings.load_all_sites().await?;
-        *settings.cache.write().map_err(|e| AiSettingsError::Db(e.to_string()))? = loaded;
+        *settings
+            .cache
+            .write()
+            .map_err(|e| AiSettingsError::Db(e.to_string()))? = loaded;
         Ok(settings)
     }
 
@@ -202,7 +210,10 @@ impl AiSettingsStore {
             .map_err(|e| AiSettingsError::Db(e.to_string()))?;
         }
         let snapshot = {
-            let mut cache = self.cache.write().map_err(|e| AiSettingsError::Db(e.to_string()))?;
+            let mut cache = self
+                .cache
+                .write()
+                .map_err(|e| AiSettingsError::Db(e.to_string()))?;
             let entry = cache
                 .entry(site_id.to_string())
                 .or_insert_with(AiSettings::default);
@@ -219,7 +230,10 @@ impl AiSettingsStore {
             let cfg = crate::app_config::pg::load_effective_pipeline(pool, site_id)
                 .await
                 .map_err(|e| AiSettingsError::Db(e.to_string()))?;
-            let mut cache = self.cache.write().map_err(|e| AiSettingsError::Db(e.to_string()))?;
+            let mut cache = self
+                .cache
+                .write()
+                .map_err(|e| AiSettingsError::Db(e.to_string()))?;
             cache.entry(site_id.to_string()).or_default().semantic = cfg;
             return Ok(());
         }
@@ -229,7 +243,10 @@ impl AiSettingsStore {
             .map(|p| p.to_path_buf())
             .unwrap_or_else(|| PathBuf::from("data"));
         if let Ok(Some(cfg)) = crate::app_config::load_app_pipeline_file(&data_dir, site_id) {
-            let mut cache = self.cache.write().map_err(|e| AiSettingsError::Db(e.to_string()))?;
+            let mut cache = self
+                .cache
+                .write()
+                .map_err(|e| AiSettingsError::Db(e.to_string()))?;
             cache.entry(site_id.to_string()).or_default().semantic = cfg;
         }
         Ok(())
@@ -238,7 +255,10 @@ impl AiSettingsStore {
     pub async fn set_triage_llm(&self, cfg: TriageLlmConfig) -> Result<(), AiSettingsError> {
         let site_id = self.default_site_id.clone();
         let snapshot = {
-            let mut cache = self.cache.write().map_err(|e| AiSettingsError::Db(e.to_string()))?;
+            let mut cache = self
+                .cache
+                .write()
+                .map_err(|e| AiSettingsError::Db(e.to_string()))?;
             let entry = cache
                 .entry(site_id.clone())
                 .or_insert_with(AiSettings::default);
@@ -307,17 +327,17 @@ impl AiSettingsStore {
     }
 
     fn save_all_to_file(&self) -> Result<(), AiSettingsError> {
-        let cache = self.cache.read().map_err(|e| AiSettingsError::Db(e.to_string()))?;
+        let cache = self
+            .cache
+            .read()
+            .map_err(|e| AiSettingsError::Db(e.to_string()))?;
         if let Some(parent) = self.file_path.parent() {
             std::fs::create_dir_all(parent)?;
         }
         let wrapped = AiSettingsFileFormat::Multi {
             sites: cache.clone(),
         };
-        std::fs::write(
-            &self.file_path,
-            serde_json::to_string_pretty(&wrapped)?,
-        )?;
+        std::fs::write(&self.file_path, serde_json::to_string_pretty(&wrapped)?)?;
         Ok(())
     }
 

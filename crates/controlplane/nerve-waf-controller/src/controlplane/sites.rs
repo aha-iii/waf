@@ -44,7 +44,10 @@ async fn put_cc_config(
     Json(cfg): Json<nerve_waf_cc::CcConfig>,
 ) -> Result<Json<Value>, StatusCode> {
     state.platform.cc.update_config(cfg);
-    state.platform.save().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    state
+        .platform
+        .save()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     crate::dataplane::bump_after_mutation(&state);
     Ok(Json(json!({ "ok": true })))
 }
@@ -73,7 +76,10 @@ async fn put_geo_config(
         let mut geo = state.platform.geo.write().unwrap();
         geo.update_config(cfg);
     }
-    state.platform.save().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    state
+        .platform
+        .save()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     crate::dataplane::bump_after_mutation(&state);
     Ok(Json(json!({ "ok": true })))
 }
@@ -152,13 +158,10 @@ async fn put_sites(
                 tracing::warn!("serialize protected sites: {e}");
                 StatusCode::INTERNAL_SERVER_ERROR
             })?;
-        store
-            .replace_all(&values, "console")
-            .await
-            .map_err(|e| {
-                tracing::warn!("persist protected sites: {e}");
-                StatusCode::INTERNAL_SERVER_ERROR
-            })?;
+        store.replace_all(&values, "console").await.map_err(|e| {
+            tracing::warn!("persist protected sites: {e}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
     }
     for site_id in to_provision {
         state
@@ -171,7 +174,10 @@ async fn put_sites(
             })?;
         let _ = state.ai_settings.refresh_site_from_store(&site_id).await;
     }
-    state.platform.save().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    state
+        .platform
+        .save()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     crate::dataplane::bump_after_mutation(&state);
     Ok(Json(json!({ "ok": true })))
 }
@@ -246,10 +252,6 @@ async fn export_cef(
         })
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let lines: Vec<String> = result
-        .events
-        .iter()
-        .map(|e| nerve_waf_export::to_cef(e))
-        .collect();
+    let lines: Vec<String> = result.events.iter().map(nerve_waf_export::to_cef).collect();
     Ok(Json(json!({ "lines": lines, "count": lines.len() })))
 }

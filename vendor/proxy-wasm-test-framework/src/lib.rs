@@ -14,6 +14,8 @@
 
 #![crate_type = "lib"]
 #![crate_name = "proxy_wasm_test_framework"]
+// Vendored third-party snapshot: exempt from this repository's clippy gate.
+#![allow(clippy::all)]
 
 pub mod tester;
 pub mod types;

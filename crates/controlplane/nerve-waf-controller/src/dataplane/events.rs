@@ -1,8 +1,4 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    Json,
-};
+use axum::{extract::State, http::StatusCode, Json};
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -14,7 +10,7 @@ use nerve_waf_sdk::WafEventRecord;
 use crate::AppState;
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct EdgeEventsBody {
+pub struct EdgeEventsBody {
     events: Vec<WafEventRecord>,
 }
 
@@ -42,14 +38,10 @@ pub async fn post_waf_edge_events(
             e.inspect_source = Some("waf-edge".into());
         }
     }
-    let n = state
-        .events
-        .insert_batch(&events)
-        .await
-        .map_err(|e| {
-            tracing::error!("edge event ingest: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let n = state.events.insert_batch(&events).await.map_err(|e| {
+        tracing::error!("edge event ingest: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     for ev in edge_alert_candidates(&events) {
         let triage = crate::triage_service::triage_one(state.as_ref(), ev).await;

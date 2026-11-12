@@ -3,6 +3,8 @@ use serde::Deserialize;
 use serde_json::Value;
 
 #[derive(Debug, Deserialize)]
+// Envelope is fully deserialized; only `dataplane` is consumed.
+#[allow(dead_code)]
 struct DataplaneEnvelope {
     ok: Option<bool>,
     generation: Option<u64>,
@@ -12,10 +14,7 @@ struct DataplaneEnvelope {
 }
 
 pub async fn fetch_dataplane(api_base: &str) -> Result<WafEdgeSnapshot, String> {
-    let url = format!(
-        "{}/api/waf/edge/dataplane",
-        api_base.trim_end_matches('/')
-    );
+    let url = format!("{}/api/waf/edge/dataplane", api_base.trim_end_matches('/'));
     let resp = reqwest::get(&url)
         .await
         .map_err(|e| format!("fetch dataplane: {e}"))?;

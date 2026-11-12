@@ -43,8 +43,11 @@ impl ChallengeStore {
 
     /// Extract verified token from Cookie / Header string (format check only; verify is API-layer).
     pub fn extract_token(headers: &str, cookie_header: Option<&str>) -> Option<String> {
-        if let Some(h) = headers.lines().find(|l| l.to_lowercase().starts_with(&format!("{CHALLENGE_HEADER}:"))) {
-            let t = h.splitn(2, ':').nth(1)?.trim();
+        if let Some(h) = headers.lines().find(|l| {
+            l.to_lowercase()
+                .starts_with(&format!("{CHALLENGE_HEADER}:"))
+        }) {
+            let t = h.split_once(':')?.1.trim();
             if !t.is_empty() {
                 return Some(t.to_string());
             }

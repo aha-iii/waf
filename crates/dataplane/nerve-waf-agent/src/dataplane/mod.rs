@@ -6,7 +6,7 @@ pub mod runtime;
 pub mod sync;
 pub(crate) mod traffic;
 
-pub use inspect::{new_shared_cache, SharedInspectCache};
+pub use inspect::new_shared_cache;
 pub use proxy::{health_handler, proxy_handler, EdgeState};
 pub use runtime::{EdgeRuntime, SharedRuntime};
 pub use sync::spawn_sync_loop;

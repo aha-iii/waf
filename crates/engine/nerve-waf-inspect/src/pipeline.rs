@@ -5,8 +5,8 @@ use nerve_waf_cc::{CcCheckRequest, CcEngine};
 use nerve_waf_core::{InspectHit, InspectPhase, InspectVerdict, WafAction, WafTransaction};
 use nerve_waf_geo::GeoEngine;
 use nerve_waf_intel::IntelFeed;
-use nerve_waf_libinjection::{inspect_libinjection, LibInjectionConfig};
 use nerve_waf_l7::{InspectRequest, InspectResult};
+use nerve_waf_libinjection::{inspect_libinjection, LibInjectionConfig};
 use nerve_waf_plugin_host::HostedL7;
 use nerve_waf_sdk::ProtectionModules;
 use nerve_waf_semantic::{inspect_semantic, SemanticConfig, SemanticStatsHandle};
@@ -127,20 +127,16 @@ impl<'a> InspectPipeline<'a> {
                         tx.mark_phase(InspectPhase::RequestBody);
                         tx_to_l7_request(&tx)
                     });
-                    if let Some(hit) =
-                        maybe_trace(&mut trace, "defender.custom.rules", |trace| {
-                            let _ = trace;
-                            self.run_custom_rules(req)
-                        })
-                    {
+                    if let Some(hit) = maybe_trace(&mut trace, "defender.custom.rules", |trace| {
+                        let _ = trace;
+                        self.run_custom_rules(req)
+                    }) {
                         return self.finish(tx, with_stage(hit, "custom", "custom"));
                     }
-                    if let Some(hit) =
-                        maybe_trace(&mut trace, "defender.custom.l7", |trace| {
-                            let _ = trace;
-                            self.run_hosted_plugin(req)
-                        })
-                    {
+                    if let Some(hit) = maybe_trace(&mut trace, "defender.custom.l7", |trace| {
+                        let _ = trace;
+                        self.run_hosted_plugin(req)
+                    }) {
                         return self.finish(tx, with_stage(hit, "custom", "l7-json"));
                     }
                 }
@@ -161,12 +157,10 @@ impl<'a> InspectPipeline<'a> {
                         tx.mark_phase(InspectPhase::RequestBody);
                         tx_to_l7_request(&tx)
                     });
-                    if let Some(hit) =
-                        maybe_trace(&mut trace, "defender.custom.l7", |trace| {
-                            let _ = trace;
-                            self.run_hosted_plugin(req)
-                        })
-                    {
+                    if let Some(hit) = maybe_trace(&mut trace, "defender.custom.l7", |trace| {
+                        let _ = trace;
+                        self.run_hosted_plugin(req)
+                    }) {
                         return self.finish(tx, with_stage(hit, "custom", "l7-json"));
                     }
                 }
@@ -287,12 +281,10 @@ impl<'a> InspectPipeline<'a> {
 
         // Without semantic config (rare): still run plain libinjection to avoid going fully bare.
         if self.semantic.is_none() {
-            if let Some(hit) =
-                maybe_trace(&mut trace, "defender.core.libinjection", |trace| {
-                    let _ = trace;
-                    self.run_plain_libinjection(req)
-                })
-            {
+            if let Some(hit) = maybe_trace(&mut trace, "defender.core.libinjection", |trace| {
+                let _ = trace;
+                self.run_plain_libinjection(req)
+            }) {
                 return self.finish(tx, with_stage(hit, "core", "libinjection"));
             }
         }
@@ -303,21 +295,15 @@ impl<'a> InspectPipeline<'a> {
                 .semantic
                 .map(|s| s.effective_expert_level(None))
                 .unwrap_or(nerve_waf_semantic::ExpertLevel::Medium);
-            if let Some(hit) =
-                maybe_trace(&mut trace, "defender.expert.response", |trace| {
-                    crate::expert_bridge::inspect_nerve_antibody_response(
-                        req, body, level, trace,
-                    )
-                })
-            {
+            if let Some(hit) = maybe_trace(&mut trace, "defender.expert.response", |trace| {
+                crate::expert_bridge::inspect_nerve_antibody_response(req, body, level, trace)
+            }) {
                 return self.finish(tx, with_stage(hit, "expert", "expert-native-response"));
             }
-            if let Some(hit) =
-                maybe_trace(&mut trace, "defender.custom.l7_response", |trace| {
-                    let _ = trace;
-                    self.hosted.engine().inspect_response(body)
-                })
-            {
+            if let Some(hit) = maybe_trace(&mut trace, "defender.custom.l7_response", |trace| {
+                let _ = trace;
+                self.hosted.engine().inspect_response(body)
+            }) {
                 return self.finish(
                     tx,
                     with_stage(
@@ -602,15 +588,13 @@ impl<'a> InspectPipeline<'a> {
         if !custom_enabled {
             return None;
         }
-        nerve_waf_l7::inspect_custom_rules(self.custom_rules, req, &self.modules.mode).map(
-            |hit| {
-                let mut ih = l7_hit_to_inspect_hit(InspectPhase::RequestBody, &hit);
-                if let Some(r) = self.custom_rules.iter().find(|r| r.id == hit.rule_id) {
-                    ih.rule_set = Some(format!("custom:{}", r.rule_set_id));
-                }
-                ih
-            },
-        )
+        nerve_waf_l7::inspect_custom_rules(self.custom_rules, req, &self.modules.mode).map(|hit| {
+            let mut ih = l7_hit_to_inspect_hit(InspectPhase::RequestBody, &hit);
+            if let Some(r) = self.custom_rules.iter().find(|r| r.id == hit.rule_id) {
+                ih.rule_set = Some(format!("custom:{}", r.rule_set_id));
+            }
+            ih
+        })
     }
 
     fn run_hosted_plugin(&self, req: &InspectRequest) -> Option<InspectHit> {
@@ -690,6 +674,8 @@ fn split_uri_path_query(uri: &str) -> (&str, &str) {
     }
 }
 
+// Hit constructor mirrors InspectHit fields; kept explicit for readability.
+#[allow(clippy::too_many_arguments)]
 fn block_hit(
     phase: InspectPhase,
     category: &str,
@@ -741,7 +727,12 @@ fn infer_rule_set(hit: &InspectHit, fallback: &str) -> String {
         Some(other) => other.into(),
         None => {
             // Embedded L7 JSON (xss-001 etc.) usually has no plugin_name.
-            if hit.rule_id.chars().next().is_some_and(|c| c.is_ascii_digit()) {
+            if hit
+                .rule_id
+                .chars()
+                .next()
+                .is_some_and(|c| c.is_ascii_digit())
+            {
                 fallback.into()
             } else {
                 "l7-json".into()

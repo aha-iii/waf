@@ -62,9 +62,7 @@ fn guest_alloc_func(caller: &mut Caller<'_, ()>) -> Option<Func> {
 
 fn guest_alloc(caller: &mut Caller<'_, ()>, alloc: &Func, size: i32) -> Option<usize> {
     let mut result = [Val::I32(0)];
-    alloc
-        .call(caller, &[Val::I32(size)], &mut result)
-        .ok()?;
+    alloc.call(caller, &[Val::I32(size)], &mut result).ok()?;
     Some(result[0].i32()? as u32 as usize)
 }
 
@@ -110,7 +108,7 @@ fn get_hostfunc(
                         get_status()
                     );
                     println!("[vm<-host] proxy_get_configuratioe() -> (return_buffer_data, return_buffer_size) return: {:?}", Status::InternalFailure);
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -133,7 +131,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_get_status() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -168,10 +166,7 @@ fn get_hostfunc(
 
                     let string_msg =
                         data.map(|string_msg| std::str::from_utf8(string_msg).unwrap());
-                    let string_msg = match string_msg {
-                        Some(s) => s,
-                        _ => "invalid utf-8 slice",
-                    };
+                    let string_msg = string_msg.unwrap_or("invalid utf-8 slice");
 
                     EXPECT
                         .lock()
@@ -187,7 +182,7 @@ fn get_hostfunc(
                     // println!("[vm<-host] proxy_log(...) return: {:?}", Status::Ok)
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -206,7 +201,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_get_log_level() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -239,7 +234,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -290,7 +285,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -312,7 +307,7 @@ fn get_hostfunc(
                         get_status()
                     );
                     println!("[vm<-host] proxy_get_property(...) -> (return_value_data, return_value_size) return: {:?}", Status::InternalFailure);
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -333,7 +328,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_set_property(...) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -359,7 +354,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -384,7 +379,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -407,7 +402,7 @@ fn get_hostfunc(
                 );
                 assert_eq!(get_status(), ExpectStatus::Failed);
                 set_status(ExpectStatus::Unexpected);
-                return Status::Ok as i32;
+                Status::Ok as i32
             }))
         }
 
@@ -429,7 +424,7 @@ fn get_hostfunc(
                 );
                 assert_eq!(get_status(), ExpectStatus::Failed);
                 set_status(ExpectStatus::Unexpected);
-                return Status::Ok as i32;
+                Status::Ok as i32
             }))
         }
 
@@ -491,7 +486,7 @@ fn get_hostfunc(
                             .get_expect_send_local_response(
                                 status_code,
                                 string_body,
-                                &header_data_ptr,
+                                header_data_ptr,
                                 grpc_status,
                             );
 
@@ -509,7 +504,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -526,7 +521,7 @@ fn get_hostfunc(
                     "[vm<-host] proxy_clear_route_cache() return: {:?}",
                     Status::InternalFailure
                 );
-                return Status::InternalFailure as i32;
+                Status::InternalFailure as i32
             }))
         }
 
@@ -545,7 +540,7 @@ fn get_hostfunc(
                     // Expectation:
                     println!("[vm->host] proxy_get_shared_data(key_data, key_size) -> (...) status: {:?}", get_status());
                     println!("[vm<-host] proxy_get_shared_data(...) -> (return_value_data, return_value_size, return_cas) return: {:?}", Status::InternalFailure);
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -567,7 +562,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_set_shared_data(...) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -588,7 +583,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_register_shared_queue(...) -> (return_id) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -610,7 +605,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_resolve_shared_queue(...) -> (return_id) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -630,7 +625,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_dequeue_shared_queue(...) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -650,7 +645,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_eequeue_shared_queue(...) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -670,7 +665,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_get_header_map_size() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -718,13 +713,14 @@ fn get_hostfunc(
                     };
                     let serial_map_size = serial_map.len();
 
-                    let map_data_add = match guest_alloc(&mut caller, &alloc, serial_map_size as i32) {
-                        Some(addr) => addr,
-                        None => {
-                            println!("Error: proxy_get_header_map_pairs guest alloc failed");
-                            return Status::InternalFailure as i32;
-                        }
-                    };
+                    let map_data_add =
+                        match guest_alloc(&mut caller, &alloc, serial_map_size as i32) {
+                            Some(addr) => addr,
+                            None => {
+                                println!("Error: proxy_get_header_map_pairs guest alloc failed");
+                                return Status::InternalFailure as i32;
+                            }
+                        };
 
                     unsafe {
                         let map_data_ptr = mem
@@ -749,7 +745,7 @@ fn get_hostfunc(
                     println!("[vm<-host] proxy_get_header_map_pairs(...) -> (return_map_data, return_map_size) return: {:?}", Status::Ok);
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -801,7 +797,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -859,7 +855,7 @@ fn get_hostfunc(
                             {
                                 Some(expect_string_value) => expect_string_value,
                                 None => {
-                                    match HOST.lock().unwrap().staged.get_header_map_value(map_type, &string_key) {
+                                    match HOST.lock().unwrap().staged.get_header_map_value(map_type, string_key) {
                                         Some(host_string_value) => host_string_value,
                                         None => panic!("Error: proxy_get_header_map_value | eo header map value for key {}", string_key)}
                                 }
@@ -867,19 +863,16 @@ fn get_hostfunc(
                             (string_key.to_string(), string_value)
                         };
 
-                        let value_data_add = match guest_alloc(
-                            &mut caller,
-                            &alloc,
-                            string_value.len() as i32,
-                        ) {
-                            Some(addr) => addr,
-                            None => return Status::InternalFailure as i32,
-                        };
+                        let value_data_add =
+                            match guest_alloc(&mut caller, &alloc, string_value.len() as i32) {
+                                Some(addr) => addr,
+                                None => return Status::InternalFailure as i32,
+                            };
 
                         let value_data_ptr = mem
                             .data_mut(&mut caller)
                             .get_unchecked_mut(value_data_add..value_data_add + string_value.len());
-                        value_data_ptr.copy_from_slice((&string_value).as_bytes());
+                        value_data_ptr.copy_from_slice(string_value.as_bytes());
 
                         let return_value_data_ptr = mem.data_mut(&mut caller).get_unchecked_mut(
                             return_value_data as u32 as usize
@@ -904,7 +897,7 @@ fn get_hostfunc(
                     }
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -968,7 +961,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1019,7 +1012,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1085,7 +1078,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1109,7 +1102,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_get_buffer_status() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1173,14 +1166,11 @@ fn get_hostfunc(
 
                     unsafe {
                         // allocate memory and store buffer bytes
-                        let buffer_data_add = match guest_alloc(
-                            &mut caller,
-                            &alloc,
-                            response_body.len() as i32,
-                        ) {
-                            Some(addr) => addr,
-                            None => return Status::InternalFailure as i32,
-                        };
+                        let buffer_data_add =
+                            match guest_alloc(&mut caller, &alloc, response_body.len() as i32) {
+                                Some(addr) => addr,
+                                None => return Status::InternalFailure as i32,
+                            };
 
                         let buffer_data_ptr = mem.data_mut(&mut caller).get_unchecked_mut(
                             buffer_data_add..buffer_data_add + response_body.len(),
@@ -1209,7 +1199,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1274,7 +1264,7 @@ fn get_hostfunc(
                     );
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1343,16 +1333,18 @@ fn get_hostfunc(
                             );
                             let deserialized_trailer =
                                 serial_utils::deserialize_map(trailer_data_ptr);
-                            let tokene_id = match EXPECT.lock().unwrap().staged.get_expect_http_call(
-                                string_upstream,
-                                header_data_ptr,
-                                string_body,
-                                trailer_data_ptr,
-                                timeout,
-                            ) {
-                                Some(expect_tokene) => expect_tokene,
-                                None => 0,
-                            };
+                            let tokene_id = EXPECT
+                                .lock()
+                                .unwrap()
+                                .staged
+                                .get_expect_http_call(
+                                    string_upstream,
+                                    header_data_ptr,
+                                    string_body,
+                                    trailer_data_ptr,
+                                    timeout,
+                                )
+                                .unwrap_or_default();
                             println!(
                                 "[vm->host] proxy_http_call(upstream_data={:?}, upstream_size={}",
                                 string_upstream,
@@ -1396,7 +1388,7 @@ fn get_hostfunc(
                     }
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1429,7 +1421,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_grpc_call() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1458,7 +1450,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_grpc_stream() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1477,7 +1469,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_grpc_caecel() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1496,7 +1488,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_grpc_close() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1520,7 +1512,7 @@ fn get_hostfunc(
                         "[vm<-host] proxy_grpc_send() -> (..) return: {:?}",
                         Status::InternalFailure
                     );
-                    return Status::InternalFailure as i32;
+                    Status::InternalFailure as i32
                 },
             ))
         }
@@ -1547,38 +1539,28 @@ fn get_hostfunc(
             ))
         }
 
-        "proxy_incremeet_metric" => {
-            Some(Func::wrap(
-                store,
-                |_caller: Caller<'_, ()>, _metric_id: i32, _offset: i64| -> i32 {
-                    Status::Ok as i32
-                },
-            ))
-        }
+        "proxy_incremeet_metric" => Some(Func::wrap(
+            store,
+            |_caller: Caller<'_, ()>, _metric_id: i32, _offset: i64| -> i32 { Status::Ok as i32 },
+        )),
 
-        "proxy_record_metric" => {
-            Some(Func::wrap(
-                store,
-                |_caller: Caller<'_, ()>, _metric_id: i32, _value: i64| -> i32 {
-                    Status::Ok as i32
-                },
-            ))
-        }
+        "proxy_record_metric" => Some(Func::wrap(
+            store,
+            |_caller: Caller<'_, ()>, _metric_id: i32, _value: i64| -> i32 { Status::Ok as i32 },
+        )),
 
-        "proxy_get_metric" => {
-            Some(Func::wrap(
-                store,
-                |mut caller: Caller<'_, ()>, _metric_id: i32, result_ptr: i32| -> i32 {
-                    if let Some(Extern::Memory(mem)) = caller.get_export("memory") {
-                        let ptr = result_ptr as u32 as usize;
-                        if let Some(slot) = mem.data_mut(&mut caller).get_mut(ptr..ptr + 8) {
-                            slot.copy_from_slice(&0i64.to_le_bytes());
-                        }
+        "proxy_get_metric" => Some(Func::wrap(
+            store,
+            |mut caller: Caller<'_, ()>, _metric_id: i32, result_ptr: i32| -> i32 {
+                if let Some(Extern::Memory(mem)) = caller.get_export("memory") {
+                    let ptr = result_ptr as u32 as usize;
+                    if let Some(slot) = mem.data_mut(&mut caller).get_mut(ptr..ptr + 8) {
+                        slot.copy_from_slice(&0i64.to_le_bytes());
                     }
-                    Status::Ok as i32
-                },
-            ))
-        }
+                }
+                Status::Ok as i32
+            },
+        )),
 
         /* ---------------------------------- System ---------------------------------- */
         "proxy_set_effective_context" => {
@@ -1602,7 +1584,7 @@ fn get_hostfunc(
                         .set_effective_context(context_id);
                     assert_eq!(get_status(), ExpectStatus::Failed);
                     set_status(ExpectStatus::Unexpected);
-                    return Status::Ok as i32;
+                    Status::Ok as i32
                 },
             ))
         }
@@ -1616,7 +1598,7 @@ fn get_hostfunc(
                     "[vm->host] proxy_done() return: {:?}",
                     Status::InternalFailure
                 );
-                return Status::InternalFailure as i32;
+                Status::InternalFailure as i32
             }))
         }
 
@@ -1638,7 +1620,7 @@ fn get_hostfunc(
                     "[vm->host] proxy_call_foreige_function() return: {:?}",
                     Status::InternalFailure
                 );
-                return Status::InternalFailure as i32;
+                Status::InternalFailure as i32
             },
         )),
 
@@ -1694,9 +1676,10 @@ fn get_hostfunc(
                 0
             },
         )),
-        "fd_close" => Some(Func::wrap(store, |_caller: Caller<'_, ()>, _fd: i32| -> i32 {
-            0
-        })),
+        "fd_close" => Some(Func::wrap(
+            store,
+            |_caller: Caller<'_, ()>, _fd: i32| -> i32 { 0 },
+        )),
         "fd_seek" => Some(Func::wrap(
             store,
             |mut caller: Caller<'_, ()>,
@@ -1728,9 +1711,7 @@ fn get_hostfunc(
         )),
         "fd_prestat_dir_name" => Some(Func::wrap(
             store,
-            |_caller: Caller<'_, ()>, _fd: i32, _path: i32, _path_len: i32| -> i32 {
-                8
-            },
+            |_caller: Caller<'_, ()>, _fd: i32, _path: i32, _path_len: i32| -> i32 { 8 },
         )),
         "path_open" => Some(Func::wrap(
             store,
@@ -1852,7 +1833,7 @@ pub mod serial_utils {
         }
         let mut bytes: Bytes = Vec::with_capacity(size);
         for part in &path {
-            bytes.extend_from_slice(&part.as_bytes());
+            bytes.extend_from_slice(part.as_bytes());
             bytes.push(0);
         }
         bytes.pop();
@@ -1871,9 +1852,9 @@ pub mod serial_utils {
             bytes.extend_from_slice(&(value.len() as u32).to_le_bytes());
         }
         for (name, value) in &map {
-            bytes.extend_from_slice(&name.as_bytes());
+            bytes.extend_from_slice(name.as_bytes());
             bytes.push(0);
-            bytes.extend_from_slice(&value.as_bytes());
+            bytes.extend_from_slice(value.as_bytes());
             bytes.push(0);
         }
         bytes

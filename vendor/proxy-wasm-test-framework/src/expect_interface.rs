@@ -25,8 +25,8 @@ pub struct ExpectGetCurrentTimeNanos<'a> {
 }
 
 impl<'a> ExpectGetCurrentTimeNanos<'a> {
-    pub fn expecting(tester: &'a mut Tester) -> ExpectGetCurrentTimeNanos {
-        ExpectGetCurrentTimeNanos { tester: tester }
+    pub fn expecting(tester: &'a mut Tester) -> ExpectGetCurrentTimeNanos<'a> {
+        ExpectGetCurrentTimeNanos { tester }
     }
 
     pub fn returning(&mut self, current_time_nanos: Option<u64>) -> &mut Tester {
@@ -44,10 +44,10 @@ pub struct ExpectGetBufferBytes<'a> {
 }
 
 impl<'a> ExpectGetBufferBytes<'a> {
-    pub fn expecting(tester: &'a mut Tester, buffer_type: Option<i32>) -> ExpectGetBufferBytes {
+    pub fn expecting(tester: &'a mut Tester, buffer_type: Option<i32>) -> ExpectGetBufferBytes<'a> {
         ExpectGetBufferBytes {
-            tester: tester,
-            buffer_type: buffer_type,
+            tester,
+            buffer_type,
         }
     }
 
@@ -66,11 +66,8 @@ pub struct ExpectGetHeaderMapPairs<'a> {
 }
 
 impl<'a> ExpectGetHeaderMapPairs<'a> {
-    pub fn expecting(tester: &'a mut Tester, map_type: Option<i32>) -> ExpectGetHeaderMapPairs {
-        ExpectGetHeaderMapPairs {
-            tester: tester,
-            map_type: map_type,
-        }
+    pub fn expecting(tester: &'a mut Tester, map_type: Option<i32>) -> ExpectGetHeaderMapPairs<'a> {
+        ExpectGetHeaderMapPairs { tester, map_type }
     }
 
     pub fn returning(&mut self, header_map_pairs: Option<Vec<(&str, &str)>>) -> &mut Tester {
@@ -95,9 +92,9 @@ impl<'a> ExpectGetHeaderMapValue<'a> {
         header_map_key: Option<&'static str>,
     ) -> ExpectGetHeaderMapValue<'a> {
         ExpectGetHeaderMapValue {
-            tester: tester,
-            map_type: map_type,
-            header_map_key: header_map_key,
+            tester,
+            map_type,
+            header_map_key,
         }
     }
 
@@ -129,12 +126,12 @@ impl<'a> ExpectHttpCall<'a> {
         timeout: Option<u64>,
     ) -> ExpectHttpCall<'a> {
         ExpectHttpCall {
-            tester: tester,
-            upstream: upstream,
+            tester,
+            upstream,
             headers: Some(headers),
-            body: body,
+            body,
             trailers: Some(trailers),
-            timeout: timeout,
+            timeout,
         }
     }
 

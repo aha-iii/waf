@@ -1,6 +1,7 @@
 //! Expert engine bridge: `expert` feature links Nerve-antibody; otherwise no-op stubs.
 
 #[cfg(feature = "expert")]
+#[path = "expert_bridge_antibody.rs"]
 mod expert_bridge_antibody;
 #[cfg(feature = "expert")]
 pub use expert_bridge_antibody::*;

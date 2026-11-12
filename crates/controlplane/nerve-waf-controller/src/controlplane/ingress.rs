@@ -2,7 +2,7 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    routing::{get, post, put},
+    routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,6 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::platform::{IngressOrigin, ProtectedSite};
 use crate::AppState;
-use chrono::Utc;
 use nerve_waf_sdk::L7Upstream;
 
 pub fn ingress_router() -> Router<Arc<AppState>> {
@@ -23,25 +22,22 @@ pub fn ingress_router() -> Router<Arc<AppState>> {
             "/api/ingress/gateway/upstreams",
             get(list_gateway_upstreams),
         )
-        .route(
-            "/api/sites/gateway-bindings",
-            get(list_gateway_bindings),
-        )
+        .route("/api/sites/gateway-bindings", get(list_gateway_bindings))
         .route(
             "/api/sites/{id}/ingress",
             get(get_site_ingress).put(put_site_ingress),
         )
-        .route(
-            "/api/sites/{id}/ingress/dns-check",
-            post(dns_check_site),
-        )
+        .route("/api/sites/{id}/ingress/dns-check", post(dns_check_site))
         .route(
             "/api/sites/{id}/ingress/apply-gateway",
             post(apply_site_to_gateway),
         )
         .route("/api/gateway/dataplane", get(get_dataplane))
         .route("/api/gateway/dataplane/sync", post(sync_dataplane))
-        .route("/api/upstreams", get(get_waf_upstreams).put(put_waf_upstreams))
+        .route(
+            "/api/upstreams",
+            get(get_waf_upstreams).put(put_waf_upstreams),
+        )
 }
 
 fn gateway_admin_base() -> String {
@@ -70,7 +66,9 @@ async fn gateway_get(path: &str) -> Result<Value, String> {
     if !res.status().is_success() {
         return Err(format!("Gateway Admin HTTP {}", res.status()));
     }
-    res.json().await.map_err(|e| format!("解析 Gateway 响应失败: {e}"))
+    res.json()
+        .await
+        .map_err(|e| format!("解析 Gateway 响应失败: {e}"))
 }
 
 async fn gateway_put(path: &str, body: &Value) -> Result<(), String> {
@@ -93,10 +91,7 @@ async fn gateway_put(path: &str, body: &Value) -> Result<(), String> {
 async fn list_gateway_upstreams() -> Json<Value> {
     match gateway_get("/admin/upstreams").await {
         Ok(v) => {
-            let items = v
-                .get("upstreams")
-                .cloned()
-                .unwrap_or_else(|| json!([]));
+            let items = v.get("upstreams").cloned().unwrap_or_else(|| json!([]));
             Json(json!({
                 "ok": true,
                 "upstreams": items,
@@ -132,10 +127,7 @@ fn route_nerve_waf_app_id(route: &Value) -> Option<String> {
         if name != "nerve-waf" {
             continue;
         }
-        let enabled = p
-            .get("enabled")
-            .and_then(|e| e.as_bool())
-            .unwrap_or(true);
+        let enabled = p.get("enabled").and_then(|e| e.as_bool()).unwrap_or(true);
         if !enabled {
             continue;
         }
@@ -218,10 +210,7 @@ async fn list_gateway_bindings(State(state): State<Arc<AppState>>) -> Json<Value
         let mut matched: Vec<Value> = Vec::new();
         let mut covered: Vec<String> = Vec::new();
         for r in &routes {
-            let enabled = r
-                .get("enabled")
-                .and_then(|e| e.as_bool())
-                .unwrap_or(true);
+            let enabled = r.get("enabled").and_then(|e| e.as_bool()).unwrap_or(true);
             if !enabled {
                 continue;
             }
@@ -367,7 +356,11 @@ fn parse_upstream_to_origin(raw: &str) -> Option<IngressOrigin> {
     };
     let host_port = rest.split('/').next().unwrap_or(rest);
     let (address, port) = if let Some((h, p)) = host_port.rsplit_once(':') {
-        (h.to_string(), p.parse().unwrap_or(if scheme == "https" { 443 } else { 80 }))
+        (
+            h.to_string(),
+            p.parse()
+                .unwrap_or(if scheme == "https" { 443 } else { 80 }),
+        )
     } else {
         (
             host_port.to_string(),
@@ -417,7 +410,11 @@ async fn get_site_ingress(
     State(state): State<Arc<AppState>>,
     Path(id): Path<String>,
 ) -> Result<Json<Value>, StatusCode> {
-    let sites = state.platform.sites.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let sites = state
+        .platform
+        .sites
+        .read()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     let site = sites
         .iter()
         .find(|s| s.id == id)
@@ -542,8 +539,15 @@ async fn put_site_ingress(
         }
     }
 
-    let sites = state.platform.sites.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let site = sites.iter().find(|s| s.id == id).ok_or(StatusCode::NOT_FOUND)?;
+    let sites = state
+        .platform
+        .sites
+        .read()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let site = sites
+        .iter()
+        .find(|s| s.id == id)
+        .ok_or(StatusCode::NOT_FOUND)?;
     crate::dataplane::bump_after_mutation(&state);
     Ok(Json(json!({
         "ok": true,
@@ -629,7 +633,10 @@ async fn push_site_to_gateway(site: &ProtectedSite) -> Result<Value, String> {
         .filter(|s| !s.is_empty());
 
     let upstream_id = if let Some(uid) = bind_existing {
-        if !upstreams.iter().any(|u| u.get("id").and_then(|x| x.as_str()) == Some(uid)) {
+        if !upstreams
+            .iter()
+            .any(|u| u.get("id").and_then(|x| x.as_str()) == Some(uid))
+        {
             return Err(format!("Gateway 中不存在 upstream「{uid}」，请刷新后重选"));
         }
         uid.to_string()
@@ -764,8 +771,15 @@ async fn dns_check_site(
         .save()
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let sites = state.platform.sites.read().map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-    let site = sites.iter().find(|s| s.id == id).ok_or(StatusCode::NOT_FOUND)?;
+    let sites = state
+        .platform
+        .sites
+        .read()
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let site = sites
+        .iter()
+        .find(|s| s.id == id)
+        .ok_or(StatusCode::NOT_FOUND)?;
     Ok(Json(json!({
         "ok": site.dns_status == "active",
         "ingress": site_ingress_json(site),
@@ -789,15 +803,15 @@ fn check_host_points_to(host: &str, expected_cname: &str) -> Result<bool, String
             return Ok(true);
         }
         if !cname_addrs.is_empty()
-            && host_addrs.iter().any(|a| cname_addrs.iter().any(|c| c == a))
+            && host_addrs
+                .iter()
+                .any(|a| cname_addrs.iter().any(|c| c == a))
         {
             return Ok(true);
         }
     }
     // Local dev: if expected contains localhost, allow 127.0.0.1.
-    if expected.contains("localhost")
-        && host_addrs.iter().any(|a| a == "127.0.0.1" || a == "::1")
-    {
+    if expected.contains("localhost") && host_addrs.iter().any(|a| a == "127.0.0.1" || a == "::1") {
         return Ok(true);
     }
     Ok(false)

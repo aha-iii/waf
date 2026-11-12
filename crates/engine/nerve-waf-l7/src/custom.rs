@@ -98,9 +98,12 @@ fn resolve_action(rule_action: &str, global_mode: &str) -> String {
 
 fn rule_matches(rule: &CustomRule, content: &str) -> bool {
     match rule.match_op.as_str() {
-        "contains" => content.to_lowercase().contains(&rule.match_pattern.to_lowercase()),
+        "contains" => content
+            .to_lowercase()
+            .contains(&rule.match_pattern.to_lowercase()),
         "eq" => content == rule.match_pattern,
-        "regex" | _ => Regex::new(&rule.match_pattern)
+        // Legacy behavior: unknown match_op falls back to regex.
+        _ => Regex::new(&rule.match_pattern)
             .map(|re| re.is_match(content))
             .unwrap_or(false),
     }

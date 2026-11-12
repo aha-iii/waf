@@ -6,7 +6,9 @@ use sqlx::{PgPool, Row};
 
 use crate::StoreError;
 
+// Audit insert mirrors the fp_audit table columns 1:1.
 #[cfg(feature = "postgres")]
+#[allow(clippy::too_many_arguments)]
 pub async fn insert_fp_audit(
     pool: &PgPool,
     audit_id: &str,
@@ -76,13 +78,11 @@ pub async fn fp_analytics(
         .await
         .map_err(|e| StoreError::Db(e.to_string()))?
     } else {
-        sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_fp_remediation WHERE created_at >= $1",
-        )
-        .bind(since)
-        .fetch_one(pool)
-        .await
-        .map_err(|e| StoreError::Db(e.to_string()))?
+        sqlx::query_scalar("SELECT COUNT(*) FROM waf_fp_remediation WHERE created_at >= $1")
+            .bind(since)
+            .fetch_one(pool)
+            .await
+            .map_err(|e| StoreError::Db(e.to_string()))?
     };
 
     let rule_rows = sqlx::query(

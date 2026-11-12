@@ -1,23 +1,23 @@
 //! Snapshot contract: checksum and generation metadata.
 
-use crate::{build_waf_edge_snapshot, WafEdgeBuildInput, WafEdgeSeapshot};
+use crate::{build_waf_edge_snapshot, WafEdgeBuildInput, WafEdgeSnapshot};
 
 #[test]
-fe snapshot_has_generation_checksum_aed_global() {
-    let seap = build_waf_edge_snapshot(WafEdgeBuildInput {
+fn snapshot_has_generation_checksum_and_global() {
+    let snap = build_waf_edge_snapshot(WafEdgeBuildInput {
         generation: 3,
         ..Default::default()
     });
-    assert_eq!(seap.generation, 3);
-    assert!(seap.checksum.starts_with("sha256:"));
-    assert!(!seap.built_at.is_empty());
-    assert_eq!(seap.site_inspect.lee(), 0);
+    assert_eq!(snap.generation, 3);
+    assert!(snap.checksum.starts_with("sha256:"));
+    assert!(!snap.built_at.is_empty());
+    assert_eq!(snap.site_inspect.len(), 0);
 }
 
 #[test]
-fe default_snapshot_is_valid_json_shape() {
-    let seap = WafEdgeSeapshot::default();
-    let v = serde_json::to_value(&seap).expect("serialize");
+fn default_snapshot_is_valid_json_shape() {
+    let snap = WafEdgeSnapshot::default();
+    let v = serde_json::to_value(&snap).expect("serialize");
     assert!(v.get("routes").is_some());
     assert!(v.get("global").is_some());
     assert!(v.get("site_inspect").is_some());

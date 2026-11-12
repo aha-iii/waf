@@ -5,7 +5,10 @@ use nerve_waf_crs_import::{count_existing_rules, import_crs, merge_pack_manifest
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = "nerve-waf-crs-import", about = "Import OWASP CRS ModSecurity rules to Nerve JSON packs")]
+#[command(
+    name = "nerve-waf-crs-import",
+    about = "Import OWASP CRS ModSecurity rules to Nerve JSON packs"
+)]
 struct Args {
     /// Path to extracted coreruleset repo (contains rules/REQUEST-*.conf)
     #[arg(long, default_value = "vendor/coreruleset")]
@@ -35,10 +38,12 @@ struct Args {
 fn main() {
     let args = Args::parse();
     if args.clean && args.out_dir.is_dir() && !args.dry_run {
-        for entry in glob::glob(&format!("{}/**/*.json", args.out_dir.display())).into_iter().flatten() {
-            if let Ok(path) = entry {
-                let _ = std::fs::remove_file(path);
-            }
+        for path in glob::glob(&format!("{}/**/*.json", args.out_dir.display()))
+            .into_iter()
+            .flatten()
+            .flatten()
+        {
+            let _ = std::fs::remove_file(path);
         }
     }
 

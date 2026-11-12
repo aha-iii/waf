@@ -12,10 +12,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 pub use cnp::{compile_cnp, CompiledCnp, NerveCNPolicySpec};
-pub use fqdn::{
-    compile_fqdn_policy, CompiledFqdn, DnsCacheSnapshot, FqdnPolicySpec,
+pub use fqdn::{compile_fqdn_policy, CompiledFqdn, DnsCacheSnapshot, FqdnPolicySpec};
+pub use identity::{
+    attach_identity_to_rules, build_identity_map, IdentityL4Rule, IdentityMap, IdentityRecord,
 };
-pub use identity::{attach_identity_to_rules, build_identity_map, IdentityL4Rule, IdentityMap, IdentityRecord};
 pub use l4::{
     compile_k8s_np_l4, compile_k8s_np_l4_pods, merge_l4_policies, CompiledL4Policy, EndpointPolicy,
     L4Rule, PodSnapshot,
@@ -118,7 +118,7 @@ pub fn compile_k8s_np_full(
             if rule.action != "allow" {
                 continue;
             }
-            if let Some(dst) = &rule.dst_ip {
+            if let Some(_dst) = &rule.dst_ip {
                 if rule.direction == "ingress" {
                     if let Some(src) = &rule.src_ip {
                         plan.actions.push(PluginAction::BaselineAllow {

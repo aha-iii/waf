@@ -1,6 +1,10 @@
 //! Edge dataplane vs embed inspect verdict parity (fixture-level).
+//!
+//! Integration test: links `nerve_waf_dataplane` as a normal dependency so the
+//! snapshot types unify with the ones `nerve_waf_embed` links (the crate cannot
+//! be a dev-dependency of a unit test without duplicating the lib under cfg(test)).
 
-use crate::{
+use nerve_waf_dataplane::{
     build_waf_edge_snapshot, GlobalInspectOverlay, SiteInspectSnapshot, WafEdgeBuildInput,
 };
 use nerve_waf_embed::{EmbedInspectRequest, EmbeddedWaf};

@@ -69,20 +69,11 @@ pub trait SemanticStatsRecorder: Send + Sync {
     fn backend_name(&self) -> &'static str;
 }
 
+#[derive(Default)]
 struct SiteBucket {
     counters: SemanticCounters,
     samples: VecDeque<SemanticSample>,
     feedback: VecDeque<SemanticFeedback>,
-}
-
-impl Default for SiteBucket {
-    fn default() -> Self {
-        Self {
-            counters: SemanticCounters::default(),
-            samples: VecDeque::new(),
-            feedback: VecDeque::new(),
-        }
-    }
 }
 
 /// Pure in-memory impl (tests / fallback).

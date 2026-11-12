@@ -1,19 +1,18 @@
 //! Platform config: CC / Geo / WAF protected sites (file-persisted; alerts via Nerve-alert).
 use nerve_waf_api_sec::ApiSecConfig;
 use nerve_waf_behavior::{BehaviorConfig, BehaviorEngine};
+use nerve_waf_bot::BotConfig;
 use nerve_waf_cc::{CcConfig, CcEngine};
 use nerve_waf_challenge::ChallengeStore;
-use nerve_waf_bot::BotConfig;
 use nerve_waf_geo::{GeoCidrRule, GeoConfig, GeoEngine};
 use nerve_waf_intel::{IntelEntry, IntelFeed};
+use nerve_waf_l7::{embedded_rules, CompiledRule};
 use nerve_waf_libinjection::LibInjectionConfig;
 use nerve_waf_license::{LicenseInfo, UsageMeter};
-use nerve_waf_l7::{embedded_rules, CompiledRule};
 use nerve_waf_rbac::RbacConfig;
 use nerve_waf_rules_ops::{
     crs_versions_dir, list_crs_versions, load_packs_from_dir, merge_rules_with_patches,
-    replace_rules_dir,
-    rollback_crs, snapshot_crs, CrsVersionRecord, LoadedPack, RulesPackMeta,
+    replace_rules_dir, rollback_crs, snapshot_crs, CrsVersionRecord, LoadedPack, RulesPackMeta,
 };
 use nerve_waf_service_policy::ServiceAllowPolicy;
 use nerve_waf_tamper::{TamperConfig, TamperGuard};
@@ -317,9 +316,9 @@ impl PlatformServices {
         let crs_packs = load_packs_from_dir(&rules_dir).unwrap_or_default();
         let patch_packs = load_packs_from_dir(&patches_dir).unwrap_or_default();
         let ai = load_packs_from_dir(&ai_rules_dir).unwrap_or_default();
-        let merged_count =
-            merge_rules_with_patches(embedded_rules(), &crs_packs, &patch_packs).len()
-                + ai.iter().map(|p| p.rules.len()).sum::<usize>();
+        let merged_count = merge_rules_with_patches(embedded_rules(), &crs_packs, &patch_packs)
+            .len()
+            + ai.iter().map(|p| p.rules.len()).sum::<usize>();
 
         let geo_cidrs = load_geo_cidrs(data_dir, &files.geo_cidrs);
         let cc = Arc::new(CcEngine::new(files.cc.clone()));
@@ -383,17 +382,17 @@ impl PlatformServices {
         let geo_cfg = self.geo.read().map_err(|e| e.to_string())?.config().clone();
         let geo_cidrs = self.geo_cidrs_snapshot();
         let sites = self.sites.read().map_err(|e| e.to_string())?.clone();
-        let service_policies = self.service_policies.read().map_err(|e| e.to_string())?.clone();
+        let service_policies = self
+            .service_policies
+            .read()
+            .map_err(|e| e.to_string())?
+            .clone();
         let east_west_l7 = self.east_west.read().map_err(|e| e.to_string())?.clone();
         let files = PlatformFiles {
             cc: self.cc.config(),
             geo: geo_cfg,
             geo_cidrs,
-            protected_sites: if self.sites_persist_db {
-                vec![]
-            } else {
-                sites
-            },
+            protected_sites: if self.sites_persist_db { vec![] } else { sites },
             service_policies,
             east_west_l7,
             api_sec: self.api_sec_config(),
@@ -427,7 +426,12 @@ impl PlatformServices {
                     })
             })
             .cloned()
-            .or_else(|| sites.iter().find(|s| s.enabled && s.id == "default").cloned())
+            .or_else(|| {
+                sites
+                    .iter()
+                    .find(|s| s.enabled && s.id == "default")
+                    .cloned()
+            })
     }
 
     /// Bypass /api/inspect: prefer app_id; missing/unknown → system default `default`.
@@ -445,7 +449,10 @@ impl PlatformServices {
     }
 
     pub fn service_policies(&self) -> Vec<ServiceAllowPolicy> {
-        self.service_policies.read().map(|p| p.clone()).unwrap_or_default()
+        self.service_policies
+            .read()
+            .map(|p| p.clone())
+            .unwrap_or_default()
     }
 
     pub fn set_service_policies(&self, policies: Vec<ServiceAllowPolicy>) -> Result<(), String> {
@@ -585,21 +592,19 @@ impl PlatformServices {
     }
 
     pub fn reload_geo_mmdb(&self) -> Result<bool, String> {
-        self.geo
-            .write()
-            .map_err(|e| e.to_string())?
-            .reload_mmdb()
+        self.geo.write().map_err(|e| e.to_string())?.reload_mmdb()
     }
 
     pub fn geo_status(&self) -> nerve_waf_geo::GeoStatus {
-        self.geo.read().map(|g| g.status()).unwrap_or_else(|_| {
-            nerve_waf_geo::GeoStatus {
+        self.geo
+            .read()
+            .map(|g| g.status())
+            .unwrap_or_else(|_| nerve_waf_geo::GeoStatus {
                 mmdb_loaded: false,
                 mmdb_path: None,
                 cidr_rules: 0,
                 source: "auto".into(),
-            }
-        })
+            })
     }
 
     pub fn api_sec_config(&self) -> ApiSecConfig {
@@ -765,7 +770,10 @@ impl PlatformServices {
         })
     }
 
-    pub fn crs_version_meta(&self, version_id: &str) -> Option<nerve_waf_rules_ops::CrsVersionRecord> {
+    pub fn crs_version_meta(
+        &self,
+        version_id: &str,
+    ) -> Option<nerve_waf_rules_ops::CrsVersionRecord> {
         list_crs_versions(&crs_versions_dir(&self.data_dir))
             .ok()?
             .into_iter()
@@ -789,8 +797,7 @@ impl PlatformServices {
         let ai = self.ai_packs.read().unwrap();
         let merged = self.merged_l7_rules_internal(&crs, &patches, &ai);
         let embedded = embedded_rules().len();
-        let (rules, rules_total) =
-            nerve_waf_rules_ops::summarize_rules(&merged, rule_list_limit);
+        let (rules, rules_total) = nerve_waf_rules_ops::summarize_rules(&merged, rule_list_limit);
         nerve_waf_rules_ops::RulesInventory {
             rules_dir: self.rules_dir.to_string_lossy().into(),
             embedded_rules: embedded,
@@ -1030,7 +1037,7 @@ fn ensure_crs_vendor(nerve_waf_root: &Path, version: &str) -> Result<PathBuf, St
 
     let vendor = nerve_waf_root.join("vendor/coreruleset");
     match download_crs_tarball(&vendor, version) {
-        Ok(()) => return Ok(vendor),
+        Ok(()) => Ok(vendor),
         Err(download_err) => {
             for candidate in bundled_crs_candidates(nerve_waf_root) {
                 if candidate.join("rules").is_dir() {
@@ -1063,10 +1070,7 @@ fn crs_tarball_urls(version: &str) -> Vec<String> {
     if let Ok(u) = std::env::var("NERVE_CRS_TARBALL_URL") {
         let u = u.trim();
         if !u.is_empty() {
-            urls.push(
-                u.replace("{version}", version)
-                    .replace("{tag}", version),
-            );
+            urls.push(u.replace("{version}", version).replace("{tag}", version));
         }
     }
     // codeload is more stable than github.com/archive (some envs get SSL interrupts on the latter).
@@ -1163,15 +1167,10 @@ fn download_crs_tarball(vendor: &Path, version: &str) -> Result<(), String> {
         )
     })?;
 
-    let backup = parent.join(format!(
-        ".coreruleset-backup-{}",
-        std::process::id()
-    ));
+    let backup = parent.join(format!(".coreruleset-backup-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&backup);
     if vendor.exists() {
-        std::fs::rename(vendor, &backup).map_err(|e| {
-            format!("备份旧 CRS 目录失败: {e}")
-        })?;
+        std::fs::rename(vendor, &backup).map_err(|e| format!("备份旧 CRS 目录失败: {e}"))?;
     }
 
     if let Err(e) = std::fs::rename(&extracted, vendor) {

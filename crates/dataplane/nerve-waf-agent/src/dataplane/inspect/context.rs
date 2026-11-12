@@ -47,6 +47,7 @@ fn prepared_for_site(
 }
 
 /// Run inspect against snapshot (blocking thread; CRS rules cached by generation).
+#[allow(clippy::too_many_arguments)]
 pub fn inspect_for_site_blocking(
     waf: &EmbeddedWaf,
     cache: &SharedInspectCache,

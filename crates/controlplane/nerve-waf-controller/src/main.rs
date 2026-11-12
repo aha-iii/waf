@@ -1,19 +1,19 @@
 //! Binary entry for `nerve-waf-controller` (Axum server, config/env bootstrap).
 
+use axum::http::HeaderValue;
+use axum::middleware;
 use axum::Router;
 use clap::Parser;
+use nerve_waf_controller::bootstrap::{self, BootstrapOptions};
 use nerve_waf_controller::controlplane;
 use nerve_waf_controller::dataplane;
 use nerve_waf_controller::logging;
 use nerve_waf_controller::phase11_middleware;
-use nerve_waf_controller::bootstrap::{self, BootstrapOptions};
 use nerve_waf_controller::trace_middleware;
 use nerve_waf_sdk::WafFileConfig;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
-use axum::http::HeaderValue;
-use axum::middleware;
 use tracing_subscriber::EnvFilter;
 
 #[derive(Parser, Debug)]
@@ -38,9 +38,7 @@ struct Args {
 fn build_cors_layer() -> CorsLayer {
     let raw = std::env::var("NERVE_CORS_ORIGINS").unwrap_or_default();
     let raw = raw.trim();
-    let layer = CorsLayer::new()
-        .allow_methods(Any)
-        .allow_headers(Any);
+    let layer = CorsLayer::new().allow_methods(Any).allow_headers(Any);
     if raw == "*" {
         return layer.allow_origin(Any);
     }
@@ -124,9 +122,12 @@ async fn main() {
             loop {
                 tokio::time::sleep(std::time::Duration::from_secs(hours * 3600)).await;
                 let platform = st.platform.clone();
-                let version = std::env::var("NERVE_CRS_VERSION").unwrap_or_else(|_| "v4.21.0".into());
+                let version =
+                    std::env::var("NERVE_CRS_VERSION").unwrap_or_else(|_| "v4.21.0".into());
                 let version_log = version.clone();
-                match tokio::task::spawn_blocking(move || platform.crs_update_latest(&version, 2)).await {
+                match tokio::task::spawn_blocking(move || platform.crs_update_latest(&version, 2))
+                    .await
+                {
                     Ok(Ok(_)) => {
                         st.refresh_l7_from_store().await;
                         tracing::info!("CRS auto-update completed (version={version_log})");
@@ -142,7 +143,9 @@ async fn main() {
     let router = Router::new()
         .merge(controlplane::controlplane_router())
         .merge(dataplane::dataplane_router())
-        .layer(axum::middleware::from_fn(trace_middleware::trace_middleware))
+        .layer(axum::middleware::from_fn(
+            trace_middleware::trace_middleware,
+        ))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             phase11_middleware::license_enforce_middleware,
@@ -167,7 +170,9 @@ async fn main() {
         tracing::info!("WAF_CONSOLE_ATTACH=1: Console static UI on API port {port}");
         nerve_waf_controller::console_static::attach_console_fallback(router)
     } else {
-        tracing::info!("WAF Console separated (set WAF_CONSOLE_ATTACH=1 to co-locate static UI on API port)");
+        tracing::info!(
+            "WAF Console separated (set WAF_CONSOLE_ATTACH=1 to co-locate static UI on API port)"
+        );
         router
     };
 
@@ -176,10 +181,41 @@ async fn main() {
         port,
         config_backend,
         event_backend,
-        database = if database_url_set { "postgresql" } else { "file" },
+        database = if database_url_set {
+            "postgresql"
+        } else {
+            "file"
+        },
         console_attach = attach_console,
         "nerve-waf-controller listening (controlplane + dataplane)"
     );
-    let listener = tokio::net::TcpListener::bind(addr).await.expect("bind");
-    axum::serve(listener, app).await.expect("serve");
+    // Bind/serve failures (port already in use, permission denied) must produce an
+    // actionable message and a non-zero exit rather than a panic + backtrace.
+    let listener = match tokio::net::TcpListener::bind(addr).await {
+        Ok(l) => l,
+        Err(e) if e.kind() == std::io::ErrorKind::AddrInUse => {
+            eprintln!(
+                "error: {addr} is already in use.\n\
+                 \x20 Pick another port:  nerve-waf-controller --port <PORT>\n\
+                 \x20 Find the owner:      lsof -iTCP:{port} -sTCP:LISTEN   (Linux/macOS)\n\
+                 \x20                      netstat -ano | findstr :{port}  (Windows)"
+            );
+            std::process::exit(1);
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => {
+            eprintln!(
+                "error: cannot bind {addr} (permission denied).\n\
+                 \x20 Ports below 1024 need CAP_NET_BIND_SERVICE or root; use a port >= 1024."
+            );
+            std::process::exit(1);
+        }
+        Err(e) => {
+            eprintln!("error: cannot bind {addr}: {e}");
+            std::process::exit(1);
+        }
+    };
+    if let Err(e) = axum::serve(listener, app).await {
+        eprintln!("error: server stopped unexpectedly: {e}");
+        std::process::exit(1);
+    }
 }

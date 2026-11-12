@@ -103,7 +103,12 @@ impl ProtectionStrategyTemplate {
             };
         } else {
             self.semantic_mode = normalize_mode(&self.semantic_mode);
-            if self.semantic.as_object().map(|o| o.is_empty()).unwrap_or(true) {
+            if self
+                .semantic
+                .as_object()
+                .map(|o| o.is_empty())
+                .unwrap_or(true)
+            {
                 self.semantic = json!({ "mode": self.semantic_mode });
             }
         }
@@ -125,7 +130,8 @@ impl ProtectionStrategyTemplate {
             .expert_level
             .unwrap_or(ExpertLevel::Medium)
             .as_str();
-        let mut semantic = serde_json::to_value(pipeline).unwrap_or_else(|_| json!({ "mode": mode }));
+        let mut semantic =
+            serde_json::to_value(pipeline).unwrap_or_else(|_| json!({ "mode": mode }));
         if let Some(obj) = semantic.as_object_mut() {
             obj.insert("mode".into(), json!(mode));
         }
@@ -181,8 +187,8 @@ impl ProtectionStrategyTemplate {
     }
 
     pub fn to_pipeline_patch(&self) -> SemanticConfig {
-        let mut cfg = serde_json::from_value::<SemanticConfig>(self.semantic.clone())
-            .unwrap_or_default();
+        let mut cfg =
+            serde_json::from_value::<SemanticConfig>(self.semantic.clone()).unwrap_or_default();
         cfg.mode = match self.semantic_mode.as_str() {
             "strict" => SemanticMode::Strict,
             "relaxed" => SemanticMode::Relaxed,
@@ -224,7 +230,11 @@ fn normalize_level(s: &str) -> String {
 pub fn normalize_template(mut t: ProtectionStrategyTemplate) -> ProtectionStrategyTemplate {
     t.name = t.name.trim().to_string();
     t.description = t.description.trim().to_string();
-    if t.site_id.as_deref().map(|s| s.trim().is_empty()).unwrap_or(false) {
+    if t.site_id
+        .as_deref()
+        .map(|s| s.trim().is_empty())
+        .unwrap_or(false)
+    {
         t.site_id = None;
     }
     if t.builtin {
@@ -305,7 +315,7 @@ fn write_file(data_dir: &Path, file: &StrategyFile) -> Result<(), ConfigError> {
     Ok(())
 }
 
-fn migrate_legacy_ids(templates: &mut Vec<ProtectionStrategyTemplate>) -> bool {
+fn migrate_legacy_ids(templates: &mut [ProtectionStrategyTemplate]) -> bool {
     let mut changed = false;
     let map = [
         ("tpl-dev-relaxed", "tpl-relaxed", "宽松"),
@@ -343,8 +353,8 @@ pub fn ensure_seeds_file(
         if before {
             t.core = modules.clone();
             if t.semantic.as_object().map(|o| o.len() <= 1).unwrap_or(true) {
-                let mut sem =
-                    serde_json::to_value(pipeline).unwrap_or_else(|_| json!({ "mode": t.semantic_mode }));
+                let mut sem = serde_json::to_value(pipeline)
+                    .unwrap_or_else(|_| json!({ "mode": t.semantic_mode }));
                 bump_semantic_mode(&mut sem, &t.semantic_mode);
                 t.semantic = sem;
             }
@@ -375,11 +385,7 @@ fn read_app_file(data_dir: &Path, site_id: &str) -> Result<StrategyFile, ConfigE
     Ok(serde_json::from_str(&raw)?)
 }
 
-fn write_app_file(
-    data_dir: &Path,
-    site_id: &str,
-    file: &StrategyFile,
-) -> Result<(), ConfigError> {
+fn write_app_file(data_dir: &Path, site_id: &str, file: &StrategyFile) -> Result<(), ConfigError> {
     let dir = app_strategies_dir(data_dir);
     std::fs::create_dir_all(&dir)?;
     let path = app_strategies_path(data_dir, site_id);
@@ -481,7 +487,11 @@ pub fn upsert_file(
         t.builtin = false;
         t.site_id = Some(site.clone());
         let mut file = read_app_file(data_dir, &site)?;
-        if file.templates.iter().any(|x| x.name == t.name && x.id != t.id) {
+        if file
+            .templates
+            .iter()
+            .any(|x| x.name == t.name && x.id != t.id)
+        {
             return Err(ConfigError::Db(format!("策略名称已存在: {}", t.name)));
         }
         if let Some(slot) = file.templates.iter_mut().find(|x| x.id == t.id) {
@@ -571,9 +581,12 @@ pub mod pg {
     /// Seed data runs once in-process. Schema assumed created by startup migrations; no DDL on business paths.
     static SEEDS_READY: OnceCell<()> = OnceCell::const_new();
 
-    fn row_to_global(row: &sqlx::postgres::PgRow) -> Result<ProtectionStrategyTemplate, ConfigError> {
+    fn row_to_global(
+        row: &sqlx::postgres::PgRow,
+    ) -> Result<ProtectionStrategyTemplate, ConfigError> {
         let core_val: Value = row.try_get("core").unwrap_or_else(|_| json!({}));
-        let core: ProtectionModules = if core_val.as_object().map(|o| o.is_empty()).unwrap_or(true) {
+        let core: ProtectionModules = if core_val.as_object().map(|o| o.is_empty()).unwrap_or(true)
+        {
             ProtectionModules::default()
         } else {
             serde_json::from_value(core_val).unwrap_or_default()
@@ -645,9 +658,7 @@ pub mod pg {
                 Ok(())
             }
             Ok(Err(e)) => Err(e),
-            Err(_) => Err(ConfigError::Db(
-                "protection strategy seed timed out".into(),
-            )),
+            Err(_) => Err(ConfigError::Db("protection strategy seed timed out".into())),
         }
     }
 

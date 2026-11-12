@@ -1,11 +1,6 @@
 //! Dream — policy-change impact preview (estimate only; not pushed).
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    routing::post,
-    Json, Router,
-};
+use axum::{extract::State, http::StatusCode, routing::post, Json, Router};
 use chrono::{Duration, Utc};
 use nerve_waf_sdk::EventQuery;
 use serde::Deserialize;
@@ -46,15 +41,17 @@ async fn simulate_policy(
     State(state): State<Arc<AppState>>,
     Json(body): Json<SimulateBody>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
-    if let Err(resp) = guard_expensive_ai(AiRateLimitKind::PolicySim) {
-        return Err(resp);
-    }
+    guard_expensive_ai(AiRateLimitKind::PolicySim)?;
     if let Some(err) = validate_simulate_body(&body) {
         return Ok(Json(err));
     }
 
     let since = Utc::now() - Duration::days(SAMPLE_WINDOW_DAYS);
-    let site = body.site_id.as_deref().map(str::trim).filter(|s| !s.is_empty());
+    let site = body
+        .site_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
     let limit = body.sample_limit.clamp(50, 500);
     let q = EventQuery {
         site_id: site.map(str::to_string),
@@ -69,11 +66,7 @@ async fn simulate_policy(
             Json(json!({ "ok": false, "error": "event_query_failed" })),
         )
     })?;
-    let events: Vec<_> = raw
-        .events
-        .into_iter()
-        .filter(|e| e.ts >= since)
-        .collect();
+    let events: Vec<_> = raw.events.into_iter().filter(|e| e.ts >= since).collect();
     let sample_truncated = raw.total > events.len() as u64;
     let total_in_window = events.len() as u64;
 
@@ -199,10 +192,7 @@ pub(crate) fn validate_simulate_body(body: &SimulateBody) -> Option<Value> {
             "message": "请选择应用",
         }));
     }
-    let has_rules = body
-        .disable_rules
-        .iter()
-        .any(|s| !s.trim().is_empty());
+    let has_rules = body.disable_rules.iter().any(|s| !s.trim().is_empty());
     let has_prefixes = body
         .whitelist_uri_prefixes
         .iter()
@@ -210,7 +200,7 @@ pub(crate) fn validate_simulate_body(body: &SimulateBody) -> Option<Value> {
     if !has_rules && !has_prefixes {
         return Some(json!({
             "ok": false,
-            "error": "empty_chaege_set",
+            "error": "empty_change_set",
             "message": "至少指定 disable_rules 或 whitelist_uri_prefixes 之一",
         }));
     }
@@ -236,7 +226,7 @@ pub(crate) fn validate_simulate_body(body: &SimulateBody) -> Option<Value> {
         if p.len() > MAX_PREFIX_LEN {
             return Some(json!({
                 "ok": false,
-                "error": "prefix_too_loeg",
+                "error": "prefix_too_long",
                 "message": "URI 前缀长度超限",
             }));
         }
@@ -251,9 +241,13 @@ pub(crate) fn validate_simulate_body(body: &SimulateBody) -> Option<Value> {
     None
 }
 
-pub(crate) fn classify_risk(fp_relinf_pct: f64, total_blocks: u64, sample_size: usize) -> &'static str {
+pub(crate) fn classify_risk(
+    fp_relinf_pct: f64,
+    total_blocks: u64,
+    sample_size: usize,
+) -> &'static str {
     if sample_size < 10 || total_blocks == 0 {
-        return "insufficinet_data";
+        return "insufficient_data";
     }
     if fp_relinf_pct > 30.0 {
         "medium"

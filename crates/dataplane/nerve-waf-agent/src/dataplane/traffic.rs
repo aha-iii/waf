@@ -1,4 +1,6 @@
 //! Edge counts traffic by site+host in three buckets; periodically flush to control plane.
+//! Not wired into the dataplane yet (reserved).
+#![allow(dead_code)]
 
 use nerve_waf_embed::EmbedInspectResponse;
 use nerve_waf_sdk::TrafficBatchItem;
@@ -76,7 +78,11 @@ pub(crate) fn classify(inspect: &EmbedInspectResponse) -> TrafficClass {
     }
 }
 
-pub async fn flush_traffic_batch(client: &reqwest::Client, api: &str, items: Vec<TrafficBatchItem>) {
+pub async fn flush_traffic_batch(
+    client: &reqwest::Client,
+    api: &str,
+    items: Vec<TrafficBatchItem>,
+) {
     if items.is_empty() {
         return;
     }
@@ -84,7 +90,10 @@ pub async fn flush_traffic_batch(client: &reqwest::Client, api: &str, items: Vec
     let body = serde_json::json!({ "items": items });
     match client.post(&url).json(&body).send().await {
         Ok(resp) if resp.status().is_success() => {
-            tracing::debug!(count = body["items"].as_array().map(|a| a.len()).unwrap_or(0), "traffic batch flushed");
+            tracing::debug!(
+                count = body["items"].as_array().map(|a| a.len()).unwrap_or(0),
+                "traffic batch flushed"
+            );
         }
         Ok(resp) => {
             let status = resp.status();

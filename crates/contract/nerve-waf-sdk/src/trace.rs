@@ -38,7 +38,9 @@ impl RequestTrace {
             .and_then(parse_traceparent)
             .unwrap_or_default();
 
-        let tracestate = parse_tracestate(&first_header(&get, &[HEADER_TRACESTATE, "Tracestate"]).unwrap_or_default());
+        let tracestate = parse_tracestate(
+            &first_header(&get, &[HEADER_TRACESTATE, "Tracestate"]).unwrap_or_default(),
+        );
 
         let nerve_trace_id = first_header(
             &get,
@@ -48,12 +50,13 @@ impl RequestTrace {
                 HEADER_X_TRACE_ID,
             ],
         )
-        .or_else(|| (!tp_trace.is_empty()).then(|| tp_trace));
+        .or_else(|| (!tp_trace.is_empty()).then_some(tp_trace));
         let parent_nerve_span_id = first_header(&get, &[HEADER_NERVE_SPAN_ID])
-            .or_else(|| (!tp_span.is_empty()).then(|| tp_span));
+            .or_else(|| (!tp_span.is_empty()).then_some(tp_span));
         let x_trace_id = first_header(&get, &[HEADER_X_TRACE_ID]);
         let journey_id = first_header(&get, &[HEADER_NERVE_JOURNEY_ID]).or(tracestate.journey_id);
-        let session_id = first_header(&get, &[HEADER_NERVE_SESSION_ID]).or_else(|| journey_id.clone());
+        let session_id =
+            first_header(&get, &[HEADER_NERVE_SESSION_ID]).or_else(|| journey_id.clone());
         let parent_journey_id =
             first_header(&get, &[HEADER_NERVE_PARENT_JOURNEY_ID]).or(tracestate.parent_journey_id);
         let site_id = tracestate.site_id;
@@ -80,9 +83,7 @@ impl RequestTrace {
     ) -> Self {
         Self {
             nerve_trace_id: normalize_trace_id(
-                nerve_trace_id
-                    .or_else(|| x_trace_id.clone())
-                    .as_deref(),
+                nerve_trace_id.or_else(|| x_trace_id.clone()).as_deref(),
             ),
             nerve_span_id: normalize_span_id(None),
             x_trace_id,
@@ -191,10 +192,7 @@ pub fn parse_traceparent(raw: &str) -> Option<(String, String)> {
     if trace_id.chars().all(|c| c == '0') {
         return None;
     }
-    Some((
-        trace_id.to_ascii_lowercase(),
-        span_id.to_ascii_lowercase(),
-    ))
+    Some((trace_id.to_ascii_lowercase(), span_id.to_ascii_lowercase()))
 }
 
 /// Parse `tracestate` nerve vendor segment: `nerve=journey:…,parent:…,site:…`

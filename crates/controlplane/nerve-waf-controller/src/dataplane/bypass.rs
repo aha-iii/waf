@@ -102,7 +102,7 @@ impl BypassInspectRuntime {
 
         tokio::task::spawn_blocking(move || {
             let prepared = {
-                let mut guard = cache.lock().map_err(|e| e.to_string())?;
+                let guard = cache.lock().map_err(|e| e.to_string())?;
                 if let Some(p) = guard.get_prepared(generation, &site_id_owned) {
                     p
                 } else {

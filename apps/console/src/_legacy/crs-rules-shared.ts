@@ -97,7 +97,7 @@ const RULE_HINTS: Record<string, { desc: string; example: string }> = {
   "941101": { desc: "检测 URL 路径、Referer 中的 XSS", example: "/page/<script>alert(1)</script>" },
   "sql-001": { desc: "UNION SELECT 联合查询注入", example: "1' UNION SELECT 1,2,3--" },
   "sql-002": { desc: "OR 恒真条件绕过", example: "1' OR 1=1--" },
-  "sql-003": { desc: "SQL 注释符截断语句", example: "admin'--" },
+  "sql-003": { desc: "SQL 注释符截断语句（引号尾 --、空格 -- 、块注释）", example: "admin'--" },
   "sql-004": { desc: "EXEC / xp_cmdshell 等危险存储过程", example: "'; EXEC xp_cmdshell('dir')--" },
   "xss-001": { desc: "script 标签注入", example: "<script>alert(1)</script>" },
   "xss-002": { desc: "javascript: 伪协议", example: "javascript:alert(1)" },

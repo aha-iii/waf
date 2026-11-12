@@ -114,11 +114,7 @@ impl RequestSamples {
         let (cookie_names, cookies) = parse_cookies(&req.headers);
         let referer = header_value(&req.headers, "referer");
         let filename = path_from_uri(&req.uri);
-        let basename = filename
-            .rsplit('/')
-            .next()
-            .unwrap_or(&filename)
-            .to_string();
+        let basename = filename.rsplit('/').next().unwrap_or(&filename).to_string();
         Self {
             query_values,
             query_names,
@@ -135,13 +131,10 @@ impl RequestSamples {
     }
 
     pub fn for_targets(&self, targets: &[ScanTarget]) -> Vec<(&'static str, &str)> {
-        targets
-            .iter()
-            .flat_map(|t| self.values_for(*t))
-            .collect()
+        targets.iter().flat_map(|t| self.values_for(*t)).collect()
     }
 
-    fn values_for<'a>(&'a self, target: ScanTarget) -> Vec<(&'static str, &'a str)> {
+    fn values_for(&self, target: ScanTarget) -> Vec<(&'static str, &str)> {
         let mut out = Vec::new();
         match target {
             ScanTarget::Args => {

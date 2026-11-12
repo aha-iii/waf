@@ -37,7 +37,7 @@ impl From<serde_yaml::Error> for ConfigError {
 }
 
 /// Root config: `waf:` plus top-level `logging:`.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Default)]
 pub struct WafFileConfig {
     pub waf: WafNodeConfig,
     #[serde(default)]
@@ -159,15 +159,6 @@ fn default_max_age_days() -> u32 {
 
 fn default_max_backups() -> u32 {
     14
-}
-
-impl Default for WafFileConfig {
-    fn default() -> Self {
-        Self {
-            waf: WafNodeConfig::default(),
-            logging: WafLoggingConfig::default(),
-        }
-    }
 }
 
 impl Default for WafNodeConfig {

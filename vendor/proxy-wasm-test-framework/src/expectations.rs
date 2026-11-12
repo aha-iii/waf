@@ -51,7 +51,7 @@ impl ExpectHandle {
             panic!(
                 "Error: expectations failed to account for all host calls by {} \n\
             if this is intended, please use --allow-unexpected (-a) mode",
-                -1 * self.staged.expect_count
+                -self.staged.expect_count
             );
         }
     }
@@ -91,7 +91,7 @@ pub struct Expect {
 impl Expect {
     pub fn new(allow_unexpected: bool) -> Expect {
         Expect {
-            allow_unexpected: allow_unexpected,
+            allow_unexpected,
             expect_count: 0,
             log_message: vec![],
             tick_period_millis: vec![],
@@ -137,7 +137,7 @@ impl Expect {
     pub fn set_expect_set_tick_period_millis(&mut self, tick_period_millis: Option<u64>) {
         self.expect_count += 1;
         self.tick_period_millis
-            .push(tick_period_millis.map(|period| Duration::from_millis(period)));
+            .push(tick_period_millis.map(Duration::from_millis));
     }
 
     pub fn get_expect_set_tick_period_millis(&mut self, tick_period_millis: u128) {
@@ -243,7 +243,7 @@ impl Expect {
                 let expect_buffer = self.set_buffer_bytes.remove(0);
                 let mut expect_status = buffer_type == expect_buffer.0.unwrap_or(buffer_type);
                 expect_status = expect_status
-                    && &buffer_data == &&expect_buffer.1.unwrap_or(buffer_data.to_vec())[..];
+                    && buffer_data == &expect_buffer.1.unwrap_or(buffer_data.to_vec())[..];
                 set_expect_status(expect_status);
             }
         }
@@ -300,8 +300,8 @@ impl Expect {
                 let mut expect_status =
                     map_type == self.set_header_map_pairs[0].0.unwrap_or(map_type);
                 expect_status = expect_status
-                    && &header_map_pairs
-                        == &&self
+                    && header_map_pairs
+                        == &self
                             .set_header_map_pairs
                             .remove(0)
                             .1
@@ -343,7 +343,7 @@ impl Expect {
                 let header_map_tuple = self.get_header_map_value.remove(0);
                 let mut expect_status = map_type == header_map_tuple.0.unwrap_or(map_type);
                 expect_status = expect_status
-                    && header_map_key == &header_map_tuple.1.unwrap_or(header_map_key.to_string());
+                    && header_map_key == header_map_tuple.1.unwrap_or(header_map_key.to_string());
                 set_expect_status(expect_status);
                 header_map_tuple.2
             }
@@ -382,10 +382,10 @@ impl Expect {
                 let header_map_tuple = self.replace_header_map_value.remove(0);
                 let mut expect_status = map_type == header_map_tuple.0.unwrap_or(map_type);
                 expect_status = expect_status
-                    && header_map_key == &header_map_tuple.1.unwrap_or(header_map_key.to_string());
+                    && header_map_key == header_map_tuple.1.unwrap_or(header_map_key.to_string());
                 expect_status = expect_status
                     && header_map_value
-                        == &header_map_tuple.2.unwrap_or(header_map_value.to_string());
+                        == header_map_tuple.2.unwrap_or(header_map_value.to_string());
                 set_expect_status(expect_status);
             }
         }
@@ -414,7 +414,7 @@ impl Expect {
                 let header_map_tuple = self.remove_header_map_value.remove(0);
                 let mut expect_status = map_type == header_map_tuple.0.unwrap_or(map_type);
                 expect_status = expect_status
-                    && header_map_key == &header_map_tuple.1.unwrap_or(header_map_key.to_string());
+                    && header_map_key == header_map_tuple.1.unwrap_or(header_map_key.to_string());
                 set_expect_status(expect_status);
             }
         }
@@ -452,10 +452,10 @@ impl Expect {
                 let header_map_tuple = self.add_header_map_value.remove(0);
                 let mut expect_status = map_type == header_map_tuple.0.unwrap_or(map_type);
                 expect_status = expect_status
-                    && header_map_key == &header_map_tuple.1.unwrap_or(header_map_key.to_string());
+                    && header_map_key == header_map_tuple.1.unwrap_or(header_map_key.to_string());
                 expect_status = expect_status
                     && header_map_value
-                        == &header_map_tuple.2.unwrap_or(header_map_value.to_string());
+                        == header_map_tuple.2.unwrap_or(header_map_value.to_string());
                 set_expect_status(expect_status);
             }
         }
@@ -498,11 +498,11 @@ impl Expect {
                     status_code == local_response_tuple.0.unwrap_or(status_code);
                 expect_status = expect_status
                     && body.unwrap_or("default")
-                        == &local_response_tuple
+                        == local_response_tuple
                             .1
                             .unwrap_or(body.unwrap_or("default").to_string());
                 expect_status = expect_status
-                    && &headers == &&local_response_tuple.2.unwrap_or(headers.to_vec())[..];
+                    && headers == &local_response_tuple.2.unwrap_or(headers.to_vec())[..];
                 expect_status =
                     expect_status && grpc_status == local_response_tuple.3.unwrap_or(grpc_status);
                 set_expect_status(expect_status);
@@ -525,7 +525,7 @@ impl Expect {
             headers.map(|data| serialize_map(data)),
             body.map(|data| data.to_string()),
             trailers.map(|data| serialize_map(data)),
-            timeout.map(|data| Duration::from_millis(data)),
+            timeout.map(Duration::from_millis),
             token_id,
         ));
     }
@@ -550,16 +550,16 @@ impl Expect {
                 self.expect_count -= 1;
                 let http_call_tuple = self.http_call.remove(0);
                 let mut expect_status =
-                    upstream == &http_call_tuple.0.unwrap_or(upstream.to_string());
-                expect_status = expect_status
-                    && &headers == &&http_call_tuple.1.unwrap_or(headers.to_vec())[..];
+                    upstream == http_call_tuple.0.unwrap_or(upstream.to_string());
+                expect_status =
+                    expect_status && headers == &http_call_tuple.1.unwrap_or(headers.to_vec())[..];
                 expect_status = expect_status
                     && body.unwrap_or("default")
-                        == &http_call_tuple
+                        == http_call_tuple
                             .2
                             .unwrap_or(body.unwrap_or("default").to_string());
                 expect_status = expect_status
-                    && &trailers == &&http_call_tuple.3.unwrap_or(trailers.to_vec())[..];
+                    && trailers == &http_call_tuple.3.unwrap_or(trailers.to_vec())[..];
                 expect_status = expect_status
                     && timeout
                         == http_call_tuple

@@ -58,7 +58,7 @@ fn main() -> Result<()> {
         .returning(Some(buffer_data))
         .expect_send_local_response(
             Some(403),
-            Some("Access forbidden.\e"),
+            Some("Access forbidden.\x1b"),
             Some(vec![("Powered-By", "proxy-wasm")]),
             Some(-1),
         )

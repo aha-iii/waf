@@ -45,6 +45,8 @@ async fn table_exists(pool: &PgPool, table: &str) -> Result<bool, StoreError> {
 
 /// AI migration dependency table names (035/036, etc.) for tests/docs alignment.
 #[cfg(feature = "postgres")]
+// Reference table for migration docs/tests; not wired into runtime checks yet.
+#[allow(dead_code)]
 pub fn ai_required_tables() -> &'static [&'static str] {
     AI_TABLES
 }

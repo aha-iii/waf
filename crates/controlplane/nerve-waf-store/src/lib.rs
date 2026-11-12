@@ -1,25 +1,25 @@
 //! Persistence for WAF config and events (JSON / Postgres).
 
-mod file_store;
-mod migrations;
-mod network_stats;
 pub mod ai_settings;
 pub mod app_config;
 pub mod app_crs;
-pub mod fp_remediation;
-pub mod global_config;
+pub mod config;
 pub mod custom_rules;
-pub mod protection_strategy;
-pub mod protected_sites;
-#[cfg(feature = "postgres")]
-pub mod users;
 #[cfg(feature = "postgres")]
 pub mod demo_leads;
+mod file_store;
+pub mod fp_remediation;
+pub mod global_config;
+mod migrations;
+mod network_stats;
+pub mod protected_sites;
+pub mod protection_strategy;
 pub mod semantic_stats;
-pub mod config;
-pub mod traffic_stats;
 #[cfg(feature = "postgres")]
 mod topology;
+pub mod traffic_stats;
+#[cfg(feature = "postgres")]
+pub mod users;
 
 #[cfg(feature = "postgres")]
 mod posture;
@@ -34,16 +34,16 @@ mod schema_check;
 pub use posture::{insert_posture_scan, receet_posture_scans};
 
 #[cfg(feature = "postgres")]
-pub use ml_labels::{insert_ml_label, list_ml_labels, ml_label_stats, IesertMlLabel, MlLabelRecord};
+pub use ml_labels::{
+    insert_ml_label, list_ml_labels, ml_label_stats, IesertMlLabel, MlLabelRecord,
+};
 
 #[cfg(feature = "postgres")]
 pub use schema_check::ai_schema_status;
 
-pub use traffic_stats::{
-    blocked_attack_categories_from_events, open_traffic_store, TrafficStore,
-};
 #[cfg(feature = "postgres")]
 pub use traffic_stats::pg_blocked_attack_categories;
+pub use traffic_stats::{blocked_attack_categories_from_events, open_traffic_store, TrafficStore};
 
 #[cfg(feature = "postgres")]
 pub use topology::{
@@ -69,27 +69,31 @@ pub struct DbStatus {
 
 pub use file_store::FileEventStore;
 
-pub use fp_remediation::{FpAnalyticsSnapshot, FpRuleCount, FpSiteCount};
-#[cfg(feature = "postgres")]
-pub use fp_remediation::{fp_analytics, insert_fp_audit};
-pub use app_crs::{
-    AppCrsBinding, AppCrsHistoryEntry, AppCrsStatus, CRS_MODULE_KEYS, SystemCrsVersionRef,
-    crs_modules_snapshot, prune_disabled_rules,
-};
-pub use custom_rules::{CustomRulesError, CustomRulesStore, GLOBAL_CUSTOM_SITE_ID, default_custom_rules, new_rule_id, new_set_id};
-pub use protection_strategy::ProtectionStrategyTemplate;
-pub use protected_sites::{ProtectedSitesError, ProtectedSitesStore};
-#[cfg(feature = "postgres")]
-pub use users::{ConsoleUser, UsersError, UsersStore, ROLE_ADMIN, ROLE_OPERATOR, ROLE_VIEWER};
-#[cfg(feature = "postgres")]
-pub use demo_leads::{DemoLead, DemoLeadsError, DemoLeadsStore, NewDemoLead};
 pub use ai_settings::{AiSettings, AiSettingsError, AiSettingsStore, TriageLlmConfig};
-pub use semantic_stats::{SemanticStatsError, SemanticStatsStore};
-pub use config::{
-    open_config_backend, AuditContext, ConfigBackend, ConfigError, FileConfigStore, RuntimeDenyEntry,
+pub use app_crs::{
+    crs_modules_snapshot, prune_disabled_rules, AppCrsBinding, AppCrsHistoryEntry, AppCrsStatus,
+    SystemCrsVersionRef, CRS_MODULE_KEYS,
 };
 #[cfg(feature = "postgres")]
 pub use config::PostgresConfigStore;
+pub use config::{
+    open_config_backend, AuditContext, ConfigBackend, ConfigError, FileConfigStore,
+    RuntimeDenyEntry,
+};
+pub use custom_rules::{
+    default_custom_rules, new_rule_id, new_set_id, CustomRulesError, CustomRulesStore,
+    GLOBAL_CUSTOM_SITE_ID,
+};
+#[cfg(feature = "postgres")]
+pub use demo_leads::{DemoLead, DemoLeadsError, DemoLeadsStore, NewDemoLead};
+#[cfg(feature = "postgres")]
+pub use fp_remediation::{fp_analytics, insert_fp_audit};
+pub use fp_remediation::{FpAnalyticsSnapshot, FpRuleCount, FpSiteCount};
+pub use protected_sites::{ProtectedSitesError, ProtectedSitesStore};
+pub use protection_strategy::ProtectionStrategyTemplate;
+pub use semantic_stats::{SemanticStatsError, SemanticStatsStore};
+#[cfg(feature = "postgres")]
+pub use users::{ConsoleUser, UsersError, UsersStore, ROLE_ADMIN, ROLE_OPERATOR, ROLE_VIEWER};
 
 #[cfg(feature = "postgres")]
 pub use postgres::PostgresEventStore;
@@ -128,10 +132,14 @@ impl EventStore {
     }
 
     pub async fn stats_overview(&self) -> Result<StatsOverview, StoreError> {
-        self.stats_since(Utc::now() - chrono::Duration::hours(24)).await
+        self.stats_since(Utc::now() - chrono::Duration::hours(24))
+            .await
     }
 
-    pub async fn stats_since(&self, since: chrono::DateTime<Utc>) -> Result<StatsOverview, StoreError> {
+    pub async fn stats_since(
+        &self,
+        since: chrono::DateTime<Utc>,
+    ) -> Result<StatsOverview, StoreError> {
         match self {
             Self::File(s) => s.stats_since(since).await,
             #[cfg(feature = "postgres")]
@@ -228,7 +236,7 @@ pub async fn open_topology_store(database_url: &str) -> Result<Arc<TopologyStore
     #[cfg(feature = "postgres")]
     {
         let pool = migrations::connect_pool(database_url).await?;
-        return Ok(Arc::new(TopologyStore::new(pool)));
+        Ok(Arc::new(TopologyStore::new(pool)))
     }
     #[cfg(not(feature = "postgres"))]
     {

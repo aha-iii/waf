@@ -38,6 +38,8 @@ pub fn cidr_to_lpm_rules(
 }
 
 /// Parse IPv4 CIDR to prefix length + network address string.
+// Reserved for the LPM compilation path (NetworkPolicy allow rules).
+#[allow(dead_code)]
 pub fn parse_v4_prefix(cidr: &str) -> Option<(u8, Ipv4Addr)> {
     let (ip, plen) = cidr.split_once('/')?;
     let addr: Ipv4Addr = ip.parse().ok()?;
@@ -49,6 +51,8 @@ pub fn parse_v4_prefix(cidr: &str) -> Option<(u8, Ipv4Addr)> {
 }
 
 /// Merge LPM rules into L4 hash rules for /32 endpoints; non-/32 stay in LPM list.
+// Reserved for the LPM compilation path (NetworkPolicy allow rules).
+#[allow(dead_code)]
 pub fn supplement_l4_with_lpm(l4: &mut Vec<L4Rule>, lpm: &[LpmAllowRule]) {
     for r in lpm {
         if r.prefix.ends_with("/32") {

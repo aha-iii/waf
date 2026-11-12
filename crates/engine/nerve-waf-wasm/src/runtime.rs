@@ -29,19 +29,16 @@ pub fn resolve_wasm_path() -> Option<PathBuf> {
         PathBuf::from("wasm/coraza-proxy-wasm.wasm"),
         PathBuf::from("Nerve-waf/wasm/coraza-proxy-wasm.wasm"),
     ];
-    for c in candidates {
-        if c.is_file() {
-            return Some(c);
-        }
-    }
-    None
+    candidates.into_iter().find(|c| c.is_file())
 }
 
 /// User-configurable CRS engine preference (written to `data/crs_runtime.json`).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 pub enum CrsEnginePreference {
     /// Prefer WASM when available; else fall back to libinjection.
+    #[default]
     Auto,
     /// Single-process WASM Coraza+CRS.
     Wasm,
@@ -49,12 +46,6 @@ pub enum CrsEnginePreference {
     Off,
     /// Go HTTP sidecar process (experimental).
     Coraza,
-}
-
-impl Default for CrsEnginePreference {
-    fn default() -> Self {
-        Self::Auto
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

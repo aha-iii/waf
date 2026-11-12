@@ -93,7 +93,7 @@ impl PostgresEventStore {
     }
 
     pub async fn query(&self, q: EventQuery) -> Result<EventQueryResult, StoreError> {
-        let limit = q.limit.max(1).min(500) as i64;
+        let limit = q.limit.clamp(1, 500) as i64;
         let offset = q.offset as i64;
 
         let total: i64 = sqlx::query_scalar(
@@ -158,11 +158,12 @@ impl PostgresEventStore {
         &self,
         since: chrono::DateTime<chrono::Utc>,
     ) -> Result<StatsOverview, StoreError> {
-        let total_events: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM waf_events WHERE ts >= $1")
-            .bind(since)
-            .fetch_one(&self.pool)
-            .await
-            .map_err(|e| StoreError::Db(e.to_string()))?;
+        let total_events: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_events WHERE ts >= $1")
+                .bind(since)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| StoreError::Db(e.to_string()))?;
 
         let blocked: i64 = sqlx::query_scalar(
             "SELECT COUNT(*) FROM waf_events WHERE ts >= $1 AND action = 'block'",
@@ -172,13 +173,12 @@ impl PostgresEventStore {
         .await
         .map_err(|e| StoreError::Db(e.to_string()))?;
 
-        let logged: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_events WHERE ts >= $1 AND action = 'log'",
-        )
-        .bind(since)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| StoreError::Db(e.to_string()))?;
+        let logged: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_events WHERE ts >= $1 AND action = 'log'")
+                .bind(since)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| StoreError::Db(e.to_string()))?;
 
         let cat_rows = sqlx::query(
             r#"SELECT category, COUNT(*) AS cnt FROM waf_events
@@ -251,13 +251,12 @@ impl PostgresEventStore {
         since: chrono::DateTime<chrono::Utc>,
         days: i64,
     ) -> Result<serde_json::Value, StoreError> {
-        let total: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_events WHERE layer = 'l3' AND ts >= $1",
-        )
-        .bind(since)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| StoreError::Db(e.to_string()))?;
+        let total: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_events WHERE layer = 'l3' AND ts >= $1")
+                .bind(since)
+                .fetch_one(&self.pool)
+                .await
+                .map_err(|e| StoreError::Db(e.to_string()))?;
 
         let blocked: i64 = sqlx::query_scalar(
             "SELECT COUNT(*) FROM waf_events WHERE layer = 'l3' AND ts >= $1 AND action = 'block'",

@@ -24,7 +24,10 @@ pub fn fp_remediation_router() -> Router<Arc<AppState>> {
             "/api/events/{event_id}/confirm-false-positive",
             post(confirm_false_positive),
         )
-        .route("/api/analytics/false-positives", get(false_positive_analytics))
+        .route(
+            "/api/analytics/false-positives",
+            get(false_positive_analytics),
+        )
 }
 
 #[derive(Debug, Deserialize)]
@@ -173,13 +176,10 @@ fn apply_whitelist_uri(
         match_on,
     });
 
-    state
-        .platform
-        .set_whitelist_config(cfg)
-        .map_err(|e| {
-            tracing::error!("set whitelist: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    state.platform.set_whitelist_config(cfg).map_err(|e| {
+        tracing::error!("set whitelist: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     Ok(Some(format!("whitelist_uri:{path}")))
 }
@@ -195,14 +195,10 @@ async fn apply_disable_rule(
     };
 
     let module_key = resolve_module_key(event);
-    let mut modules = state
-        .config
-        .load_modules_for(site_id)
-        .await
-        .map_err(|e| {
-            tracing::error!("load modules site={site_id}: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let mut modules = state.config.load_modules_for(site_id).await.map_err(|e| {
+        tracing::error!("load modules site={site_id}: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
     let entry = modules
         .modules
@@ -359,7 +355,7 @@ async fn false_positive_analytics(
     State(state): State<Arc<AppState>>,
     Query(q): Query<FpAnalyticsQuery>,
 ) -> Result<Json<Value>, StatusCode> {
-    let since = Utc::now() - Duration::days(q.days.max(1).min(90));
+    let since = Utc::now() - Duration::days(q.days.clamp(1, 90));
     let site_filter = q.site_id.as_deref().filter(|s| !s.trim().is_empty());
 
     let mut confirmed_fp = 0i64;

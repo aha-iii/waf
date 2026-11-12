@@ -2,6 +2,8 @@
 
 pub mod app_state;
 pub mod bootstrap;
+/// Unix-socket inspect daemon: Unix domain sockets only（Windows 不可用）。
+#[cfg(unix)]
 pub mod inspect_daemon;
 pub mod logging;
 pub mod phase11_middleware;

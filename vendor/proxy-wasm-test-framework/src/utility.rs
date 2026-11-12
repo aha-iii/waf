@@ -20,7 +20,7 @@ pub fn print_boundary(wasm_file: &str) -> Result<()> {
     let module = Module::from_file(store.engine(), wasm_file)?;
     print_imports(&module);
     print_exports(&module);
-    return Ok(());
+    Ok(())
 }
 
 pub fn print_imports(module: &Module) {
