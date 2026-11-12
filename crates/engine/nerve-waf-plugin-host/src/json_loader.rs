@@ -2,7 +2,10 @@ use glob::glob;
 use nerve_waf_l7::{compile_rules_from_json, CompiledRule};
 use std::path::{Path, PathBuf};
 
-pub fn load_rules_from_manifest(dir: &Path, patterns: &[String]) -> Result<Vec<CompiledRule>, String> {
+pub fn load_rules_from_manifest(
+    dir: &Path,
+    patterns: &[String],
+) -> Result<Vec<CompiledRule>, String> {
     let mut rules = Vec::new();
     let default_patterns = vec!["rules/*.json".to_string()];
     let use_patterns = if patterns.is_empty() {
@@ -15,9 +18,11 @@ pub fn load_rules_from_manifest(dir: &Path, patterns: &[String]) -> Result<Vec<C
         let pat_str = pat.to_string_lossy().replace('\\', "/");
         for entry in glob(&pat_str).map_err(|e| e.to_string())? {
             let path = entry.map_err(|e| e.to_string())?;
-            let raw = std::fs::read_to_string(&path).map_err(|e| format!("read {}: {e}", path.display()))?;
+            let raw = std::fs::read_to_string(&path)
+                .map_err(|e| format!("read {}: {e}", path.display()))?;
             let source = path.to_string_lossy().to_string();
-            let compiled = compile_rules_from_json(&raw, &source).map_err(|e| format!("{source}: {e}"))?;
+            let compiled =
+                compile_rules_from_json(&raw, &source).map_err(|e| format!("{source}: {e}"))?;
             rules.extend(compiled);
         }
     }

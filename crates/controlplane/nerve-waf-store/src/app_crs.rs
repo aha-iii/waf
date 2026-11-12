@@ -61,7 +61,12 @@ pub struct SystemCrsVersionRef {
 pub fn crs_modules_snapshot(modules: &ProtectionModules) -> HashMap<String, ModuleConfig> {
     CRS_MODULE_KEYS
         .iter()
-        .filter_map(|k| modules.modules.get(*k).map(|c| ((*k).to_string(), c.clone())))
+        .filter_map(|k| {
+            modules
+                .modules
+                .get(*k)
+                .map(|c| ((*k).to_string(), c.clone()))
+        })
         .collect()
 }
 
@@ -70,8 +75,7 @@ pub fn prune_disabled_rules(
     valid_rule_ids: &HashSet<String>,
 ) {
     for cfg in modules.values_mut() {
-        cfg.disabled_rules
-            .retain(|id| valid_rule_ids.contains(id));
+        cfg.disabled_rules.retain(|id| valid_rule_ids.contains(id));
     }
 }
 
@@ -87,7 +91,10 @@ pub fn history_file(data_dir: &Path, site_id: &str) -> std::path::PathBuf {
     app_crs_dir(data_dir, site_id).join("history.json")
 }
 
-pub fn load_binding_file(data_dir: &Path, site_id: &str) -> Result<Option<AppCrsBinding>, ConfigError> {
+pub fn load_binding_file(
+    data_dir: &Path,
+    site_id: &str,
+) -> Result<Option<AppCrsBinding>, ConfigError> {
     let path = binding_file(data_dir, site_id);
     if !path.exists() {
         return Ok(None);
@@ -105,7 +112,10 @@ pub fn save_binding_file(data_dir: &Path, binding: &AppCrsBinding) -> Result<(),
     Ok(())
 }
 
-pub fn load_history_file(data_dir: &Path, site_id: &str) -> Result<Vec<AppCrsHistoryEntry>, ConfigError> {
+pub fn load_history_file(
+    data_dir: &Path,
+    site_id: &str,
+) -> Result<Vec<AppCrsHistoryEntry>, ConfigError> {
     let path = history_file(data_dir, site_id);
     if !path.exists() {
         return Ok(Vec::new());
@@ -114,7 +124,11 @@ pub fn load_history_file(data_dir: &Path, site_id: &str) -> Result<Vec<AppCrsHis
     Ok(serde_json::from_str(&raw).unwrap_or_default())
 }
 
-pub fn save_history_file(data_dir: &Path, site_id: &str, entries: &[AppCrsHistoryEntry]) -> Result<(), ConfigError> {
+pub fn save_history_file(
+    data_dir: &Path,
+    site_id: &str,
+    entries: &[AppCrsHistoryEntry],
+) -> Result<(), ConfigError> {
     let path = history_file(data_dir, site_id);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
@@ -128,7 +142,10 @@ pub mod pg {
     use super::*;
     use sqlx::{PgPool, Row};
 
-    pub async fn load_binding(pool: &PgPool, site_id: &str) -> Result<Option<AppCrsBinding>, ConfigError> {
+    pub async fn load_binding(
+        pool: &PgPool,
+        site_id: &str,
+    ) -> Result<Option<AppCrsBinding>, ConfigError> {
         let row = sqlx::query(
             "SELECT site_id, crs_version_id, crs_version_label, rule_count, applied_at::text \
              FROM waf_app_crs_binding WHERE site_id = $1",
@@ -146,7 +163,10 @@ pub mod pg {
         }))
     }
 
-    pub async fn load_history(pool: &PgPool, site_id: &str) -> Result<Vec<AppCrsHistoryEntry>, ConfigError> {
+    pub async fn load_history(
+        pool: &PgPool,
+        site_id: &str,
+    ) -> Result<Vec<AppCrsHistoryEntry>, ConfigError> {
         let rows = sqlx::query(
             "SELECT waf_app_crs_history_id::text AS id, site_id, crs_version_id, crs_version_label, \
                     rule_count, modules_snapshot, is_active, note, applied_at::text \
@@ -215,11 +235,12 @@ pub mod pg {
         modules_snapshot: HashMap<String, ModuleConfig>,
         operator: &str,
     ) -> Result<AppCrsBinding, ConfigError> {
-        let archive_modules = if let Some(prot) = crate::app_config::pg::load_app_protection(pool, site_id).await? {
-            crs_modules_snapshot(&prot)
-        } else {
-            modules_snapshot.clone()
-        };
+        let archive_modules =
+            if let Some(prot) = crate::app_config::pg::load_app_protection(pool, site_id).await? {
+                crs_modules_snapshot(&prot)
+            } else {
+                modules_snapshot.clone()
+            };
 
         let mut tx = pool
             .begin()

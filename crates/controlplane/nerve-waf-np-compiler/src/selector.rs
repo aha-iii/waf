@@ -84,13 +84,14 @@ pub fn namespace_selector_matches(
     all_namespaces: &[NamespaceSnapshot],
 ) -> bool {
     if ns_selector.is_null()
-        || ns_selector.as_object().map(|o| o.is_empty()).unwrap_or(true)
+        || ns_selector
+            .as_object()
+            .map(|o| o.is_empty())
+            .unwrap_or(true)
     {
         return true;
     }
-    let ns = all_namespaces
-        .iter()
-        .find(|n| n.name == pod_namespace);
+    let ns = all_namespaces.iter().find(|n| n.name == pod_namespace);
     match ns {
         Some(n) => labels_match_full(ns_selector, &n.labels),
         None => false,

@@ -198,7 +198,9 @@ impl FileConfigStore {
     }
 
     fn modules_path_for(&self, site_id: &str) -> PathBuf {
-        self.data_dir.join("modules").join(format!("{site_id}.json"))
+        self.data_dir
+            .join("modules")
+            .join(format!("{site_id}.json"))
     }
 
     pub fn load_upstreams(&self) -> Result<Vec<L7Upstream>, ConfigError> {
@@ -265,10 +267,7 @@ impl FileConfigStore {
     }
 
     fn is_active(record: &RuntimeDenyRecord, now: DateTime<Utc>) -> bool {
-        record
-            .expires_at
-            .map(|exp| exp > now)
-            .unwrap_or(true)
+        record.expires_at.map(|exp| exp > now).unwrap_or(true)
     }
 
     pub fn active_runtime_deny_ips(&self) -> Result<Vec<String>, ConfigError> {
@@ -329,11 +328,17 @@ impl FileConfigStore {
         Ok(())
     }
 
-    pub fn load_app_crs_binding(&self, site_id: &str) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
+    pub fn load_app_crs_binding(
+        &self,
+        site_id: &str,
+    ) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
         crate::app_crs::load_binding_file(&self.data_dir, site_id)
     }
 
-    pub fn load_app_crs_history(&self, site_id: &str) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
+    pub fn load_app_crs_history(
+        &self,
+        site_id: &str,
+    ) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
         crate::app_crs::load_history_file(&self.data_dir, site_id)
     }
 

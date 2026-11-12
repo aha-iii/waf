@@ -3,7 +3,7 @@
 use nerve_waf_client::NerveClient;
 use nerve_waf_plugins::get_plugin;
 use nerve_waf_sdk::{
-    LogLevel, L7Bundle, PluginAction, PluginContext, ProtectionModules, SyncPlan, SyncResult,
+    L7Bundle, LogLevel, PluginAction, PluginContext, ProtectionModules, SyncPlan, SyncResult,
     WafConfig, WafRoute,
 };
 use std::collections::HashSet;
@@ -11,7 +11,11 @@ use std::collections::HashSet;
 pub use nerve_waf_plugins::list_plugins;
 pub use nerve_waf_sdk::PluginMeta;
 
-pub fn compile_config(config: &WafConfig, modules: &ProtectionModules, l7_rule_count: usize) -> SyncPlan {
+pub fn compile_config(
+    config: &WafConfig,
+    modules: &ProtectionModules,
+    l7_rule_count: usize,
+) -> SyncPlan {
     compile_config_with_runtime(config, modules, l7_rule_count, &[])
 }
 
@@ -43,7 +47,11 @@ fn merge_runtime_denies(plan: &mut SyncPlan, runtime_deny_ips: &[String]) {
     }
 }
 
-fn compile_config_inner(config: &WafConfig, modules: &ProtectionModules, l7_rule_count: usize) -> SyncPlan {
+fn compile_config_inner(
+    config: &WafConfig,
+    modules: &ProtectionModules,
+    l7_rule_count: usize,
+) -> SyncPlan {
     let mut actions = Vec::new();
     let mut plugins_applied = 0;
 
@@ -91,10 +99,7 @@ fn compile_config_inner(config: &WafConfig, modules: &ProtectionModules, l7_rule
 pub async fn sync_to_nerve(client: &NerveClient, plan: &SyncPlan) -> SyncResult {
     let body = sync_plan_json(plan);
     if let Ok(resp) = client.sync_plan(&body).await {
-        let applied = resp
-            .get("applied")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0) as usize;
+        let applied = resp.get("applied").and_then(|v| v.as_u64()).unwrap_or(0) as usize;
         return SyncResult {
             ok: resp.get("status").and_then(|v| v.as_str()) != Some("partial"),
             plan: plan.clone(),
@@ -155,7 +160,10 @@ pub fn sync_plan_with_l4(
             PluginAction::DenyIp { ip, .. } => deny.push(ip.clone()),
             PluginAction::AllowIp { ip, .. } => allow.push(ip.clone()),
             PluginAction::BaselineAllow { pod, ip, .. } => {
-                baseline_map.entry(pod.clone()).or_default().push(ip.clone());
+                baseline_map
+                    .entry(pod.clone())
+                    .or_default()
+                    .push(ip.clone());
             }
             PluginAction::Log { .. } => {}
         }

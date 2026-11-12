@@ -26,7 +26,10 @@ pub struct CustomRulesStore {
 }
 
 impl CustomRulesStore {
-    pub async fn open(database_url: Option<&str>, data_dir: &Path) -> Result<Self, CustomRulesError> {
+    pub async fn open(
+        database_url: Option<&str>,
+        data_dir: &Path,
+    ) -> Result<Self, CustomRulesError> {
         let global_file_path = data_dir.join("custom_rules.json");
         #[cfg(feature = "postgres")]
         let pool = if let Some(url) = database_url.filter(|u| !u.trim().is_empty()) {
@@ -101,7 +104,11 @@ impl CustomRulesStore {
     }
 
     /// Full write of per-app custom-rule copy.
-    pub async fn save_all_for(&self, site_id: &str, data: &CustomRulesFile) -> Result<(), CustomRulesError> {
+    pub async fn save_all_for(
+        &self,
+        site_id: &str,
+        data: &CustomRulesFile,
+    ) -> Result<(), CustomRulesError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {
             return pg::save_app_custom_all(pool, site_id, data).await;
@@ -109,7 +116,10 @@ impl CustomRulesStore {
         self.save_to_file(&self.app_file_path(site_id), data)
     }
 
-    pub async fn load_active_rules_for(&self, site_id: &str) -> Result<Vec<CustomRule>, CustomRulesError> {
+    pub async fn load_active_rules_for(
+        &self,
+        site_id: &str,
+    ) -> Result<Vec<CustomRule>, CustomRulesError> {
         #[cfg(feature = "postgres")]
         if let Some(pool) = &self.pool {
             if let Some(rules) = pg::load_app_custom_active_rules(pool, site_id).await? {
@@ -164,13 +174,12 @@ pub mod pg {
     use sqlx::{PgPool, Row};
 
     async fn resolve_global_custom_scope(pool: &PgPool) -> Result<String, CustomRulesError> {
-        let global_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM waf_custom_rule_sets WHERE site_id = $1",
-        )
-        .bind(GLOBAL_CUSTOM_SITE_ID)
-        .fetch_one(pool)
-        .await
-        .map_err(|e| CustomRulesError::Db(e.to_string()))?;
+        let global_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM waf_custom_rule_sets WHERE site_id = $1")
+                .bind(GLOBAL_CUSTOM_SITE_ID)
+                .fetch_one(pool)
+                .await
+                .map_err(|e| CustomRulesError::Db(e.to_string()))?;
         if global_count > 0 {
             return Ok(GLOBAL_CUSTOM_SITE_ID.into());
         }
@@ -443,7 +452,9 @@ pub mod pg {
                 action: r.get("action"),
                 severity: r.get("severity"),
                 category: r.get("category"),
-                rule_type: r.try_get("rule_type").unwrap_or_else(|_| "signature".into()),
+                rule_type: r
+                    .try_get("rule_type")
+                    .unwrap_or_else(|_| "signature".into()),
                 plugin_name: r.try_get("plugin_name").unwrap_or_default(),
             })
             .collect();
@@ -503,7 +514,9 @@ pub mod pg {
                 action: r.get("action"),
                 severity: r.get("severity"),
                 category: r.get("category"),
-                rule_type: r.try_get("rule_type").unwrap_or_else(|_| "signature".into()),
+                rule_type: r
+                    .try_get("rule_type")
+                    .unwrap_or_else(|_| "signature".into()),
                 plugin_name: r.try_get("plugin_name").unwrap_or_default(),
             })
             .collect();
@@ -526,13 +539,12 @@ pub mod pg {
             return Ok(None);
         }
 
-        let set_rows = sqlx::query(
-            "SELECT set_id, enabled FROM waf_app_custom_rule_sets WHERE site_id = $1",
-        )
-        .bind(site_id)
-        .fetch_all(pool)
-        .await
-        .map_err(|e| CustomRulesError::Db(e.to_string()))?;
+        let set_rows =
+            sqlx::query("SELECT set_id, enabled FROM waf_app_custom_rule_sets WHERE site_id = $1")
+                .bind(site_id)
+                .fetch_all(pool)
+                .await
+                .map_err(|e| CustomRulesError::Db(e.to_string()))?;
 
         let enabled_sets: std::collections::HashSet<String> = set_rows
             .iter()
@@ -569,14 +581,18 @@ pub mod pg {
                 action: r.get("action"),
                 severity: r.get("severity"),
                 category: r.get("category"),
-                rule_type: r.try_get("rule_type").unwrap_or_else(|_| "signature".into()),
+                rule_type: r
+                    .try_get("rule_type")
+                    .unwrap_or_else(|_| "signature".into()),
                 plugin_name: r.try_get("plugin_name").unwrap_or_default(),
             })
             .collect();
         Ok(Some(rules))
     }
 
-    pub async fn load_global_active_rules(pool: &PgPool) -> Result<Vec<CustomRule>, CustomRulesError> {
+    pub async fn load_global_active_rules(
+        pool: &PgPool,
+    ) -> Result<Vec<CustomRule>, CustomRulesError> {
         let data = load_global_custom_all(pool, GLOBAL_CUSTOM_SITE_ID).await?;
         let enabled_sets: std::collections::HashSet<_> = data
             .sets

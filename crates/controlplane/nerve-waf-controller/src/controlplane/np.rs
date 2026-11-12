@@ -6,10 +6,10 @@ use axum::{
 };
 use nerve_waf_engine::sync_plan_with_l4;
 use nerve_waf_np_compiler::{
-    compile_all_k8s_np, compile_cnp, compile_east_west_l7, compile_fqdn_policy,
-    compile_k8s_np, compile_k8s_np_full, compile_np_rules, CompiledL4Policy, DnsCacheSnapshot,
-    EastWestL7Policy, FqdnPolicySpec, IdentityMap, K8sNetworkPolicySpec, NamespaceSnapshot,
-    NerveCNPolicySpec, NpRule, PodSnapshot,
+    compile_all_k8s_np, compile_cnp, compile_east_west_l7, compile_fqdn_policy, compile_k8s_np,
+    compile_k8s_np_full, compile_np_rules, CompiledL4Policy, DnsCacheSnapshot, EastWestL7Policy,
+    FqdnPolicySpec, IdentityMap, K8sNetworkPolicySpec, NamespaceSnapshot, NerveCNPolicySpec,
+    NpRule, PodSnapshot,
 };
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -26,7 +26,10 @@ pub fn np_router() -> Router<Arc<AppState>> {
         .route("/api/np/sync", post(np_sync))
         .route("/api/np/sync-all", post(np_sync_all))
         .route("/api/np/east-west", post(np_east_west))
-        .route("/api/service-policies", get(list_service_policies).put(put_service_policies))
+        .route(
+            "/api/service-policies",
+            get(list_service_policies).put(put_service_policies),
+        )
 }
 
 #[derive(Deserialize)]
@@ -81,12 +84,19 @@ async fn np_sync(
     Json(body): Json<NpK8sBody>,
 ) -> Result<Json<Value>, StatusCode> {
     let (plan, l4, id_map) = if body.pods.is_empty() {
-        (compile_k8s_np(&body.spec), CompiledL4Policy::default(), IdentityMap::default())
+        (
+            compile_k8s_np(&body.spec),
+            CompiledL4Policy::default(),
+            IdentityMap::default(),
+        )
     } else {
         compile_k8s_np_full(&body.spec, &body.pods, &body.namespaces)
     };
     let payload = sync_plan_with_l4(&plan, &l4, &id_map);
-    sync_to_nerve_payload(&state, &payload).await.map(Json).map_err(|_| StatusCode::BAD_GATEWAY)
+    sync_to_nerve_payload(&state, &payload)
+        .await
+        .map(Json)
+        .map_err(|_| StatusCode::BAD_GATEWAY)
 }
 
 #[derive(Deserialize)]

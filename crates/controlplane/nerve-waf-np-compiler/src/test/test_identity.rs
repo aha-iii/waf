@@ -2,10 +2,10 @@
 
 use crate::identity::*;
 
-    #[test]
-    fn stable_id() {
-        assert_eq!(
-            security_id_for("default", "web"),
-            security_id_for("default", "web")
-        );
-    }
+#[test]
+fn stable_id() {
+    assert_eq!(
+        security_id_for("default", "web"),
+        security_id_for("default", "web")
+    );
+}

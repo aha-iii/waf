@@ -208,9 +208,10 @@ impl FileTrafficStore {
         let mut rows = self.rows.write().unwrap();
         for item in items {
             let host = normalize_host(&item.host);
-            if let Some(row) = rows.iter_mut().find(|r| {
-                r.site_id == item.site_id && r.host == host && r.bucket_hour == bucket
-            }) {
+            if let Some(row) = rows
+                .iter_mut()
+                .find(|r| r.site_id == item.site_id && r.host == host && r.bucket_hour == bucket)
+            {
                 row.total = row.total.saturating_add(item.total);
                 row.clean = row.clean.saturating_add(item.clean);
                 row.observed = row.observed.saturating_add(item.observed);
@@ -280,13 +281,15 @@ impl FileTrafficStore {
         }
         let mut out: Vec<TrafficSeriesPoint> = map
             .into_iter()
-            .map(|(bucket, (total, clean, observed, blocked))| TrafficSeriesPoint {
-                bucket,
-                total,
-                clean,
-                observed,
-                blocked,
-            })
+            .map(
+                |(bucket, (total, clean, observed, blocked))| TrafficSeriesPoint {
+                    bucket,
+                    total,
+                    clean,
+                    observed,
+                    blocked,
+                },
+            )
             .collect();
         out.sort_by(|a, b| a.bucket.cmp(&b.bucket));
         out
@@ -304,18 +307,20 @@ impl FileTrafficStore {
         }
         let mut out: Vec<TrafficSiteRow> = map
             .into_iter()
-            .map(|(site_id, (total, clean, observed, blocked))| TrafficSiteRow {
-                site_id,
-                total,
-                clean,
-                observed,
-                blocked,
-                block_rate: if total > 0 {
-                    (blocked as f64 / total as f64) * 100.0
-                } else {
-                    0.0
+            .map(
+                |(site_id, (total, clean, observed, blocked))| TrafficSiteRow {
+                    site_id,
+                    total,
+                    clean,
+                    observed,
+                    blocked,
+                    block_rate: if total > 0 {
+                        (blocked as f64 / total as f64) * 100.0
+                    } else {
+                        0.0
+                    },
                 },
-            })
+            )
             .collect();
         out.sort_by(|a, b| b.total.cmp(&a.total));
         out
@@ -351,8 +356,7 @@ use sqlx::Row;
 fn missing_traffic_table(err: &sqlx::Error) -> bool {
     match err {
         sqlx::Error::Database(db) => {
-            db.code().as_deref() == Some("42P01")
-                || db.message().contains("waf_traffic_hourly")
+            db.code().as_deref() == Some("42P01") || db.message().contains("waf_traffic_hourly")
         }
         _ => {
             let s = err.to_string();

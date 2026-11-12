@@ -1,9 +1,9 @@
 #[cfg(feature = "postgres")]
 use chrono::{DateTime, Utc};
-#[cfg(feature = "postgres")]
-use sqlx::{PgPool, Row};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+#[cfg(feature = "postgres")]
+use sqlx::{PgPool, Row};
 
 use crate::StoreError;
 
@@ -42,7 +42,10 @@ pub struct IesertMlLabel {
 #[cfg(feature = "postgres")]
 pub async fn insert_ml_label(pool: &PgPool, row: &IesertMlLabel) -> Result<String, StoreError> {
     let id = uuid::Uuid::new_v4();
-    let meta = row.metadata.clone().unwrap_or_else(|| serde_json::json!({}));
+    let meta = row
+        .metadata
+        .clone()
+        .unwrap_or_else(|| serde_json::json!({}));
     let event_uuid = row
         .event_id
         .as_deref()
@@ -152,13 +155,12 @@ pub async fn ml_label_stats(pool: &PgPool, since: DateTime<Utc>) -> Result<Value
             })
         })
         .collect();
-    let total: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*)::bigint FROM waf_ml_labels WHERE created_at >= $1",
-    )
-    .bind(since)
-    .fetch_one(pool)
-    .await
-    .map_err(|e| StoreError::Db(e.to_string()))?;
+    let total: i64 =
+        sqlx::query_scalar("SELECT COUNT(*)::bigint FROM waf_ml_labels WHERE created_at >= $1")
+            .bind(since)
+            .fetch_one(pool)
+            .await
+            .map_err(|e| StoreError::Db(e.to_string()))?;
     Ok(serde_json::json!({ "total": total, "by_type": by_type }))
 }
 
@@ -177,9 +179,6 @@ fn row_to_ml_label(r: &sqlx::postgres::PgRow) -> MlLabelRecord {
         payload_sample: r.get("payload_sample"),
         metadata: r.get("metadata"),
         operator: r.get("operator"),
-        created_at: r
-            .get::<DateTime<Utc>, _>("created_at")
-            .to_rfc3339()
-            .into(),
+        created_at: r.get::<DateTime<Utc>, _>("created_at").to_rfc3339().into(),
     }
 }

@@ -3,13 +3,16 @@
 use clap::Parser;
 use nerve_waf_client::NerveClient;
 use nerve_waf_engine::sync_config_with_runtime;
-use nerve_waf_plugin_host::{PluginHost, resolve_plugins_dir};
+use nerve_waf_plugin_host::{resolve_plugins_dir, PluginHost};
 use nerve_waf_store::open_config_backend;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
 #[derive(Parser, Debug)]
-#[command(name = "nerve-waf-sync", about = "Compile routes and sync to Nerve Agent")]
+#[command(
+    name = "nerve-waf-sync",
+    about = "Compile routes and sync to Nerve Agent"
+)]
 struct Args {
     #[arg(long, env = "NERVE_URL", default_value = "http://127.0.0.1:8766")]
     nerve_url: String,
@@ -48,14 +51,14 @@ async fn main() -> ExitCode {
     };
 
     if config.routes.is_empty() && !args.config.exists() {
-        eprintln!("No routes in config store and no file at {}", args.config.display());
+        eprintln!(
+            "No routes in config store and no file at {}",
+            args.config.display()
+        );
         return ExitCode::from(1);
     }
 
-    let modules = config_backend
-        .load_modules()
-        .await
-        .unwrap_or_default();
+    let modules = config_backend.load_modules().await.unwrap_or_default();
     let runtime = config_backend
         .active_runtime_deny_ips()
         .await
@@ -64,7 +67,8 @@ async fn main() -> ExitCode {
     let host = PluginHost::new(resolve_plugins_dir(Some(&data_path)));
     let l7_rule_count = host.total_rule_count();
     let client = NerveClient::new(&args.nerve_url);
-    let result = sync_config_with_runtime(&client, &config, &modules, l7_rule_count, &runtime).await;
+    let result =
+        sync_config_with_runtime(&client, &config, &modules, l7_rule_count, &runtime).await;
     println!("{}", serde_json::to_string_pretty(&result).unwrap());
     if result.ok {
         ExitCode::SUCCESS

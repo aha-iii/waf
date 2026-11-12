@@ -9,8 +9,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::config::ConfigError;
 use crate::config::AuditContext;
+use crate::config::ConfigError;
 
 const DEFAULT_PIPELINE_ORDER: &[&str] = PIPELINE_STAGE_IDS;
 
@@ -31,14 +31,21 @@ fn parse_semantic_mode(s: &str) -> SemanticMode {
 }
 
 pub fn app_protection_file(data_dir: &Path, site_id: &str) -> PathBuf {
-    data_dir.join("app_protection").join(format!("{site_id}.json"))
+    data_dir
+        .join("app_protection")
+        .join(format!("{site_id}.json"))
 }
 
 pub fn app_pipeline_file(data_dir: &Path, site_id: &str) -> PathBuf {
-    data_dir.join("app_pipeline").join(format!("{site_id}.json"))
+    data_dir
+        .join("app_pipeline")
+        .join(format!("{site_id}.json"))
 }
 
-pub fn load_app_protection_file(data_dir: &Path, site_id: &str) -> Result<Option<ProtectionModules>, ConfigError> {
+pub fn load_app_protection_file(
+    data_dir: &Path,
+    site_id: &str,
+) -> Result<Option<ProtectionModules>, ConfigError> {
     let path = app_protection_file(data_dir, site_id);
     if !path.exists() {
         return Ok(None);
@@ -60,7 +67,10 @@ pub fn save_app_protection_file(
     Ok(())
 }
 
-pub fn load_app_pipeline_file(data_dir: &Path, site_id: &str) -> Result<Option<SemanticConfig>, ConfigError> {
+pub fn load_app_pipeline_file(
+    data_dir: &Path,
+    site_id: &str,
+) -> Result<Option<SemanticConfig>, ConfigError> {
     let path = app_pipeline_file(data_dir, site_id);
     if !path.exists() {
         return Ok(None);
@@ -95,10 +105,11 @@ pub mod pg {
     }
 
     async fn migrate_legacy_protection(pool: &PgPool) -> Result<(), ConfigError> {
-        let rows = sqlx::query("SELECT site_id, version, mode, modules, updated_by FROM waf_l7_modules")
-            .fetch_all(pool)
-            .await
-            .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let rows =
+            sqlx::query("SELECT site_id, version, mode, modules, updated_by FROM waf_l7_modules")
+                .fetch_all(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
 
         for row in rows {
             let site_id: String = row.get("site_id");
@@ -112,12 +123,11 @@ pub mod pg {
             };
 
             if site_id == "default" {
-                let exists: bool = sqlx::query_scalar(
-                    "SELECT EXISTS(SELECT 1 FROM waf_protection WHERE id = 1)",
-                )
-                .fetch_one(pool)
-                .await
-                .map_err(|e| ConfigError::Db(e.to_string()))?;
+                let exists: bool =
+                    sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM waf_protection WHERE id = 1)")
+                        .fetch_one(pool)
+                        .await
+                        .map_err(|e| ConfigError::Db(e.to_string()))?;
                 if exists {
                     continue;
                 }
@@ -166,12 +176,11 @@ pub mod pg {
             let cfg: SemanticConfig = serde_json::from_value(semantic).unwrap_or_default();
 
             if site_id == "default" {
-                let exists: bool = sqlx::query_scalar(
-                    "SELECT EXISTS(SELECT 1 FROM waf_pipeline WHERE id = 1)",
-                )
-                .fetch_one(pool)
-                .await
-                .map_err(|e| ConfigError::Db(e.to_string()))?;
+                let exists: bool =
+                    sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM waf_pipeline WHERE id = 1)")
+                        .fetch_one(pool)
+                        .await
+                        .map_err(|e| ConfigError::Db(e.to_string()))?;
                 if exists {
                     continue;
                 }
@@ -211,13 +220,11 @@ pub mod pg {
         pool: &PgPool,
         site_id: &str,
     ) -> Result<Option<ProtectionModules>, ConfigError> {
-        let header = sqlx::query(
-            "SELECT version, mode FROM waf_app_protection WHERE site_id = $1",
-        )
-        .bind(site_id)
-        .fetch_optional(pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let header = sqlx::query("SELECT version, mode FROM waf_app_protection WHERE site_id = $1")
+            .bind(site_id)
+            .fetch_optional(pool)
+            .await
+            .map_err(|e| ConfigError::Db(e.to_string()))?;
 
         let Some(header) = header else {
             return Ok(None);
@@ -274,11 +281,12 @@ pub mod pg {
         if let Some(m) = crate::global_config::pg::load_global_protection(pool).await? {
             return Ok(m);
         }
-        let row = sqlx::query("SELECT version, mode, modules FROM waf_l7_modules WHERE site_id = $1")
-            .bind("default")
-            .fetch_optional(pool)
-            .await
-            .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let row =
+            sqlx::query("SELECT version, mode, modules FROM waf_l7_modules WHERE site_id = $1")
+                .bind("default")
+                .fetch_optional(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
         if let Some(row) = row {
             let modules_val: Value = row.get("modules");
             let modules_map: HashMap<String, ModuleConfig> =
@@ -312,7 +320,9 @@ pub mod pg {
 
     pub async fn delete_app_protection(pool: &PgPool, site_id: &str) -> Result<(), ConfigError> {
         if site_id == "default" {
-            return Err(ConfigError::Db("cannot delete global default protection".into()));
+            return Err(ConfigError::Db(
+                "cannot delete global default protection".into(),
+            ));
         }
         sqlx::query("DELETE FROM waf_app_protection WHERE site_id = $1")
             .bind(site_id)
@@ -328,7 +338,9 @@ pub mod pg {
 
     pub async fn delete_app_pipeline(pool: &PgPool, site_id: &str) -> Result<(), ConfigError> {
         if site_id == "default" {
-            return Err(ConfigError::Db("cannot delete global default pipeline".into()));
+            return Err(ConfigError::Db(
+                "cannot delete global default pipeline".into(),
+            ));
         }
         sqlx::query("DELETE FROM waf_app_pipeline WHERE site_id = $1")
             .bind(site_id)
@@ -353,21 +365,17 @@ pub mod pg {
         site_id: &str,
         ctx: &AuditContext,
     ) -> Result<(), ConfigError> {
-        let exists: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM waf_app_pipeline WHERE site_id = $1)",
-        )
-        .bind(site_id)
-        .fetch_one(pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let exists: bool =
+            sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM waf_app_pipeline WHERE site_id = $1)")
+                .bind(site_id)
+                .fetch_one(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
         if exists {
             return Ok(());
         }
 
-        let op_name = ctx
-            .operator_id_name
-            .as_deref()
-            .unwrap_or("provision");
+        let op_name = ctx.operator_id_name.as_deref().unwrap_or("provision");
 
         let mut tx = pool
             .begin()
@@ -454,13 +462,12 @@ pub mod pg {
             save_app_protection_inner(pool, site_id, &base, ctx).await?;
         }
 
-        let pipeline_exists: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM waf_app_pipeline WHERE site_id = $1)",
-        )
-        .bind(site_id)
-        .fetch_one(pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let pipeline_exists: bool =
+            sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM waf_app_pipeline WHERE site_id = $1)")
+                .bind(site_id)
+                .fetch_one(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
 
         if !pipeline_exists {
             provision_app_pipeline_from_global(pool, site_id, ctx).await?;
@@ -874,13 +881,12 @@ pub mod pg {
     }
 
     pub async fn get_bound_strategy(pool: &PgPool, site_id: &str) -> Result<String, ConfigError> {
-        let row: Option<String> = sqlx::query_scalar(
-            "SELECT strategy_id FROM waf_app_bound_strategy WHERE site_id = $1",
-        )
-        .bind(site_id)
-        .fetch_optional(pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let row: Option<String> =
+            sqlx::query_scalar("SELECT strategy_id FROM waf_app_bound_strategy WHERE site_id = $1")
+                .bind(site_id)
+                .fetch_optional(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
         Ok(row
             .filter(|s| !s.is_empty())
             .unwrap_or_else(|| DEFAULT_BOUND_STRATEGY_ID.to_string()))
@@ -938,7 +944,9 @@ pub mod pg {
 pub const DEFAULT_BOUND_STRATEGY_ID: &str = "tpl-standard";
 
 pub fn app_bound_strategy_file(data_dir: &Path, site_id: &str) -> PathBuf {
-    data_dir.join("app_bound_strategy").join(format!("{site_id}.json"))
+    data_dir
+        .join("app_bound_strategy")
+        .join(format!("{site_id}.json"))
 }
 
 pub fn load_bound_strategy_file(data_dir: &Path, site_id: &str) -> Result<String, ConfigError> {
@@ -948,8 +956,7 @@ pub fn load_bound_strategy_file(data_dir: &Path, site_id: &str) -> Result<String
     }
     let raw = std::fs::read_to_string(&path)?;
     let v: Value = serde_json::from_str(&raw)?;
-    Ok(v
-        .get("strategy_id")
+    Ok(v.get("strategy_id")
         .and_then(|x| x.as_str())
         .filter(|s| !s.is_empty())
         .unwrap_or(DEFAULT_BOUND_STRATEGY_ID)

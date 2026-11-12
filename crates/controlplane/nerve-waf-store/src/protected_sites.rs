@@ -77,7 +77,10 @@ impl ProtectedSitesStore {
                 .map(str::trim)
                 .filter(|s| !s.is_empty())
                 .ok_or_else(|| ProtectedSitesError::Db(format!("site {site_id} name missing")))?;
-            let hosts = site.get("hosts").cloned().unwrap_or_else(|| Value::Array(vec![]));
+            let hosts = site
+                .get("hosts")
+                .cloned()
+                .unwrap_or_else(|| Value::Array(vec![]));
             let enabled = site
                 .get("enabled")
                 .and_then(|v| v.as_bool())

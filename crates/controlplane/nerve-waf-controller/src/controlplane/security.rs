@@ -1,5 +1,6 @@
 //! Security extension routes: CRS, API security, anti-tamper, RBAC, License, Challenge.
 
+use crate::platform::AutoDenyConfig;
 use axum::{
     extract::{Query, State},
     http::{header, StatusCode},
@@ -11,7 +12,6 @@ use nerve_waf_api_sec::{validate_request, ApiSecConfig};
 use nerve_waf_challenge::ChallengeStore;
 use nerve_waf_libinjection::LibInjectionConfig;
 use nerve_waf_whitelist::WhitelistConfig;
-use crate::platform::AutoDenyConfig;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -20,13 +20,22 @@ use crate::AppState;
 
 pub fn security_router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/api/rules/packs", get(list_rules_packs).post(reload_rules_packs))
+        .route(
+            "/api/rules/packs",
+            get(list_rules_packs).post(reload_rules_packs),
+        )
         .route("/api/rules/crs/versions", get(list_crs_versions))
         .route("/api/rules/crs/update", post(update_crs_rules))
         .route("/api/rules/crs/rollback", post(rollback_crs_rules))
         .route("/api/rules/crs/snapshot", post(snapshot_crs_rules))
-        .route("/api/crs/runtime", get(get_crs_runtime).put(put_crs_runtime))
-        .route("/api/libinjection/config", get(get_libinjection).put(put_libinjection))
+        .route(
+            "/api/crs/runtime",
+            get(get_crs_runtime).put(put_crs_runtime),
+        )
+        .route(
+            "/api/libinjection/config",
+            get(get_libinjection).put(put_libinjection),
+        )
         .route("/api/api-sec/config", get(get_api_sec).put(put_api_sec))
         .route("/api/api-sec/validate", post(api_sec_validate))
         .route("/api/tamper/config", get(get_tamper).put(put_tamper))
@@ -121,16 +130,15 @@ async fn update_crs_rules(
     let crs_version = body.crs_version.clone();
     let paranoia_max = body.paranoia_max;
 
-    let result = tokio::task::spawn_blocking(move || {
-        platform.crs_update_latest(&crs_version, paranoia_max)
-    })
-    .await
-    .map_err(|e| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": format!("CRS 更新任务异常: {e}") })),
-        )
-    })?;
+    let result =
+        tokio::task::spawn_blocking(move || platform.crs_update_latest(&crs_version, paranoia_max))
+            .await
+            .map_err(|e| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    Json(json!({ "error": format!("CRS 更新任务异常: {e}") })),
+                )
+            })?;
 
     let (backup, stats, rules) = result.map_err(|e| {
         tracing::error!("crs update failed: {e}");

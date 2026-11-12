@@ -42,11 +42,7 @@ pub fn aggregate_network_stats(events: &[WafEventRecord], days: i64) -> Value {
 
     let mut ip_map: HashMap<String, u64> = HashMap::new();
     for e in &l3 {
-        let ip = e
-            .dst_ip
-            .as_deref()
-            .or(e.src_ip.as_deref())
-            .unwrap_or("");
+        let ip = e.dst_ip.as_deref().or(e.src_ip.as_deref()).unwrap_or("");
         if !ip.is_empty() {
             *ip_map.entry(ip.to_string()).or_default() += 1;
         }
@@ -94,11 +90,7 @@ pub fn aggregate_network_stats(events: &[WafEventRecord], days: i64) -> Value {
     })
 }
 
-pub fn file_network_stats(
-    events: &[WafEventRecord],
-    since: DateTime<Utc>,
-    days: i64,
-) -> Value {
+pub fn file_network_stats(events: &[WafEventRecord], since: DateTime<Utc>, days: i64) -> Value {
     let l3: Vec<_> = events
         .iter()
         .filter(|e| e.layer == "l3" && e.ts >= since)

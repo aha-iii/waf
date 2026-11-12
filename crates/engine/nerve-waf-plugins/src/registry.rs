@@ -16,10 +16,7 @@ pub fn plugin_registry() -> Vec<Arc<dyn WafPlugin>> {
 }
 
 pub fn list_plugins() -> Vec<PluginMeta> {
-    let mut plugins: Vec<_> = plugin_registry()
-        .iter()
-        .map(|p| p.meta())
-        .collect();
+    let mut plugins: Vec<_> = plugin_registry().iter().map(|p| p.meta()).collect();
     plugins.sort_by_key(|p| p.priority);
     plugins
 }

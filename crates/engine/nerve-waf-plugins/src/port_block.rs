@@ -27,8 +27,8 @@ impl WafPlugin for PortBlockPlugin {
     }
 
     fn validate_config(&self, config: &serde_json::Value) -> Result<serde_json::Value, String> {
-        let parsed: Config = serde_json::from_value(config.clone())
-            .map_err(|e| format!("invalid config: {e}"))?;
+        let parsed: Config =
+            serde_json::from_value(config.clone()).map_err(|e| format!("invalid config: {e}"))?;
         if parsed.ports.is_empty() && parsed.block_ips.is_empty() {
             return Err("ports or block_ips required".into());
         }

@@ -57,7 +57,8 @@ impl NerveClient {
     pub async fn baseline_enforce(&self, pod: Option<&str>) -> Result<(), NerveClientError> {
         match pod {
             Some(p) if !p.is_empty() => {
-                self.post_query("/api/baseline/enforce", &[("pod", p)]).await
+                self.post_query("/api/baseline/enforce", &[("pod", p)])
+                    .await
             }
             _ => self.post_empty("/api/baseline/enforce").await,
         }
@@ -134,8 +135,11 @@ impl NerveClient {
 
     pub async fn get_sessions(&self, limit: u32) -> Result<Value, NerveClientError> {
         let limit_s = limit.to_string();
-        self.get_query("/api/observer/sessions", &[("limit", &limit_s), ("open_limit", &limit_s)])
-            .await
+        self.get_query(
+            "/api/observer/sessions",
+            &[("limit", &limit_s), ("open_limit", &limit_s)],
+        )
+        .await
     }
 
     pub async fn get_anomalies(&self, limit: u32) -> Result<Value, NerveClientError> {
@@ -255,7 +259,11 @@ impl NerveClient {
             .await
     }
 
-    async fn get_query(&self, path: &str, query: &[(&str, &str)]) -> Result<Value, NerveClientError> {
+    async fn get_query(
+        &self,
+        path: &str,
+        query: &[(&str, &str)],
+    ) -> Result<Value, NerveClientError> {
         let url = format!("{}{}", self.base_url, path);
         let res = self.http.get(&url).query(query).send().await?;
         let status = res.status();

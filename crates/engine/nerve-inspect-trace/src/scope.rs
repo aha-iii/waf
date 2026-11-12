@@ -26,12 +26,7 @@ impl InspectTraceCtx {
         self.active
     }
 
-    pub fn push(
-        &mut self,
-        name: &'static str,
-        us: u64,
-        detail: Option<HashMap<String, String>>,
-    ) {
+    pub fn push(&mut self, name: &'static str, us: u64, detail: Option<HashMap<String, String>>) {
         if !self.active {
             return;
         }

@@ -2,11 +2,11 @@ use crate::config::{SemanticConfig, SemanticMode, SemanticWhitelist};
 use crate::intent::{classify_sql_intent, intent_label, SqlIntent};
 use crate::stats::{now_iso, InspectTimer, SemanticSample, SemanticStatsHandle};
 use libinjectionrs::{detect_sqli, detect_xss};
+use nerve_waf_l7::{InspectRequest, InspectResult};
 use nerve_waf_libinjection::{
     effective_rule_enabled, libinjection_rule_catalog, LibInjectionConfig, LibInjectionRuleDef,
     ScanTarget,
 };
-use nerve_waf_l7::{InspectRequest, InspectResult};
 use nerve_waf_normalize::{
     decode_chain, is_static_asset_path, locate_params_scoped, looks_suspicious, DecodeLayer,
     ParamKind, ParamSlice,
@@ -48,9 +48,8 @@ pub fn inspect_semantic(
         return None;
     }
 
-    let skip_path_only = is_static_asset_path(&req.uri)
-        && !req.uri.contains('?')
-        && req.body.is_empty();
+    let skip_path_only =
+        is_static_asset_path(&req.uri) && !req.uri.contains('?') && req.body.is_empty();
 
     if skip_path_only {
         return None;
@@ -109,14 +108,9 @@ pub fn inspect_semantic(
             }
 
             if sem_cfg.engines.libinjection {
-                if let Some(hit) = check_libinjection(
-                    li_cfg,
-                    modules,
-                    sem_cfg.mode,
-                    &slice,
-                    layer,
-                    &chain_labels,
-                ) {
+                if let Some(hit) =
+                    check_libinjection(li_cfg, modules, sem_cfg.mode, &slice, layer, &chain_labels)
+                {
                     merge_best(&mut best, hit);
                 }
             }
@@ -127,13 +121,9 @@ pub fn inspect_semantic(
                     s.record_slow_path(run_slow);
                 }
                 if run_slow {
-                    if let Some(hit) = check_sql_intent(
-                        modules,
-                        sem_cfg.mode,
-                        &slice,
-                        layer,
-                        &chain_labels,
-                    ) {
+                    if let Some(hit) =
+                        check_sql_intent(modules, sem_cfg.mode, &slice, layer, &chain_labels)
+                    {
                         merge_best(&mut best, hit);
                     }
                 }
@@ -189,9 +179,11 @@ fn is_whitelisted_slice(req: &InspectRequest, wl: &SemanticWhitelist, slice: &Pa
 
     if !wl.content_types.is_empty() && is_body_slice(slice) {
         let ct = content_type(req);
-        if wl.content_types.iter().any(|prefix| {
-            !prefix.is_empty() && ct.starts_with(&prefix.to_ascii_lowercase())
-        }) {
+        if wl
+            .content_types
+            .iter()
+            .any(|prefix| !prefix.is_empty() && ct.starts_with(&prefix.to_ascii_lowercase()))
+        {
             return true;
         }
     }
@@ -210,7 +202,12 @@ fn content_type(req: &InspectRequest) -> String {
     for line in req.headers.lines() {
         if let Some((name, val)) = line.split_once(':') {
             if name.trim().eq_ignore_ascii_case("content-type") {
-                return val.split(';').next().unwrap_or(val).trim().to_ascii_lowercase();
+                return val
+                    .split(';')
+                    .next()
+                    .unwrap_or(val)
+                    .trim()
+                    .to_ascii_lowercase();
             }
         }
     }
@@ -224,9 +221,13 @@ fn should_run_slow_path(req: &InspectRequest, sample_rate: u8) -> bool {
     if sample_rate == 0 {
         return false;
     }
-    let hash = req.uri.bytes().chain(req.body.bytes()).fold(0u64, |acc, b| {
-        acc.wrapping_mul(31).wrapping_add(u64::from(b))
-    });
+    let hash = req
+        .uri
+        .bytes()
+        .chain(req.body.bytes())
+        .fold(0u64, |acc, b| {
+            acc.wrapping_mul(31).wrapping_add(u64::from(b))
+        });
     (hash % 100) < u64::from(sample_rate)
 }
 
@@ -293,7 +294,9 @@ fn rule_applies_to_slice(rule: &LibInjectionRuleDef, slice: &ParamSlice) -> bool
         Query => targets.iter().any(|t| matches!(t, Args | ArgsNames)),
         BodyForm | BodyJson | Raw => targets.iter().any(|t| matches!(t, Body | Args | ArgsNames)),
         Cookie => targets.iter().any(|t| matches!(t, Cookies | CookieNames)),
-        Path => targets.iter().any(|t| matches!(t, RequestFilename | RequestBasename)),
+        Path => targets
+            .iter()
+            .any(|t| matches!(t, RequestFilename | RequestBasename)),
         Header => {
             let p = slice.path.to_ascii_lowercase();
             if p.contains("user-agent") || p.contains("user_agent") {

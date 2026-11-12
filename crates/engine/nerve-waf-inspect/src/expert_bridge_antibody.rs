@@ -60,8 +60,7 @@ pub fn expert_engine_enabled() -> bool {
 
 fn is_pack_candidate(p: &Path) -> bool {
     if p.is_file() {
-        if p
-            .extension()
+        if p.extension()
             .and_then(|e| e.to_str())
             .map(|e| e.eq_ignore_ascii_case("sealed"))
             .unwrap_or(false)
@@ -85,13 +84,17 @@ fn default_pack_candidates() -> Vec<PathBuf> {
         out.push(PathBuf::from(format!("/opt/nerve/native/{name}.sealed")));
         out.push(PathBuf::from(format!("Nerve-waf-native/packs/{name}")));
         out.push(PathBuf::from(format!("../Nerve-waf-native/packs/{name}")));
-        out.push(PathBuf::from(format!("../../Nerve-waf-native/packs/{name}")));
+        out.push(PathBuf::from(format!(
+            "../../Nerve-waf-native/packs/{name}"
+        )));
     }
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     for name in ["baseline", "community-crs", "demo"] {
         out.push(manifest.join(format!("../../../Nerve-waf-native/packs/{name}")));
         out.push(manifest.join(format!("../../Nerve-waf-native/packs/{name}")));
-        out.push(manifest.join(format!("../../../Nerve-waf-native/dist/customer/antibody/{name}.sealed")));
+        out.push(manifest.join(format!(
+            "../../../Nerve-waf-native/dist/customer/antibody/{name}.sealed"
+        )));
     }
     out
 }
@@ -310,10 +313,7 @@ pub fn expert_hit_to_inspect_hit(
         .iter()
         .map(|m| format!("expert:{}", m.rule_id))
         .collect();
-    let matched_field = hit
-        .param_path
-        .clone()
-        .unwrap_or_else(|| "request".into());
+    let matched_field = hit.param_path.clone().unwrap_or_else(|| "request".into());
     InspectHit {
         phase,
         action,
@@ -453,10 +453,7 @@ mod tests {
         assert_eq!(ih.protection_stage.as_deref(), Some("expert"));
         assert_eq!(ih.rule_set.as_deref(), Some("expert-demo"));
         assert_eq!(ih.param_path.as_deref(), Some("query.q"));
-        assert_eq!(
-            ih.decode_chain,
-            Some(vec!["url_decode_uni".into()])
-        );
+        assert_eq!(ih.decode_chain, Some(vec!["url_decode_uni".into()]));
     }
 
     #[test]
@@ -510,7 +507,10 @@ mod tests {
     fn headers_map_parses_json_from_edge() {
         let json = r#"{"accept":"text/html","transfer-encoding":"chunked","host":"t.example"}"#;
         let m = headers_map(json);
-        assert_eq!(m.get("transfer-encoding").map(String::as_str), Some("chunked"));
+        assert_eq!(
+            m.get("transfer-encoding").map(String::as_str),
+            Some("chunked")
+        );
         assert_eq!(m.get("host").map(String::as_str), Some("t.example"));
         assert!(!m.contains_key("*"));
     }

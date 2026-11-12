@@ -109,7 +109,13 @@ impl BehaviorEngine {
         self.config = config;
     }
 
-    pub fn score(&self, src_ip: &str, method: &str, uri: &str, user_agent: &str) -> BehaviorVerdict {
+    pub fn score(
+        &self,
+        src_ip: &str,
+        method: &str,
+        uri: &str,
+        user_agent: &str,
+    ) -> BehaviorVerdict {
         score_with_state(
             &self.config,
             &mut self.windows.lock().unwrap_or_else(|e| e.into_inner()),
@@ -154,12 +160,14 @@ fn score_with_state(
     let path = uri.split('?').next().unwrap_or(uri).to_string();
     let now = Instant::now();
 
-    let entry = windows.entry(src_ip.to_string()).or_insert_with(|| IpWindow {
-        started: now,
-        request_count: 0,
-        paths: HashSet::new(),
-        methods: HashSet::new(),
-    });
+    let entry = windows
+        .entry(src_ip.to_string())
+        .or_insert_with(|| IpWindow {
+            started: now,
+            request_count: 0,
+            paths: HashSet::new(),
+            methods: HashSet::new(),
+        });
 
     if now.duration_since(entry.started) > window {
         entry.started = now;

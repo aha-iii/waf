@@ -1,16 +1,16 @@
 use nerve_waf_auth::AuthState;
 use nerve_waf_client::NerveClient;
-use nerve_waf_plugin_host::{HostedL7, PluginHost, resolve_plugins_dir};
+use nerve_waf_plugin_host::{resolve_plugins_dir, HostedL7, PluginHost};
 use nerve_waf_sdk::WafFileConfig;
 use nerve_waf_store::CustomRulesStore;
 use nerve_waf_store::ProtectedSitesStore;
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
+use crate::dataplane::BypassInspectRuntime;
 use crate::platform;
 use crate::triage_ai;
 use crate::AppState;
-use crate::dataplane::BypassInspectRuntime;
 
 #[derive(Debug, Clone)]
 pub struct BootstrapOptions {
@@ -49,9 +49,7 @@ fn pick_database_url(env: Option<String>, from_config: Option<String>) -> Option
 }
 
 pub async fn build_app_state(opts: BootstrapOptions) -> Arc<AppState> {
-    let data_path = opts
-        .data_dir
-        .unwrap_or_else(|| PathBuf::from("./data"));
+    let data_path = opts.data_dir.unwrap_or_else(|| PathBuf::from("./data"));
     let database_url = opts.database_url;
     let nerve_url = opts
         .nerve_url
@@ -75,9 +73,10 @@ pub async fn build_app_state(opts: BootstrapOptions) -> Arc<AppState> {
         "plugin host loaded (agent inspect)"
     );
 
-    let events = nerve_waf_store::open_event_store(database_url.as_deref(), config.data_dir().as_path())
-        .await
-        .expect("open event store");
+    let events =
+        nerve_waf_store::open_event_store(database_url.as_deref(), config.data_dir().as_path())
+            .await
+            .expect("open event store");
 
     // Topology / Docker inventory moved to Nerve-control (:8780). WAF no longer holds topology Store.
     // Emergency rollback: WAF_ENABLE_LEGACY_TOPOLOGY=1 still attaches PG topology (not recommended).
@@ -116,10 +115,13 @@ pub async fn build_app_state(opts: BootstrapOptions) -> Arc<AppState> {
     let users_store = if let Some(ref url) = database_url {
         match nerve_waf_store::UsersStore::open(url).await {
             Ok(store) => {
-                let username = std::env::var("NERVE_AUTH_BOOTSTRAP_USER")
-                    .unwrap_or_else(|_| std::env::var("NERVE_AUTH_USER").unwrap_or_else(|_| "admin".into()));
-                let password = std::env::var("NERVE_AUTH_BOOTSTRAP_PASSWORD")
-                    .unwrap_or_else(|_| std::env::var("NERVE_AUTH_PASSWORD").unwrap_or_else(|_| "admin".into()));
+                let username = std::env::var("NERVE_AUTH_BOOTSTRAP_USER").unwrap_or_else(|_| {
+                    std::env::var("NERVE_AUTH_USER").unwrap_or_else(|_| "admin".into())
+                });
+                let password =
+                    std::env::var("NERVE_AUTH_BOOTSTRAP_PASSWORD").unwrap_or_else(|_| {
+                        std::env::var("NERVE_AUTH_PASSWORD").unwrap_or_else(|_| "admin".into())
+                    });
                 if let Err(e) = store.ensure_bootstrap_admin(&username, &password).await {
                     tracing::warn!("bootstrap admin user: {e}");
                 }
@@ -157,24 +159,28 @@ pub async fn build_app_state(opts: BootstrapOptions) -> Arc<AppState> {
         .unwrap_or_default();
 
     let ai_settings = Arc::new(
-        nerve_waf_store::AiSettingsStore::open(database_url.as_deref(), config.data_dir().as_path())
-            .await
-            .expect("open ai settings store"),
+        nerve_waf_store::AiSettingsStore::open(
+            database_url.as_deref(),
+            config.data_dir().as_path(),
+        )
+        .await
+        .expect("open ai settings store"),
     );
     let triage_ai = triage_ai::TriageAiService::new(ai_settings.clone());
     let semantic_stats = Arc::new(
-        nerve_waf_store::SemanticStatsStore::open(database_url.as_deref(), config.data_dir().as_path())
-            .await
-            .expect("open semantic stats store"),
+        nerve_waf_store::SemanticStatsStore::open(
+            database_url.as_deref(),
+            config.data_dir().as_path(),
+        )
+        .await
+        .expect("open semantic stats store"),
     );
     semantic_stats.clone().spawn_flush_task();
 
-    let traffic = nerve_waf_store::open_traffic_store(
-        database_url.as_deref(),
-        config.data_dir().as_path(),
-    )
-    .await
-    .expect("open traffic store");
+    let traffic =
+        nerve_waf_store::open_traffic_store(database_url.as_deref(), config.data_dir().as_path())
+            .await
+            .expect("open traffic store");
 
     let bypass_inspect = Arc::new(BypassInspectRuntime::new(config.data_dir().as_path()));
 
@@ -226,7 +232,10 @@ async fn hydrate_protected_sites_with_store(
             .into_iter()
             .filter_map(|v| serde_json::from_value(v).ok())
             .collect();
-        tracing::info!(count = sites.len(), "protected sites loaded from PostgreSQL");
+        tracing::info!(
+            count = sites.len(),
+            "protected sites loaded from PostgreSQL"
+        );
         platform.set_sites(sites);
         return Ok(());
     }

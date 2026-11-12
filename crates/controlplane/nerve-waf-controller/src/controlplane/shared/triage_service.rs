@@ -74,10 +74,7 @@ struct IpStats {
     blocked_count: u32,
 }
 
-async fn batch_ip_stats(
-    state: &AppState,
-    events: &[WafEventRecord],
-) -> HashMap<String, IpStats> {
+async fn batch_ip_stats(state: &AppState, events: &[WafEventRecord]) -> HashMap<String, IpStats> {
     let mut map: HashMap<String, IpStats> = HashMap::new();
     for ev in events {
         if let Some(ip) = ev.src_ip.as_ref().filter(|s| !s.is_empty()) {
@@ -134,11 +131,7 @@ async fn build_context(state: &AppState, event: &WafEventRecord) -> TriageContex
             .await
         {
             ip_event_count = recent.events.len() as u32;
-            ip_blocked_count = recent
-                .events
-                .iter()
-                .filter(|e| e.action == "block")
-                .count() as u32;
+            ip_blocked_count = recent.events.iter().filter(|e| e.action == "block").count() as u32;
         }
     }
 

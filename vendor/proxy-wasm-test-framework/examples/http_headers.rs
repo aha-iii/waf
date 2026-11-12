@@ -47,8 +47,10 @@ fn main() -> Result<()> {
         .returning(Some("/hello"))
         .expect_send_local_response(
             Some(200),
-            Some("Hello, World!
-"),
+            Some(
+                "Hello, World!
+",
+            ),
             Some(vec![("Hello", "World"), ("Powered-By", "proxy-wasm")]),
             Some(-1),
         )

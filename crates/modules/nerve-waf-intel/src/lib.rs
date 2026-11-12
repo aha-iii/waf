@@ -23,7 +23,10 @@ impl IntelFeed {
             entries.insert(e.ip.clone());
             categories.insert(e.ip, e.category);
         }
-        Self { entries, categories }
+        Self {
+            entries,
+            categories,
+        }
     }
 
     pub fn is_malicious(&self, ip: &str) -> bool {

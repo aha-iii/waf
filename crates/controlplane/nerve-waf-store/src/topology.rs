@@ -55,7 +55,6 @@ pub struct WorkloadSyncBatch {
     pub workloads: Vec<WorkloadRecord>,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentRegisterRequest {
     pub node_id: String,
@@ -180,11 +179,13 @@ impl TopologyStore {
             .map_err(|e| StoreError::Db(e.to_string()))?;
             n += 1;
         }
-        sqlx::query("UPDATE waf_agents SET last_seen = now(), updated_at = now() WHERE waf_agents_id = $1")
-            .bind(&batch.node_id)
-            .execute(&mut *tx)
-            .await
-            .map_err(|e| StoreError::Db(e.to_string()))?;
+        sqlx::query(
+            "UPDATE waf_agents SET last_seen = now(), updated_at = now() WHERE waf_agents_id = $1",
+        )
+        .bind(&batch.node_id)
+        .execute(&mut *tx)
+        .await
+        .map_err(|e| StoreError::Db(e.to_string()))?;
         tx.commit()
             .await
             .map_err(|e| StoreError::Db(e.to_string()))?;
@@ -222,14 +223,21 @@ impl TopologyStore {
             .collect())
     }
 
-    pub async fn graph(&self, minutes: i64, direction: Option<&str>) -> Result<TopologyGraph, StoreError> {
+    pub async fn graph(
+        &self,
+        minutes: i64,
+        direction: Option<&str>,
+    ) -> Result<TopologyGraph, StoreError> {
         let since = Utc::now() - chrono::Duration::minutes(minutes.max(1));
         let agents: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM waf_agents")
             .fetch_one(&self.pool)
             .await
             .map_err(|e| StoreError::Db(e.to_string()))?;
 
-        let mut stats = TopologyStats { agents, ..Default::default() };
+        let mut stats = TopologyStats {
+            agents,
+            ..Default::default()
+        };
 
         let count_rows = sqlx::query(
             r#"SELECT direction, COUNT(*) AS c FROM waf_flows
@@ -513,7 +521,9 @@ impl TopologyStore {
                     if id.is_empty() {
                         continue;
                     }
-                    swarm_services.entry(id.to_string()).or_insert_with(|| s.clone());
+                    swarm_services
+                        .entry(id.to_string())
+                        .or_insert_with(|| s.clone());
                 }
             }
         }
@@ -618,7 +628,10 @@ impl TopologyStore {
                 .map(str::to_string);
             if let Some(ip) = w.get("pod_ip").and_then(|v| v.as_str()) {
                 if !ip.is_empty() {
-                    ip_to_wl.insert(ip.to_string(), (id.clone(), name.to_string(), node_name.clone()));
+                    ip_to_wl.insert(
+                        ip.to_string(),
+                        (id.clone(), name.to_string(), node_name.clone()),
+                    );
                 }
             }
             if !g.nodes.iter().any(|n| n.id == id) {
@@ -798,11 +811,7 @@ fn classify_topology_id(id: &str) -> (&'static str, String, Option<String>) {
     }
     if let Some(hex) = id.strip_prefix("cgroup:") {
         let short = if hex.len() > 8 { &hex[..8] } else { hex };
-        return (
-            "unknown",
-            format!("未识别工作负载 · {short}"),
-            None,
-        );
+        return ("unknown", format!("未识别工作负载 · {short}"), None);
     }
     if id.contains('/') {
         let ns = id.split('/').next().map(str::to_string);

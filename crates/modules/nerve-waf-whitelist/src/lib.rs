@@ -83,7 +83,10 @@ pub fn is_inspect_bypassed(cfg: &WhitelistConfig, host: &str, uri: &str, src_ip:
 fn rule_matches(rule: &WhitelistRule, req: &WhitelistRequest<'_>) -> bool {
     let m = &rule.match_on;
     if !m.hosts.is_empty()
-        && !m.hosts.iter().any(|h| h == "*" || h.eq_ignore_ascii_case(req.host))
+        && !m
+            .hosts
+            .iter()
+            .any(|h| h == "*" || h.eq_ignore_ascii_case(req.host))
     {
         return false;
     }

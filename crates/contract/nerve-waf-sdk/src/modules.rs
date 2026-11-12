@@ -136,9 +136,10 @@ impl ProtectionModules {
         bot: &nerve_waf_bot::BotConfig,
     ) {
         let cc_mod = self.modules.entry("cc".into()).or_default();
-        cc_mod
-            .extra
-            .insert("requests_per_minute".into(), serde_json::json!(cc.requests_per_minute));
+        cc_mod.extra.insert(
+            "requests_per_minute".into(),
+            serde_json::json!(cc.requests_per_minute),
+        );
         cc_mod
             .extra
             .insert("burst".into(), serde_json::json!(cc.burst));
@@ -148,9 +149,10 @@ impl ProtectionModules {
         );
 
         let bot_mod = self.modules.entry("bot".into()).or_default();
-        bot_mod
-            .extra
-            .insert("score_threshold".into(), serde_json::json!(bot.score_threshold));
+        bot_mod.extra.insert(
+            "score_threshold".into(),
+            serde_json::json!(bot.score_threshold),
+        );
     }
 
     /// Merge app overrides onto the global default template for effective config.
@@ -229,7 +231,6 @@ impl Default for ProtectionModules {
         }
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]

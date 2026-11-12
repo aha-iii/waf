@@ -213,9 +213,7 @@ fn read_jsonl_tail(path: &std::path::Path, limit: usize) -> Vec<Value> {
 }
 
 /// Invoked by policy_sim / incident entry points.
-pub fn guard_expensive_ai(
-    kind: AiRateLimitKind,
-) -> Result<(), (StatusCode, Json<Value>)> {
+pub fn guard_expensive_ai(kind: AiRateLimitKind) -> Result<(), (StatusCode, Json<Value>)> {
     super::ai_rate_limit::check_expensive_ai(kind).map_err(|retry_after| {
         (
             StatusCode::TOO_MANY_REQUESTS,

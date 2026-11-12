@@ -19,8 +19,8 @@ impl WafPlugin for IpWhitelistPlugin {
     }
 
     fn validate_config(&self, config: &serde_json::Value) -> Result<serde_json::Value, String> {
-        let parsed: Config = serde_json::from_value(config.clone())
-            .map_err(|e| format!("invalid config: {e}"))?;
+        let parsed: Config =
+            serde_json::from_value(config.clone()).map_err(|e| format!("invalid config: {e}"))?;
         if parsed.ips.is_empty() {
             return Err("ips must not be empty".into());
         }
@@ -28,7 +28,8 @@ impl WafPlugin for IpWhitelistPlugin {
     }
 
     fn apply(&self, _ctx: &PluginContext<'_>, config: &serde_json::Value) -> Vec<PluginAction> {
-        let parsed: Config = serde_json::from_value(config.clone()).unwrap_or(Config { ips: vec![] });
+        let parsed: Config =
+            serde_json::from_value(config.clone()).unwrap_or(Config { ips: vec![] });
         parsed
             .ips
             .into_iter()

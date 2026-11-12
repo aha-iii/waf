@@ -55,9 +55,10 @@ impl TamperGuard {
         if !cfg.enabled {
             return None;
         }
-        let page = cfg.pages.iter().find(|p| {
-            p.enabled && p.host == host && (p.path == path || p.path == "/*")
-        })?;
+        let page = cfg
+            .pages
+            .iter()
+            .find(|p| p.enabled && p.host == host && (p.path == path || p.path == "/*"))?;
         let actual = Self::hash_body(body);
         if actual != page.baseline_hash {
             return Some(TamperAlert {

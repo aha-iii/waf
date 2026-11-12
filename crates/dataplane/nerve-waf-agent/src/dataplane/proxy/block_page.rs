@@ -29,7 +29,10 @@ pub fn new_event_id() -> String {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    format!("evt_{:x}", (nanos as u64).wrapping_mul(0x9e37_79b9) ^ (nanos >> 32) as u64)
+    format!(
+        "evt_{:x}",
+        (nanos as u64).wrapping_mul(0x9e37_79b9) ^ (nanos >> 32) as u64
+    )
 }
 
 fn html_escape(s: &str) -> String {

@@ -54,7 +54,15 @@ pub fn libinjection_rule_catalog() -> &'static [LibInjectionRuleDef] {
             paranoia_level: 1,
             severity: "critical",
             crs_operator: "@detectSQLi",
-            scan_targets: &[Cookies, CookieNames, UserAgent, Referer, Args, ArgsNames, Body],
+            scan_targets: &[
+                Cookies,
+                CookieNames,
+                UserAgent,
+                Referer,
+                Args,
+                ArgsNames,
+                Body,
+            ],
             detect_xss: false,
         },
         LibInjectionRuleDef {

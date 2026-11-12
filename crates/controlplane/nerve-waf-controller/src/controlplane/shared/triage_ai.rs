@@ -102,11 +102,7 @@ impl TriageAiService {
         result
     }
 
-    pub fn spawn_background(
-        self: &Arc<Self>,
-        event: WafEventRecord,
-        triage: TriageResult,
-    ) {
+    pub fn spawn_background(self: &Arc<Self>, event: WafEventRecord, triage: TriageResult) {
         if !self.settings.triage_llm_config().auto_explain {
             return;
         }

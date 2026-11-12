@@ -97,13 +97,12 @@ impl UsersStore {
             return Ok(());
         }
         let hash = hash_password(password)?;
-        let existing: Option<String> = sqlx::query_scalar(
-            "SELECT waf_users_id FROM waf_users WHERE username = $1",
-        )
-        .bind(username)
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(|e| UsersError::Db(e.to_string()))?;
+        let existing: Option<String> =
+            sqlx::query_scalar("SELECT waf_users_id FROM waf_users WHERE username = $1")
+                .bind(username)
+                .fetch_optional(&self.pool)
+                .await
+                .map_err(|e| UsersError::Db(e.to_string()))?;
         if let Some(id) = existing {
             sqlx::query(
                 r#"UPDATE waf_users
@@ -117,7 +116,10 @@ impl UsersStore {
             .execute(&self.pool)
             .await
             .map_err(|e| UsersError::Db(e.to_string()))?;
-            tracing::info!(username, "bootstrap admin password set on existing waf_users row");
+            tracing::info!(
+                username,
+                "bootstrap admin password set on existing waf_users row"
+            );
             return Ok(());
         }
         let id = Uuid::new_v4().to_string();
@@ -138,7 +140,11 @@ impl UsersStore {
         Ok(())
     }
 
-    pub async fn verify_login(&self, username: &str, password: &str) -> Result<ConsoleUser, UsersError> {
+    pub async fn verify_login(
+        &self,
+        username: &str,
+        password: &str,
+    ) -> Result<ConsoleUser, UsersError> {
         let username = username.trim();
         if username.is_empty() || password.is_empty() {
             return Err(UsersError::Validation("invalid credentials".into()));
@@ -153,14 +159,18 @@ impl UsersStore {
         .await
         .map_err(|e| UsersError::Db(e.to_string()))?
         .ok_or(UsersError::NotFound)?;
-        let enabled: bool = row.try_get("enabled").map_err(|e| UsersError::Db(e.to_string()))?;
+        let enabled: bool = row
+            .try_get("enabled")
+            .map_err(|e| UsersError::Db(e.to_string()))?;
         if !enabled {
             return Err(UsersError::Validation("account disabled".into()));
         }
         let stored_hash: Option<String> = row
             .try_get("password_hash")
             .map_err(|e| UsersError::Db(e.to_string()))?;
-        let stored_hash = stored_hash.filter(|s| !s.is_empty()).ok_or(UsersError::NotFound)?;
+        let stored_hash = stored_hash
+            .filter(|s| !s.is_empty())
+            .ok_or(UsersError::NotFound)?;
         if !verify_password(password, &stored_hash) {
             return Err(UsersError::Validation("invalid credentials".into()));
         }
@@ -196,7 +206,8 @@ impl UsersStore {
         if password.len() < 4 {
             return Err(UsersError::Validation("password too short".into()));
         }
-        let role = normalize_role(role).ok_or_else(|| UsersError::Validation("invalid role".into()))?;
+        let role =
+            normalize_role(role).ok_or_else(|| UsersError::Validation("invalid role".into()))?;
         let hash = hash_password(password)?;
         let id = Uuid::new_v4().to_string();
         let display_name = display_name.map(str::trim).filter(|s| !s.is_empty());
@@ -216,9 +227,9 @@ impl UsersStore {
         .await;
         match result {
             Ok(_) => self.get_by_id(&id).await,
-            Err(e) if is_unique_violation(&e) => {
-                Err(UsersError::Conflict(format!("username `{username}` already exists")))
-            }
+            Err(e) if is_unique_violation(&e) => Err(UsersError::Conflict(format!(
+                "username `{username}` already exists"
+            ))),
             Err(e) => Err(UsersError::Db(e.to_string())),
         }
     }
@@ -234,7 +245,8 @@ impl UsersStore {
     ) -> Result<ConsoleUser, UsersError> {
         let mut user = self.get_by_id(id).await?;
         if let Some(r) = role {
-            user.role = normalize_role(r).ok_or_else(|| UsersError::Validation("invalid role".into()))?;
+            user.role =
+                normalize_role(r).ok_or_else(|| UsersError::Validation("invalid role".into()))?;
         }
         if let Some(p) = password {
             if p.len() < 4 {
@@ -288,7 +300,9 @@ impl UsersStore {
             .await
             .map_err(|e| UsersError::Db(e.to_string()))?;
             if admin_count <= 1 {
-                return Err(UsersError::Validation("cannot delete the last admin".into()));
+                return Err(UsersError::Validation(
+                    "cannot delete the last admin".into(),
+                ));
             }
         }
         sqlx::query("DELETE FROM waf_users WHERE waf_users_id = $1")

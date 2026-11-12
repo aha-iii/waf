@@ -45,8 +45,10 @@ fn main() -> Result<()> {
         .expect_log(Some(LogLevel::Trace), Some("#2 -> :authority: developer"))
         .expect_send_local_response(
             Some(200),
-            Some("Hello, World!
-"),
+            Some(
+                "Hello, World!
+",
+            ),
             Some(vec![("Hello", "World"), ("Powered-By", "proxy-wasm")]),
             Some(-1),
         )

@@ -6,8 +6,8 @@
 //! - `NERVE_WAF_WASM_CRS_PATH` - path to the `.wasm` (default under `Nerve-waf/wasm/`)
 //! - `NERVE_WAF_WASM_CRS_CONFIG` - optional Coraza plugin JSON config
 
-mod runtime;
 mod engine;
+mod runtime;
 
 pub use engine::{inspect_blocking, wasm_crs_enabled, wasm_crs_loaded, WasmCrsError};
 pub use runtime::{

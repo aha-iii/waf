@@ -2,8 +2,8 @@
 
 use axum::{routing::any, Router};
 use clap::Parser;
-use nerve_waf_embed::EmbeddedWaf;
 use nerve_waf_dataplane::WafEdgeSnapshot;
+use nerve_waf_embed::EmbeddedWaf;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::path::PathBuf;
@@ -12,7 +12,10 @@ use tracing_subscriber::EnvFilter;
 
 mod dataplane;
 
-use dataplane::{health_handler, new_shared_cache, proxy_handler, spawn_sync_loop, EdgeRuntime, EdgeState, SharedRuntime};
+use dataplane::{
+    health_handler, new_shared_cache, proxy_handler, spawn_sync_loop, EdgeRuntime, EdgeState,
+    SharedRuntime,
+};
 
 fn resolve_plugins_dir(cli: Option<PathBuf>) -> PathBuf {
     if let Some(p) = cli {
@@ -34,11 +37,18 @@ fn resolve_plugins_dir(cli: Option<PathBuf>) -> PathBuf {
 }
 
 #[derive(Parser, Debug)]
-#[command(name = "nerve-waf-agent", about = "Nerve WAF L7 edge (inspect + proxy)")]
+#[command(
+    name = "nerve-waf-agent",
+    about = "Nerve WAF L7 edge (inspect + proxy)"
+)]
 struct Args {
     #[arg(long, env = "WAF_AGENT_PORT", default_value = "9080")]
     port: u16,
-    #[arg(long, env = "WAF_AGENT_CONTROLLER", default_value = "http://127.0.0.1:9000")]
+    #[arg(
+        long,
+        env = "WAF_AGENT_CONTROLLER",
+        default_value = "http://127.0.0.1:9000"
+    )]
     control: String,
     #[arg(long)]
     plugins_dir: Option<PathBuf>,
@@ -48,7 +58,9 @@ struct Args {
 async fn main() {
     dotenvy::dotenv().ok();
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::from_default_env().add_directive("nerve_waf_agent=info".parse().unwrap()))
+        .with_env_filter(
+            EnvFilter::from_default_env().add_directive("nerve_waf_agent=info".parse().unwrap()),
+        )
         .init();
 
     let args = Args::parse();
@@ -85,7 +97,10 @@ async fn main() {
         .with_state(state);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], args.port));
-    tracing::info!("nerve-waf-agent listening on http://{addr} (dataplane sync from {})", args.control);
+    tracing::info!(
+        "nerve-waf-agent listening on http://{addr} (dataplane sync from {})",
+        args.control
+    );
     let listener = tokio::net::TcpListener::bind(addr).await.expect("bind");
     axum::serve(
         listener,

@@ -86,7 +86,11 @@ fn disabled_rule_items(modules: &nerve_waf_sdk::ProtectionModules) -> Vec<Value>
     out
 }
 
-fn fp_rate_items(confirmed_fp: i64, blocked: i64, top_rules: &[nerve_waf_store::FpRuleCount]) -> Vec<Value> {
+fn fp_rate_items(
+    confirmed_fp: i64,
+    blocked: i64,
+    top_rules: &[nerve_waf_store::FpRuleCount],
+) -> Vec<Value> {
     let rate = if blocked > 0 {
         confirmed_fp as f64 / blocked as f64 * 100.0
     } else {
@@ -422,7 +426,10 @@ async fn build_posture_report(
     Ok(out)
 }
 
-async fn resolve_site_ids(state: &AppState, filter: Option<&str>) -> Result<Vec<String>, StatusCode> {
+async fn resolve_site_ids(
+    state: &AppState,
+    filter: Option<&str>,
+) -> Result<Vec<String>, StatusCode> {
     if let Some(s) = filter.filter(|x| !x.trim().is_empty()) {
         return Ok(vec![s.trim().to_string()]);
     }

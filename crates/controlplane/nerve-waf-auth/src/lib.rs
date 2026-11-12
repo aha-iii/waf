@@ -58,7 +58,10 @@ pub fn auth_enabled_from_env() -> bool {
     }
 }
 
-fn auth_mode_from_env(local: &Option<LocalAuth>, keycloak: &Option<Arc<KeycloakValidator>>) -> &'static str {
+fn auth_mode_from_env(
+    local: &Option<LocalAuth>,
+    keycloak: &Option<Arc<KeycloakValidator>>,
+) -> &'static str {
     match std::env::var("NERVE_AUTH_MODE") {
         Ok(v) => match v.trim().to_ascii_lowercase().as_str() {
             "local" => "local",
@@ -206,9 +209,7 @@ impl AuthState {
     }
 
     pub fn jwt_identity(&self, token: &str) -> Option<(String, String)> {
-        self.local
-            .as_ref()
-            .and_then(|l| l.claims_from_token(token))
+        self.local.as_ref().and_then(|l| l.claims_from_token(token))
     }
 
     pub fn keycloak_config(&self) -> KeycloakPublicConfig {
@@ -224,7 +225,11 @@ impl AuthState {
     }
 
     pub fn auth_method_label(&self) -> &'static str {
-        match (&self.keycloak, self.config.read().unwrap().api_keys.is_empty(), self.local.is_some()) {
+        match (
+            &self.keycloak,
+            self.config.read().unwrap().api_keys.is_empty(),
+            self.local.is_some(),
+        ) {
             (Some(_), false, true) => "local+keycloak+x-api-key",
             (Some(_), false, false) => "keycloak+x-api-key",
             (Some(_), true, true) => "local+keycloak",
@@ -237,21 +242,19 @@ impl AuthState {
     }
 
     /// RBAC role resolution.
-    pub fn resolve_role(&self, method: AuthMethod, api_key: Option<&str>, bearer: Option<&str>) -> String {
+    pub fn resolve_role(
+        &self,
+        method: AuthMethod,
+        api_key: Option<&str>,
+        bearer: Option<&str>,
+    ) -> String {
         match method {
             AuthMethod::Jwt => bearer
                 .and_then(|t| self.jwt_identity(t))
                 .map(|(_, role)| role)
                 .unwrap_or_else(|| "admin".into()),
             AuthMethod::ApiKey => api_key
-                .and_then(|k| {
-                    self.config
-                        .read()
-                        .unwrap()
-                        .api_keys
-                        .get(k)
-                        .cloned()
-                })
+                .and_then(|k| self.config.read().unwrap().api_keys.get(k).cloned())
                 .unwrap_or_else(|| "admin".into()),
             AuthMethod::None => "admin".into(),
         }
@@ -266,10 +269,7 @@ pub async fn auth_middleware(
     if !auth.is_enabled() {
         return Ok(next.run(req).await);
     }
-    let api_key = req
-        .headers()
-        .get("x-api-key")
-        .and_then(|v| v.to_str().ok());
+    let api_key = req.headers().get("x-api-key").and_then(|v| v.to_str().ok());
     let bearer = req
         .headers()
         .get("authorization")

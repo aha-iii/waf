@@ -26,7 +26,10 @@ pub fn dataplane_router() -> Router<Arc<AppState>> {
         .route("/api/waf/edge/watch", get(watch_waf_edge_dataplane))
         .route("/api/waf/edge/status", get(get_waf_edge_status))
         .route("/api/waf/edge/ack", post(post_waf_edge_ack))
-        .route("/api/waf/edge/events", post(super::events::post_waf_edge_events))
+        .route(
+            "/api/waf/edge/events",
+            post(super::events::post_waf_edge_events),
+        )
 }
 
 #[derive(Debug, Deserialize)]
@@ -193,7 +196,10 @@ pub(crate) async fn collect_edge_routes(
     let mut site_inspect: HashMap<String, SiteInspectSnapshot> = HashMap::new();
     let mut seen_up = HashSet::new();
 
-    for site in sites.iter().filter(|s| s.enabled && !is_gateway_only_site(s)) {
+    for site in sites
+        .iter()
+        .filter(|s| s.enabled && !is_gateway_only_site(s))
+    {
         let upstream_id = site
             .gateway_upstream_id
             .as_deref()

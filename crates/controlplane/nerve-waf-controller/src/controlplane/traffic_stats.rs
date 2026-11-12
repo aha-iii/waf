@@ -125,14 +125,10 @@ pub async fn traffic_by_site(
     Query(q): Query<TrafficSinceQuery>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let since = parse_since(&q.since);
-    let sites = state
-        .traffic
-        .by_site(since)
-        .await
-        .map_err(|e| {
-            tracing::error!("traffic by_site: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let sites = state.traffic.by_site(since).await.map_err(|e| {
+        tracing::error!("traffic by_site: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
     Ok(Json(json!({
         "since": since.to_rfc3339(),
         "sites": sites,
@@ -145,14 +141,10 @@ pub async fn traffic_tree(
 ) -> Result<Json<serde_json::Value>, StatusCode> {
     let since = parse_since(&q.since);
     let cats = attack_categories(&state, since).await?;
-    let tree = state
-        .traffic
-        .tree(since, &cats)
-        .await
-        .map_err(|e| {
-            tracing::error!("traffic tree: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let tree = state.traffic.tree(since, &cats).await.map_err(|e| {
+        tracing::error!("traffic tree: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
     Ok(Json(json!(tree)))
 }
 
@@ -162,18 +154,13 @@ pub async fn traffic_export_csv(
 ) -> Result<impl IntoResponse, StatusCode> {
     let since = parse_since(&q.since);
     let cats = attack_categories(&state, since).await?;
-    let tree = state
-        .traffic
-        .tree(since, &cats)
-        .await
-        .map_err(|e| {
-            tracing::error!("traffic export tree: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let tree = state.traffic.tree(since, &cats).await.map_err(|e| {
+        tracing::error!("traffic export tree: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
 
-    let mut csv = String::from(
-        "level,site_id,host,category,total,clean,observed,blocked,block_rate\n",
-    );
+    let mut csv =
+        String::from("level,site_id,host,category,total,clean,observed,blocked,block_rate\n");
     for site in &tree.sites {
         let rate = if site.total > 0 {
             (site.blocked as f64 / site.total as f64) * 100.0
@@ -250,14 +237,10 @@ pub async fn post_edge_traffic_batch(
     State(state): State<Arc<AppState>>,
     Json(body): Json<EdgeTrafficBatchBody>,
 ) -> Result<Json<serde_json::Value>, StatusCode> {
-    let e = state
-        .traffic
-        .upsert_batch(&body.items)
-        .await
-        .map_err(|e| {
-            tracing::error!("traffic batch ingest: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    let e = state.traffic.upsert_batch(&body.items).await.map_err(|e| {
+        tracing::error!("traffic batch ingest: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
     Ok(Json(json!({ "ok": true, "upserted": e })))
 }
 

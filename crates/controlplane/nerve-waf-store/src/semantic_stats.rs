@@ -29,7 +29,9 @@ struct SitePersisted {
 #[serde(untagged)]
 enum StatsFileFormat {
     Legacy(SitePersisted),
-    Multi { sites: HashMap<String, SitePersisted> },
+    Multi {
+        sites: HashMap<String, SitePersisted>,
+    },
 }
 
 pub struct SemanticStatsStore {
@@ -41,7 +43,10 @@ pub struct SemanticStatsStore {
 }
 
 impl SemanticStatsStore {
-    pub async fn open(database_url: Option<&str>, data_dir: &Path) -> Result<Self, SemanticStatsError> {
+    pub async fn open(
+        database_url: Option<&str>,
+        data_dir: &Path,
+    ) -> Result<Self, SemanticStatsError> {
         let file_path = data_dir.join("semantic_stats.json");
         #[cfg(feature = "postgres")]
         let pool = if let Some(url) = database_url.filter(|u| !u.trim().is_empty()) {
@@ -114,7 +119,8 @@ impl SemanticStatsStore {
     }
 
     fn hydrate_site(&self, site_id: &str, data: SitePersisted) {
-        self.inner.load_site(site_id, data.counters, data.samples, data.feedback);
+        self.inner
+            .load_site(site_id, data.counters, data.samples, data.feedback);
     }
 
     #[cfg(feature = "postgres")]
@@ -235,7 +241,11 @@ impl SemanticStatsStore {
         Ok(())
     }
 
-    fn save_site_file(&self, site_id: &str, data: &SitePersisted) -> Result<(), SemanticStatsError> {
+    fn save_site_file(
+        &self,
+        site_id: &str,
+        data: &SitePersisted,
+    ) -> Result<(), SemanticStatsError> {
         let mut map = if self.file_path.exists() {
             let raw = std::fs::read_to_string(&self.file_path)?;
             parse_stats_file(&raw)?
@@ -258,7 +268,8 @@ impl SemanticStatsStore {
         site_id: &str,
         data: &SitePersisted,
     ) -> Result<(), SemanticStatsError> {
-        let counters = serde_json::to_value(&data.counters).map_err(|e| SemanticStatsError::Db(e.to_string()))?;
+        let counters = serde_json::to_value(&data.counters)
+            .map_err(|e| SemanticStatsError::Db(e.to_string()))?;
         sqlx::query(
             r#"INSERT INTO waf_semantic_counters (site_id, counters, updated_at)
                VALUES ($1, $2, now())

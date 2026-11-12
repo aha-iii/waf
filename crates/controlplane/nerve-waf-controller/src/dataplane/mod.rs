@@ -8,8 +8,8 @@ mod hooks;
 mod routes;
 pub mod site_inspect;
 
-pub use bypass::BypassInspectRuntime;
 pub use build::compile_waf_edge_snapshot;
+pub use bypass::BypassInspectRuntime;
 pub use events::post_waf_edge_events;
 pub use generation::{bump_dataplane_generation, dataplane_generation, DataplaneGeneration};
 pub use hooks::bump_after_mutation;

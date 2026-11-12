@@ -30,7 +30,11 @@ impl LuaInspectPlugin {
         })
     }
 
-    pub fn inspect(&self, req: &InspectRequest, modules_mode: &str) -> Result<Option<InspectResult>, String> {
+    pub fn inspect(
+        &self,
+        req: &InspectRequest,
+        modules_mode: &str,
+    ) -> Result<Option<InspectResult>, String> {
         let lua = Lua::new();
         let script = std::fs::read_to_string(&self.script_path)
             .map_err(|e| format!("read lua {}: {e}", self.script_path.display()))?;
@@ -45,7 +49,8 @@ impl LuaInspectPlugin {
             .get("inspect")
             .map_err(|_| format!("lua plugin {} must define inspect(req)", self.manifest.name))?;
 
-        let req_table = lua_req_table(&lua, req).map_err(|e| format!("lua req table {}: {e}", self.manifest.name))?;
+        let req_table = lua_req_table(&lua, req)
+            .map_err(|e| format!("lua req table {}: {e}", self.manifest.name))?;
         let ret: Value = inspect_fn
             .call(req_table)
             .map_err(|e| format!("lua inspect {}: {e}", self.manifest.name))?;
@@ -88,7 +93,9 @@ fn parse_lua_hit(
             let category: String = t
                 .get("category")
                 .unwrap_or_else(|_| manifest.category.clone().unwrap_or_else(|| "custom".into()));
-            let rule_id: String = t.get("rule_id").unwrap_or_else(|_| format!("lua:{}", manifest.name));
+            let rule_id: String = t
+                .get("rule_id")
+                .unwrap_or_else(|_| format!("lua:{}", manifest.name));
             let rule_name: String = t.get("rule_name").unwrap_or_else(|_| manifest.name.clone());
             let severity: String = t.get("severity").unwrap_or_else(|_| "medium".into());
             let matched_field: String = t.get("matched_field").unwrap_or_else(|_| "lua".into());

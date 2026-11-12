@@ -22,7 +22,11 @@ fn poll_interval_sec() -> u64 {
         .unwrap_or(5)
 }
 
-pub fn spawn_sync_loop(api: String, runtime: SharedRuntime, waf: std::sync::Arc<nerve_waf_embed::EmbeddedWaf>) {
+pub fn spawn_sync_loop(
+    api: String,
+    runtime: SharedRuntime,
+    waf: std::sync::Arc<nerve_waf_embed::EmbeddedWaf>,
+) {
     tokio::spawn(async move {
         let mode = sync_mode();
         let mut last_gen = 0u64;
@@ -56,7 +60,12 @@ pub fn spawn_sync_loop(api: String, runtime: SharedRuntime, waf: std::sync::Arc<
                         last_gen = gen;
                         ack_generation(&api, gen).await;
                     }
-                    tracing::info!(generation = gen, routes = n, upstreams = u, "dataplane loaded");
+                    tracing::info!(
+                        generation = gen,
+                        routes = n,
+                        upstreams = u,
+                        "dataplane loaded"
+                    );
                 }
                 Err(e) => tracing::warn!("dataplane refresh: {e}"),
             }

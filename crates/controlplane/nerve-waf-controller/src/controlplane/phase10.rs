@@ -33,7 +33,11 @@ async fn register_cluster(
 ) -> Result<Json<Value>, StatusCode> {
     state
         .platform
-        .register_cluster(body.cluster_id.clone(), body.relay_url.clone(), body.agent_count.unwrap_or(0))
+        .register_cluster(
+            body.cluster_id.clone(),
+            body.relay_url.clone(),
+            body.agent_count.unwrap_or(0),
+        )
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Json(json!({ "ok": true, "cluster_id": body.cluster_id })))
 }
@@ -49,7 +53,8 @@ struct DnsQuery {
 }
 
 async fn dns_evaluate(Query(q): Query<DnsQuery>) -> Json<Value> {
-    let base = std::env::var("NERVE_DNS_POLICY_URL").unwrap_or_else(|_| "http://127.0.0.1:8084".into());
+    let base =
+        std::env::var("NERVE_DNS_POLICY_URL").unwrap_or_else(|_| "http://127.0.0.1:8084".into());
     let url = format!(
         "{}/api/dns-policy/evaluate?namespace={}&fqdn={}",
         base.trim_end_matches('/'),
@@ -71,7 +76,8 @@ struct IdentityQuery {
 }
 
 async fn identity_lookup(Query(q): Query<IdentityQuery>) -> Json<Value> {
-    let base = std::env::var("NERVE_IDENTITY_URL").unwrap_or_else(|_| "http://127.0.0.1:8085".into());
+    let base =
+        std::env::var("NERVE_IDENTITY_URL").unwrap_or_else(|_| "http://127.0.0.1:8085".into());
     let url = format!(
         "{}/api/identity/lookup?namespace={}&pod={}",
         base.trim_end_matches('/'),
@@ -81,6 +87,8 @@ async fn identity_lookup(Query(q): Query<IdentityQuery>) -> Json<Value> {
     let client = reqwest::Client::new();
     match client.get(&url).send().await {
         Ok(r) if r.status().is_success() => Json(r.json().await.unwrap_or(json!({}))),
-        _ => Json(json!({ "spiffe_id": format!("spiffe://nerve.local/ns/{}/pod/{}", q.namespace, q.pod) })),
+        _ => Json(
+            json!({ "spiffe_id": format!("spiffe://nerve.local/ns/{}/pod/{}", q.namespace, q.pod) }),
+        ),
     }
 }

@@ -51,8 +51,10 @@ pub fn build_trace_bind_v2(
         }
     }
 
-    if let (Some(pod), Some(ns)) = (pod.filter(|s| !s.is_empty()), namespace.filter(|s| !s.is_empty()))
-    {
+    if let (Some(pod), Some(ns)) = (
+        pod.filter(|s| !s.is_empty()),
+        namespace.filter(|s| !s.is_empty()),
+    ) {
         if is_ipv4_literal(host) && port > 0 {
             bind_keys.push(json!({
                 "type": "pod_egress",
@@ -75,11 +77,7 @@ pub fn build_trace_bind_v2(
     if let Some(j) = &trace.journey_id {
         body["journey_id"] = json!(j);
     }
-    if let Some(s) = trace
-        .session_id
-        .as_ref()
-        .or(trace.journey_id.as_ref())
-    {
+    if let Some(s) = trace.session_id.as_ref().or(trace.journey_id.as_ref()) {
         body["session_id"] = json!(s);
     }
     if let Some(p) = &trace.parent_journey_id {

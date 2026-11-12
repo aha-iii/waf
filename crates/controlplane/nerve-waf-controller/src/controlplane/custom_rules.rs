@@ -18,9 +18,18 @@ pub fn custom_rules_router() -> Router<Arc<AppState>> {
             "/api/global/custom-rules",
             get(list_global_custom_rules).put(save_global_custom_rules),
         )
-        .route("/api/global/custom-rules/reload", post(reload_global_custom_rules))
-        .route("/api/global/custom-rules/sets", post(create_global_rule_set))
-        .route("/api/global/custom-rules/sets/{id}/bind", put(bind_global_rule_set))
+        .route(
+            "/api/global/custom-rules/reload",
+            post(reload_global_custom_rules),
+        )
+        .route(
+            "/api/global/custom-rules/sets",
+            post(create_global_rule_set),
+        )
+        .route(
+            "/api/global/custom-rules/sets/{id}/bind",
+            put(bind_global_rule_set),
+        )
         .route(
             "/api/global/custom-rules/sets/{id}",
             put(update_global_rule_set).delete(delete_global_rule_set),
@@ -31,7 +40,10 @@ pub fn custom_rules_router() -> Router<Arc<AppState>> {
             put(update_global_rule).delete(delete_global_rule),
         )
         .route("/api/global/custom-rules/test", post(test_custom_rule))
-        .route("/api/custom-rules", get(list_app_custom_rules).put(save_app_custom_rules))
+        .route(
+            "/api/custom-rules",
+            get(list_app_custom_rules).put(save_app_custom_rules),
+        )
         .route("/api/custom-rules/test", post(test_custom_rule))
 }
 
@@ -50,7 +62,9 @@ fn resolve_site_id(q: &SiteQuery) -> String {
     }
 }
 
-async fn list_global_custom_rules(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {
+async fn list_global_custom_rules(
+    State(state): State<Arc<AppState>>,
+) -> Result<Json<Value>, StatusCode> {
     let data = state
         .custom_rules_store
         .load_global()
@@ -76,7 +90,9 @@ async fn save_global_custom_rules(
     Ok(Json(json!({ "ok": true, "scope": "global" })))
 }
 
-async fn reload_global_custom_rules(State(state): State<Arc<AppState>>) -> Result<Json<Value>, StatusCode> {
+async fn reload_global_custom_rules(
+    State(state): State<Arc<AppState>>,
+) -> Result<Json<Value>, StatusCode> {
     let rules = state
         .custom_rules_store
         .load_active_rules_for("default")

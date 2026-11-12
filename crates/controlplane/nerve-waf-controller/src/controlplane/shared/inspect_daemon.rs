@@ -1,12 +1,15 @@
-use crate::AppState;
 use crate::events::{execute_inspect, InspectBody};
+use crate::AppState;
 use serde_json::Value;
 use std::path::Path;
 use std::sync::Arc;
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{UnixListener, UnixStream};
 
-pub async fn run_unix_socket_server(state: Arc<AppState>, socket_path: &str) -> std::io::Result<()> {
+pub async fn run_unix_socket_server(
+    state: Arc<AppState>,
+    socket_path: &str,
+) -> std::io::Result<()> {
     if let Some(parent) = Path::new(socket_path).parent() {
         std::fs::create_dir_all(parent)?;
     }
@@ -34,12 +37,16 @@ async fn handle_client(state: Arc<AppState>, stream: UnixStream) -> Result<(), S
         .map_err(|e| e.to_string())?
         .ok_or_else(|| "empty request".to_string())?;
 
-    let body: InspectBody = serde_json::from_str(&line).map_err(|e| format!("invalid json: {e}"))?;
+    let body: InspectBody =
+        serde_json::from_str(&line).map_err(|e| format!("invalid json: {e}"))?;
     let resp: Value = execute_inspect(&state, body)
         .await
         .map_err(|e| e.to_string())?;
     let out = format!("{}\n", resp);
-    writer.write_all(out.as_bytes()).await.map_err(|e| e.to_string())?;
+    writer
+        .write_all(out.as_bytes())
+        .await
+        .map_err(|e| e.to_string())?;
     writer.flush().await.map_err(|e| e.to_string())?;
     Ok(())
 }

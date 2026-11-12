@@ -165,7 +165,11 @@ impl ConfigBackend {
         }
     }
 
-    pub async fn save_modules(&self, modules: &ProtectionModules, operator: &str) -> Result<(), ConfigError> {
+    pub async fn save_modules(
+        &self,
+        modules: &ProtectionModules,
+        operator: &str,
+    ) -> Result<(), ConfigError> {
         let site_id = std::env::var("SITE_ID").unwrap_or_else(|_| "default".into());
         self.save_modules_for(&site_id, modules, operator).await
     }
@@ -307,7 +311,10 @@ impl ConfigBackend {
         }
     }
 
-    pub async fn load_app_crs_binding(&self, site_id: &str) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
+    pub async fn load_app_crs_binding(
+        &self,
+        site_id: &str,
+    ) -> Result<Option<crate::AppCrsBinding>, ConfigError> {
         match self {
             Self::File(s) => s.load_app_crs_binding(site_id),
             #[cfg(feature = "postgres")]
@@ -315,7 +322,10 @@ impl ConfigBackend {
         }
     }
 
-    pub async fn load_app_crs_history(&self, site_id: &str) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
+    pub async fn load_app_crs_history(
+        &self,
+        site_id: &str,
+    ) -> Result<Vec<crate::AppCrsHistoryEntry>, ConfigError> {
         match self {
             Self::File(s) => s.load_app_crs_history(site_id),
             #[cfg(feature = "postgres")]
@@ -345,9 +355,14 @@ impl ConfigBackend {
         operator: &str,
     ) -> Result<crate::AppCrsBinding, ConfigError> {
         match self {
-            Self::File(s) => {
-                s.apply_app_crs_version(site_id, crs_version_id, crs_version_label, rule_count, modules_snapshot, operator)
-            }
+            Self::File(s) => s.apply_app_crs_version(
+                site_id,
+                crs_version_id,
+                crs_version_label,
+                rule_count,
+                modules_snapshot,
+                operator,
+            ),
             #[cfg(feature = "postgres")]
             Self::Postgres(s) => {
                 s.apply_app_crs_version(
@@ -416,12 +431,7 @@ impl ConfigBackend {
             Self::File(s) => {
                 let modules = self.load_global_modules().await?;
                 let pipeline = self.load_global_pipeline().await?;
-                crate::protection_strategy::upsert_file(
-                    s.data_dir(),
-                    template,
-                    &modules,
-                    &pipeline,
-                )
+                crate::protection_strategy::upsert_file(s.data_dir(), template, &modules, &pipeline)
             }
             #[cfg(feature = "postgres")]
             Self::Postgres(s) => {
@@ -459,7 +469,8 @@ impl ConfigBackend {
     ) -> Result<crate::ProtectionStrategyTemplate, ConfigError> {
         let pipeline = self.load_global_pipeline().await?;
         let id = format!("tpl-{}", uuid::Uuid::new_v4());
-        let mut template = if let Some(src) = source_id.map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        let mut template = if let Some(src) = source_id.map(|s| s.trim()).filter(|s| !s.is_empty())
+        {
             let Some(mut src_tpl) = self.get_protection_strategy(src).await? else {
                 return Err(ConfigError::Db(format!("源策略不存在: {src}")));
             };
@@ -518,9 +529,7 @@ impl ConfigBackend {
         match self {
             Self::File(s) => crate::app_config::load_bound_strategy_file(s.data_dir(), site_id),
             #[cfg(feature = "postgres")]
-            Self::Postgres(s) => {
-                crate::app_config::pg::get_bound_strategy(s.pool(), site_id).await
-            }
+            Self::Postgres(s) => crate::app_config::pg::get_bound_strategy(s.pool(), site_id).await,
         }
     }
 

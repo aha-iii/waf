@@ -5,11 +5,11 @@ use axum::{
     Json, Router,
 };
 use chrono::Utc;
-use nerve_waf_bot::{score as bot_score, BotConfig};
+use nerve_waf_auth::{AuthConfigResponse, LoginRequest, LoginResponse};
 use nerve_waf_behavior::BehaviorConfig;
+use nerve_waf_bot::{score as bot_score, BotConfig};
 use nerve_waf_intel::IntelEntry;
 use nerve_waf_sdk::WafEventRecord;
-use nerve_waf_auth::{AuthConfigResponse, LoginRequest, LoginResponse};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
@@ -20,7 +20,10 @@ pub fn extensions_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/api/bot/score", post(api_bot_score))
         .route("/api/bot/config", get(get_bot_config).put(put_bot_config))
-        .route("/api/behavior/config", get(get_behavior_config).put(put_behavior_config))
+        .route(
+            "/api/behavior/config",
+            get(get_behavior_config).put(put_behavior_config),
+        )
         .route("/api/behavior/score", post(behavior_score))
         .route("/api/intel/feed", get(get_intel_feed).put(put_intel_feed))
         .route("/api/intel/lookup", post(intel_lookup))
@@ -270,7 +273,8 @@ async fn auth_login(
     let (role, display_username) = if let Some(store) = state.users_store.as_ref() {
         match store.verify_login(username, &body.password).await {
             Ok(user) => (user.role, user.username),
-            Err(nerve_waf_store::UsersError::Validation(_)) | Err(nerve_waf_store::UsersError::NotFound) => {
+            Err(nerve_waf_store::UsersError::Validation(_))
+            | Err(nerve_waf_store::UsersError::NotFound) => {
                 return Err(StatusCode::UNAUTHORIZED);
             }
             Err(_) => return Err(StatusCode::INTERNAL_SERVER_ERROR),

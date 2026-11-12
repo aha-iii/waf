@@ -29,7 +29,10 @@ where
         );
         return router;
     };
-    tracing::info!("WAF Console UI http://{{host}}:{{port}}/  ({})", dir.display());
+    tracing::info!(
+        "WAF Console UI http://{{host}}:{{port}}/  ({})",
+        dir.display()
+    );
     let index = dir.join("index.html");
     let service = ServeDir::new(dir).not_found_service(ServeFile::new(index));
     router.fallback_service(service)

@@ -60,8 +60,7 @@ impl CorazaWasmEngine {
         tester
             .set_default_buffer_bytes(BufferType::PluginConfiguration)
             .returning(config_json);
-        tester
-            .call_proxy_on_configure(ROOT_CONTEXT, config_json.len() as i32);
+        tester.call_proxy_on_configure(ROOT_CONTEXT, config_json.len() as i32);
         tester
             .execute_and_expect(ReturnType::Bool(true))
             .map_err(|e| e.to_string())?;
@@ -76,7 +75,8 @@ impl CorazaWasmEngine {
         let http_ctx = self.next_http_ctx.fetch_add(1, Ordering::Relaxed);
         self.tester.clear_block_signal();
 
-        self.tester.call_proxy_on_context_create(http_ctx, ROOT_CONTEXT);
+        self.tester
+            .call_proxy_on_context_create(http_ctx, ROOT_CONTEXT);
         self.tester
             .execute_and_expect(ReturnType::None)
             .map_err(|e| e.to_string())?;
@@ -136,18 +136,16 @@ fn block_from_signal(
     req: &InspectRequest,
     action: i32,
 ) -> Option<InspectResult> {
-    let signal = tester
-        .take_block_signal()
-        .or_else(|| {
-            if action == Action::Pause as i32 {
-                Some(LocalBlockSignal {
-                    status_code: 403,
-                    body: String::new(),
-                })
-            } else {
-                None
-            }
-        })?;
+    let signal = tester.take_block_signal().or_else(|| {
+        if action == Action::Pause as i32 {
+            Some(LocalBlockSignal {
+                status_code: 403,
+                body: String::new(),
+            })
+        } else {
+            None
+        }
+    })?;
 
     Some(signal_to_hit(req, &signal))
 }
@@ -156,7 +154,11 @@ fn signal_to_hit(req: &InspectRequest, signal: &LocalBlockSignal) -> InspectResu
     let blocked = signal.status_code >= 400 || signal.status_code == 0;
     InspectResult {
         blocked,
-        action: if blocked { "block".into() } else { "pass".into() },
+        action: if blocked {
+            "block".into()
+        } else {
+            "pass".into()
+        },
         category: "expert".into(),
         rule_id: extract_rule_id(&signal.body).unwrap_or_else(|| "expert".into()),
         rule_name: if signal.body.is_empty() {
@@ -257,7 +259,10 @@ fn load_config_json() -> String {
             if let Ok(raw) = std::fs::read_to_string(path) {
                 return raw;
             }
-            tracing::warn!(path, "NERVE_WAF_WASM_CRS_CONFIG unreadable, using built-in CRS");
+            tracing::warn!(
+                path,
+                "NERVE_WAF_WASM_CRS_CONFIG unreadable, using built-in CRS"
+            );
         }
     }
     default_coraza_config()
@@ -279,15 +284,14 @@ pub fn wasm_crs_loaded() -> bool {
 fn engine() -> Result<&'static Mutex<CorazaWasmEngine>, WasmCrsError> {
     static ENGINE: OnceLock<Result<Mutex<CorazaWasmEngine>, String>> = OnceLock::new();
     let slot = ENGINE.get_or_init(|| {
-        let path = resolve_wasm_path()
-            .ok_or_else(|| String::from("coraza-proxy-wasm.wasm not found"))?;
+        let path =
+            resolve_wasm_path().ok_or_else(|| String::from("coraza-proxy-wasm.wasm not found"))?;
         let config = load_config_json();
         let result = CorazaWasmEngine::new(&path, &config).map(Mutex::new);
         set_wasm_loaded(result.is_ok());
         result
     });
-    slot.as_ref()
-        .map_err(|e| WasmCrsError::Init(e.clone()))
+    slot.as_ref().map_err(|e| WasmCrsError::Init(e.clone()))
 }
 
 /// Blocking inspect for embed / sync pipeline paths.
@@ -296,8 +300,8 @@ pub fn inspect_blocking(req: &InspectRequest) -> Result<Option<InspectResult>, W
         return Err(WasmCrsError::Disabled);
     }
     let eng = engine()?;
-    let mut guard = eng.lock().map_err(|_| WasmCrsError::Inspect("lock poisoned".into()))?;
-    guard
-        .inspect(req)
-        .map_err(WasmCrsError::Inspect)
+    let mut guard = eng
+        .lock()
+        .map_err(|_| WasmCrsError::Inspect("lock poisoned".into()))?;
+    guard.inspect(req).map_err(WasmCrsError::Inspect)
 }

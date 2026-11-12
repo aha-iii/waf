@@ -45,10 +45,7 @@ fn is_dataplane_pull(path: &str) -> bool {
 }
 
 fn extract_credentials(req: &Request<Body>) -> (Option<&str>, Option<&str>) {
-    let api_key = req
-        .headers()
-        .get("x-api-key")
-        .and_then(|v| v.to_str().ok());
+    let api_key = req.headers().get("x-api-key").and_then(|v| v.to_str().ok());
     let bearer = req
         .headers()
         .get("authorization")

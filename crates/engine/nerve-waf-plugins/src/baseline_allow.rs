@@ -20,8 +20,8 @@ impl WafPlugin for BaselineAllowPlugin {
     }
 
     fn validate_config(&self, config: &serde_json::Value) -> Result<serde_json::Value, String> {
-        let parsed: Config = serde_json::from_value(config.clone())
-            .map_err(|e| format!("invalid config: {e}"))?;
+        let parsed: Config =
+            serde_json::from_value(config.clone()).map_err(|e| format!("invalid config: {e}"))?;
         if parsed.pod.is_empty() {
             return Err("pod required".into());
         }

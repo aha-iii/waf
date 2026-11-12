@@ -167,8 +167,16 @@ impl L7Engine {
         }
         let hay = format!("{} {} {}", req.uri, req.headers, req.body);
         let bad = [
-            ".php", ".jsp", ".asp", ".aspx", ".exe", ".sh", ".bat",
-            ".php.", ".jpg.php", "content-disposition: form-data",
+            ".php",
+            ".jsp",
+            ".asp",
+            ".aspx",
+            ".exe",
+            ".sh",
+            ".bat",
+            ".php.",
+            ".jpg.php",
+            "content-disposition: form-data",
         ];
         for sig in bad {
             if hay.to_lowercase().contains(sig) {
@@ -199,8 +207,14 @@ impl L7Engine {
             return None;
         }
         let patterns = [
-            ("A14-stack", r"(?i)(stack trace|exception in thread|at \w+\.\w+\()"),
-            ("A14-key", r"(?i)(api[_-]?key\s*[:=]|aws_secret|private_key)"),
+            (
+                "A14-stack",
+                r"(?i)(stack trace|exception in thread|at \w+\.\w+\()",
+            ),
+            (
+                "A14-key",
+                r"(?i)(api[_-]?key\s*[:=]|aws_secret|private_key)",
+            ),
             ("A14-sql", r"(?i)(sql syntax.*mysql|ora-\d{5})"),
         ];
         for (id, pat) in patterns {
@@ -235,11 +249,7 @@ impl L7Engine {
             .get(&rule.category)
             .map(|m| m.sensitivity.as_str())
             .unwrap_or("medium");
-        nerve_waf_sdk::rule_matches_sensitivity(
-            rule.paranoia_level,
-            &rule.severity,
-            sensitivity,
-        )
+        nerve_waf_sdk::rule_matches_sensitivity(rule.paranoia_level, &rule.severity, sensitivity)
     }
 
     fn module_enabled(&self, category: &str) -> bool {
@@ -250,7 +260,12 @@ impl L7Engine {
             .unwrap_or_else(|| {
                 matches!(
                     category,
-                    "sqli" | "xss" | "path_traversal" | "file_upload" | "info_leak" | "prompt_injection"
+                    "sqli"
+                        | "xss"
+                        | "path_traversal"
+                        | "file_upload"
+                        | "info_leak"
+                        | "prompt_injection"
                 )
             })
     }

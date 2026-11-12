@@ -55,7 +55,12 @@ pub fn coraza_url_from_env() -> Option<String> {
         }
     }
     match std::env::var("NERVE_WAF_CRS_ENGINE") {
-        Ok(v) if matches!(v.trim().to_ascii_lowercase().as_str(), "coraza" | "crs-coraza" | "full") => {
+        Ok(v)
+            if matches!(
+                v.trim().to_ascii_lowercase().as_str(),
+                "coraza" | "crs-coraza" | "full"
+            ) =>
+        {
             Some(
                 std::env::var("NERVE_CORAZA_LISTEN")
                     .ok()
@@ -142,10 +147,7 @@ pub fn inspect_blocking(req: &InspectRequest) -> Result<Option<InspectResult>, C
         .send()
         .map_err(CorazaError::Http)?;
     if !resp.status().is_success() {
-        return Err(CorazaError::Other(format!(
-            "coraza HTTP {}",
-            resp.status()
-        )));
+        return Err(CorazaError::Other(format!("coraza HTTP {}", resp.status())));
     }
     let v: CorazaInspectResp = resp.json().map_err(CorazaError::Http)?;
     if !v.blocked && v.action != "block" && v.action != "deny" {

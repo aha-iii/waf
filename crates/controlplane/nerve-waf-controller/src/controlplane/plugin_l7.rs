@@ -16,10 +16,15 @@ const MAX_VERSIONS: usize = 20;
 
 pub fn plugin_l7_router() -> Router<Arc<AppState>> {
     Router::new()
-        .route("/api/plugins/l7", get(list_l7_plugins).post(create_l7_plugin))
+        .route(
+            "/api/plugins/l7",
+            get(list_l7_plugins).post(create_l7_plugin),
+        )
         .route(
             "/api/plugins/l7/{name}",
-            get(get_l7_plugin).put(put_l7_plugin).delete(delete_l7_plugin),
+            get(get_l7_plugin)
+                .put(put_l7_plugin)
+                .delete(delete_l7_plugin),
         )
         .route("/api/plugins/l7/{name}/publish", post(publish_l7_plugin))
         .route("/api/plugins/l7/{name}/rollback", post(rollback_l7_plugin))
@@ -176,7 +181,12 @@ fn now_rfc3339() -> String {
 }
 
 fn plugins_root(state: &AppState) -> PathBuf {
-    state.plugin_host.read().unwrap().plugins_dir().to_path_buf()
+    state
+        .plugin_host
+        .read()
+        .unwrap()
+        .plugins_dir()
+        .to_path_buf()
 }
 
 fn plugin_dir(root: &FsPath, name: &str) -> PathBuf {
@@ -237,8 +247,8 @@ fn load_rules_json_concat(dir: &FsPath) -> Result<String, String> {
     entries.sort_by_key(|e| e.file_name());
     for e in entries {
         let raw = std::fs::read_to_string(e.path()).map_err(|err| err.to_string())?;
-        let v: Value = serde_json::from_str(&raw)
-            .map_err(|err| format!("{}: {err}", e.path().display()))?;
+        let v: Value =
+            serde_json::from_str(&raw).map_err(|err| format!("{}: {err}", e.path().display()))?;
         match v {
             Value::Array(arr) => all.extend(arr),
             other => all.push(other),
@@ -497,7 +507,10 @@ async fn create_l7_plugin(
         return Err(map_err_status("插件已存在".into(), StatusCode::CONFLICT));
     }
     std::fs::create_dir_all(&dir).map_err(|e| {
-        map_err_status(format!("创建目录失败: {e}"), StatusCode::INTERNAL_SERVER_ERROR)
+        map_err_status(
+            format!("创建目录失败: {e}"),
+            StatusCode::INTERNAL_SERVER_ERROR,
+        )
     })?;
 
     let mut manifest = PluginManifest {
@@ -519,12 +532,11 @@ async fn create_l7_plugin(
             .map_err(|e| map_err_status(e, StatusCode::BAD_REQUEST))?;
         manifest.rules = vec!["rules/*.json".into()];
     } else {
-        let script = body.script.unwrap_or_else(|| {
-            "function inspect(req)\n  return nil\nend\n".into()
-        });
-        std::fs::write(dir.join("plugin.lua"), script).map_err(|e| {
-            map_err_status(e.to_string(), StatusCode::INTERNAL_SERVER_ERROR)
-        })?;
+        let script = body
+            .script
+            .unwrap_or_else(|| "function inspect(req)\n  return nil\nend\n".into());
+        std::fs::write(dir.join("plugin.lua"), script)
+            .map_err(|e| map_err_status(e.to_string(), StatusCode::INTERNAL_SERVER_ERROR))?;
         manifest.script = Some("plugin.lua".into());
     }
 
@@ -656,9 +668,7 @@ async fn list_l7_versions(
     if !dir.is_dir() {
         return Err(map_err_status("插件不存在".into(), StatusCode::NOT_FOUND));
     }
-    let current = read_manifest(&dir)
-        .map(|m| m.version)
-        .unwrap_or_default();
+    let current = read_manifest(&dir).map(|m| m.version).unwrap_or_default();
     let vroot = versions_root(&dir);
     let mut versions = Vec::new();
     if vroot.is_dir() {
@@ -718,8 +728,8 @@ async fn rollback_l7_plugin(
     Json(body): Json<RollbackBody>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     validate_name(&name).map_err(|e| map_err_status(e, StatusCode::BAD_REQUEST))?;
-    let ver = validate_version(&body.version)
-        .map_err(|e| map_err_status(e, StatusCode::BAD_REQUEST))?;
+    let ver =
+        validate_version(&body.version).map_err(|e| map_err_status(e, StatusCode::BAD_REQUEST))?;
     let dir = plugin_dir(&plugins_root(&state), &name);
     if !dir.is_dir() {
         return Err(map_err_status("插件不存在".into(), StatusCode::NOT_FOUND));
@@ -732,9 +742,10 @@ async fn rollback_l7_plugin(
     let hist = read_manifest(&vdir).map_err(|e| map_err_status(e, StatusCode::BAD_REQUEST))?;
     let ptype = hist.plugin_type.to_lowercase();
     let rules_json = if ptype == "json" {
-        Some(load_rules_json_concat(&vdir).map_err(|e| {
-            map_err_status(e, StatusCode::INTERNAL_SERVER_ERROR)
-        })?)
+        Some(
+            load_rules_json_concat(&vdir)
+                .map_err(|e| map_err_status(e, StatusCode::INTERNAL_SERVER_ERROR))?,
+        )
     } else {
         None
     };
@@ -748,9 +759,7 @@ async fn rollback_l7_plugin(
         None
     };
 
-    let note = body
-        .note
-        .unwrap_or_else(|| format!("rollback from {ver}"));
+    let note = body.note.unwrap_or_else(|| format!("rollback from {ver}"));
 
     // Reuse the publish path.
     let publish = PublishBody {
@@ -773,9 +782,8 @@ async fn delete_l7_plugin(
     if !dir.is_dir() {
         return Err(map_err_status("插件不存在".into(), StatusCode::NOT_FOUND));
     }
-    std::fs::remove_dir_all(&dir).map_err(|e| {
-        map_err_status(format!("删除失败: {e}"), StatusCode::INTERNAL_SERVER_ERROR)
-    })?;
+    std::fs::remove_dir_all(&dir)
+        .map_err(|e| map_err_status(format!("删除失败: {e}"), StatusCode::INTERNAL_SERVER_ERROR))?;
     let report = state.reload_plugins_and_l7_async().await;
     Ok(Json(json!({ "ok": true, "report": report })))
 }

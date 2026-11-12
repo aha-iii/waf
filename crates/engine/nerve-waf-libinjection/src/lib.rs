@@ -95,11 +95,7 @@ impl LibInjectionConfig {
                     category: def.category.into(),
                     paranoia_level: def.paranoia_level,
                     severity: def.severity.into(),
-                    scan_targets: def
-                        .scan_targets
-                        .iter()
-                        .map(|t| t.label().into())
-                        .collect(),
+                    scan_targets: def.scan_targets.iter().map(|t| t.label().into()).collect(),
                     crs_operator: def.crs_operator.into(),
                     standard_at_pl,
                     override_enabled,
@@ -117,7 +113,6 @@ impl LibInjectionConfig {
         }
     }
 }
-
 
 #[cfg(test)]
 mod test;

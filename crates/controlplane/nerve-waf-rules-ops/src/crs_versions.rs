@@ -105,16 +105,25 @@ pub fn rollback_crs(
 ) -> Result<CrsVersionRecord, CrsVersionError> {
     let version_dir = versions_dir.join(version_id);
     if !version_dir.is_dir() {
-        return Err(CrsVersionError::Other(format!("version not found: {version_id}")));
+        return Err(CrsVersionError::Other(format!(
+            "version not found: {version_id}"
+        )));
     }
     let meta_path = version_dir.join("meta.json");
     let target: CrsVersionRecord = if meta_path.exists() {
         serde_json::from_str(&fs::read_to_string(&meta_path)?)?
     } else {
-        return Err(CrsVersionError::Other(format!("invalid version: {version_id}")));
+        return Err(CrsVersionError::Other(format!(
+            "invalid version: {version_id}"
+        )));
     };
 
-    snapshot_crs(rules_dir, versions_dir, &format!("回滚前自动备份 → {version_id}"), None)?;
+    snapshot_crs(
+        rules_dir,
+        versions_dir,
+        &format!("回滚前自动备份 → {version_id}"),
+        None,
+    )?;
 
     clear_json_files(rules_dir)?;
     copy_json_tree(&version_dir, rules_dir)?;

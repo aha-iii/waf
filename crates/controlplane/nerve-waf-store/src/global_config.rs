@@ -33,7 +33,9 @@ pub mod pg {
     use super::*;
     use sqlx::{PgPool, Row};
 
-    pub async fn load_global_protection(pool: &PgPool) -> Result<Option<ProtectionModules>, ConfigError> {
+    pub async fn load_global_protection(
+        pool: &PgPool,
+    ) -> Result<Option<ProtectionModules>, ConfigError> {
         let header = sqlx::query("SELECT version, mode FROM waf_protection WHERE id = $1")
             .bind(GLOBAL_ROW_ID)
             .fetch_optional(pool)
@@ -190,7 +192,9 @@ pub mod pg {
         Ok(())
     }
 
-    pub async fn load_global_pipeline(pool: &PgPool) -> Result<Option<SemanticConfig>, ConfigError> {
+    pub async fn load_global_pipeline(
+        pool: &PgPool,
+    ) -> Result<Option<SemanticConfig>, ConfigError> {
         let row = sqlx::query(
             r#"SELECT enabled, semantic_mode, intent_enabled,
                       semantic_first, libinjection, sql_intent, fallback_plain_libinjection,
@@ -216,15 +220,19 @@ pub mod pg {
 
         let (pipeline_order, pipeline_enabled) = stages_from_rows(&stage_rows);
 
-        let editor_row = sqlx::query(
-            "SELECT editor_mode, layout, graph FROM waf_pipeline_editor WHERE id = $1",
-        )
-        .bind(GLOBAL_ROW_ID)
-        .fetch_optional(pool)
-        .await
-        .map_err(|e| ConfigError::Db(e.to_string()))?;
+        let editor_row =
+            sqlx::query("SELECT editor_mode, layout, graph FROM waf_pipeline_editor WHERE id = $1")
+                .bind(GLOBAL_ROW_ID)
+                .fetch_optional(pool)
+                .await
+                .map_err(|e| ConfigError::Db(e.to_string()))?;
 
-        Ok(Some(build_semantic_config(row, &pipeline_order, &pipeline_enabled, editor_row)?))
+        Ok(Some(build_semantic_config(
+            row,
+            &pipeline_order,
+            &pipeline_enabled,
+            editor_row,
+        )?))
     }
 
     pub async fn save_global_pipeline(
@@ -384,7 +392,9 @@ pub mod pg {
         cfg.engines.pipeline_order
     }
 
-    fn stages_from_rows(stage_rows: &[sqlx::postgres::PgRow]) -> (Vec<String>, HashMap<String, bool>) {
+    fn stages_from_rows(
+        stage_rows: &[sqlx::postgres::PgRow],
+    ) -> (Vec<String>, HashMap<String, bool>) {
         let mut pipeline_order = Vec::new();
         let mut pipeline_enabled = HashMap::new();
         if stage_rows.is_empty() {

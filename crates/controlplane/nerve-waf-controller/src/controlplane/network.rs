@@ -94,16 +94,12 @@ async fn nerve_baseline_allow(
             Json(json!({ "error": "pod and ip required" })),
         ));
     }
-    state
-        .nerve
-        .baseline_allow(pod, ip)
-        .await
-        .map_err(|e| {
-            (
-                StatusCode::BAD_GATEWAY,
-                Json(json!({ "error": e.to_string() })),
-            )
-        })?;
+    state.nerve.baseline_allow(pod, ip).await.map_err(|e| {
+        (
+            StatusCode::BAD_GATEWAY,
+            Json(json!({ "error": e.to_string() })),
+        )
+    })?;
     Ok(Json(json!({ "status": "ok", "pod": pod, "ip": ip })))
 }
 
@@ -112,16 +108,12 @@ async fn nerve_baseline_enforce(
     Query(q): Query<BaselineEnforceQuery>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let pod = q.pod.as_deref().map(str::trim).filter(|s| !s.is_empty());
-    state
-        .nerve
-        .baseline_enforce(pod)
-        .await
-        .map_err(|e| {
-            (
-                StatusCode::BAD_GATEWAY,
-                Json(json!({ "error": e.to_string() })),
-            )
-        })?;
+    state.nerve.baseline_enforce(pod).await.map_err(|e| {
+        (
+            StatusCode::BAD_GATEWAY,
+            Json(json!({ "error": e.to_string() })),
+        )
+    })?;
     Ok(Json(json!({ "status": "ok", "pod": pod })))
 }
 

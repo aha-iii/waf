@@ -38,7 +38,9 @@ async fn export_clickhouse(
     Json(body): Json<ChExportBody>,
 ) -> Json<Value> {
     let flows = if let Some(topo) = &state.topology {
-        topo.recent_flows(body.limit, None).await.unwrap_or_default()
+        topo.recent_flows(body.limit, None)
+            .await
+            .unwrap_or_default()
     } else {
         vec![]
     };
@@ -55,7 +57,11 @@ async fn export_clickhouse(
 async fn mesh_status() -> Json<Value> {
     let base = std::env::var("NERVE_MESH_URL").unwrap_or_else(|_| "http://127.0.0.1:8086".into());
     let client = reqwest::Client::new();
-    match client.get(format!("{}/api/mesh/status", base.trim_end_matches('/'))).send().await {
+    match client
+        .get(format!("{}/api/mesh/status", base.trim_end_matches('/')))
+        .send()
+        .await
+    {
         Ok(r) if r.status().is_success() => Json(r.json().await.unwrap_or(json!({}))),
         _ => Json(json!({ "mesh": "offline", "mtls": false, "phase": 12 })),
     }

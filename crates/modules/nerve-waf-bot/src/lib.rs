@@ -3,8 +3,16 @@
 use serde::{Deserialize, Serialize};
 
 const BOT_UA: &[&str] = &[
-    "curl", "wget", "python-requests", "scrapy", "bot", "spider", "crawler",
-    "headless", "phantomjs", "selenium",
+    "curl",
+    "wget",
+    "python-requests",
+    "scrapy",
+    "bot",
+    "spider",
+    "crawler",
+    "headless",
+    "phantomjs",
+    "selenium",
 ];
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

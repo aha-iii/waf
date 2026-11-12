@@ -46,9 +46,23 @@ pub fn classify_sql_intent(text: &str) -> (SqlIntent, u8) {
 
 fn looks_like_sql_fragment(lower: &str) -> bool {
     [
-        "select", "union", "insert", "update", "delete", "drop", "alter", "create",
-        "sleep", "benchmark", "load_file", "information_schema", " or ", " and ",
-        "' or", "1=1", "0x",
+        "select",
+        "union",
+        "insert",
+        "update",
+        "delete",
+        "drop",
+        "alter",
+        "create",
+        "sleep",
+        "benchmark",
+        "load_file",
+        "information_schema",
+        " or ",
+        " and ",
+        "' or",
+        "1=1",
+        "0x",
     ]
     .iter()
     .any(|k| lower.contains(k))

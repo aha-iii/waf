@@ -2,13 +2,13 @@
 
 pub mod shared;
 
+pub mod ai_incident;
 pub mod ai_ml_labels;
 pub mod ai_ops;
 pub mod ai_policy_sim;
+pub mod ai_posture;
 pub mod ai_rate_limit;
 pub mod ai_settings;
-pub mod ai_posture;
-pub mod ai_incident;
 pub mod alert_integration;
 pub mod alert_proxy;
 pub mod app_crs;
@@ -20,10 +20,11 @@ pub mod fp_remediation;
 pub mod ingress;
 pub mod network;
 pub mod np;
-pub mod phase8;
 pub mod phase10;
 pub mod phase12;
+pub mod phase8;
 pub mod plugin_l7;
+pub mod public_demo;
 pub mod routes;
 pub mod security;
 pub mod sites;
@@ -31,7 +32,6 @@ pub mod topology;
 pub mod traffic_stats;
 pub mod triage;
 pub mod users;
-pub mod public_demo;
 
 use axum::Router;
 use std::sync::Arc;

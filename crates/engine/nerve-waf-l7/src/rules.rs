@@ -67,12 +67,18 @@ pub enum RuleCompileError {
     Regex { id: String, message: String },
 }
 
-pub fn compile_rules_from_json(raw: &str, source: &str) -> Result<Vec<CompiledRule>, RuleCompileError> {
+pub fn compile_rules_from_json(
+    raw: &str,
+    source: &str,
+) -> Result<Vec<CompiledRule>, RuleCompileError> {
     let rules: Vec<RawRule> = serde_json::from_str(raw)?;
     compile_rules(rules, source)
 }
 
-pub fn compile_rules(rules: Vec<RawRule>, source: &str) -> Result<Vec<CompiledRule>, RuleCompileError> {
+pub fn compile_rules(
+    rules: Vec<RawRule>,
+    source: &str,
+) -> Result<Vec<CompiledRule>, RuleCompileError> {
     let mut out = Vec::with_capacity(rules.len());
     for r in rules {
         let mut steps = Vec::with_capacity(1 + r.chain_steps.len());

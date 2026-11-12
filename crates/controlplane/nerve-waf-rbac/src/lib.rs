@@ -61,14 +61,22 @@ pub fn check_permission(cfg: &RbacConfig, role: &str, resource: &str, action: &s
     let need = format!("{resource}:{action}");
     let wild_all = "*:*".to_string();
     let wild_res = format!("{resource}:*");
-    perms.iter().any(|p| p == &wild_all || p == &wild_res || p == &need)
+    perms
+        .iter()
+        .any(|p| p == &wild_all || p == &wild_res || p == &need)
 }
 
 pub fn default_config() -> RbacConfig {
     let mut role_permissions = HashMap::new();
     role_permissions.insert("admin".into(), vec!["*:*".into()]);
-    role_permissions.insert("operator".into(), vec!["policy:*".into(), "topology:read".into()]);
-    role_permissions.insert("viewer".into(), vec!["topology:read".into(), "events:read".into()]);
+    role_permissions.insert(
+        "operator".into(),
+        vec!["policy:*".into(), "topology:read".into()],
+    );
+    role_permissions.insert(
+        "viewer".into(),
+        vec!["topology:read".into(), "events:read".into()],
+    );
     RbacConfig {
         enabled: false,
         tenants: vec![Tenant {

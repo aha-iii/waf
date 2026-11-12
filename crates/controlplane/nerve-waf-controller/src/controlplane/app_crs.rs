@@ -18,7 +18,10 @@ pub fn app_crs_router() -> Router<Arc<AppState>> {
     Router::new()
         .route("/api/apps/{site_id}/crs", get(get_app_crs_status))
         .route("/api/apps/{site_id}/crs/history", get(list_app_crs_history))
-        .route("/api/apps/{site_id}/crs/history/{history_id}", get(get_app_crs_history_entry))
+        .route(
+            "/api/apps/{site_id}/crs/history/{history_id}",
+            get(get_app_crs_history_entry),
+        )
         .route("/api/apps/{site_id}/crs/apply", post(apply_app_crs_version))
 }
 
@@ -94,7 +97,9 @@ async fn apply_app_crs_version(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    let merged = state.platform.merged_l7_rules_from_version_dir(&version_dir);
+    let merged = state
+        .platform
+        .merged_l7_rules_from_version_dir(&version_dir);
     let valid_ids: HashSet<String> = merged.iter().map(|r| r.id.clone()).collect();
 
     state

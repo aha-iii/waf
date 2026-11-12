@@ -89,8 +89,8 @@ impl GeoEngine {
     }
 
     pub fn update_config(&mut self, config: GeoConfig) {
-        let path_changed = config.mmdb_path != self.config.mmdb_path
-            || config.source != self.config.source;
+        let path_changed =
+            config.mmdb_path != self.config.mmdb_path || config.source != self.config.source;
         self.config = config;
         if path_changed {
             let _ = self.try_load_mmdb(resolve_mmdb_path(&self.config));
@@ -104,10 +104,7 @@ impl GeoEngine {
     pub fn status(&self) -> GeoStatus {
         GeoStatus {
             mmdb_loaded: self.mmdb.is_some(),
-            mmdb_path: self
-                .mmdb_path
-                .as_ref()
-                .map(|p| p.to_string_lossy().into()),
+            mmdb_path: self.mmdb_path.as_ref().map(|p| p.to_string_lossy().into()),
             cidr_rules: self.rules.len(),
             source: self.config.source.clone(),
         }
@@ -129,10 +126,7 @@ impl GeoEngine {
     }
 
     fn try_load_mmdb(&mut self, path: Option<PathBuf>) -> Result<bool, String> {
-        let use_mmdb = matches!(
-            self.config.source.as_str(),
-            "auto" | "mmdb"
-        );
+        let use_mmdb = matches!(self.config.source.as_str(), "auto" | "mmdb");
         if !use_mmdb {
             return Ok(false);
         }

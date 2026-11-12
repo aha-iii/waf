@@ -30,7 +30,10 @@ const HOP_BY_HOP: &[&str] = &[
 ];
 
 #[derive(Parser, Debug)]
-#[command(name = "nerve-waf-console", about = "Nerve WAF Console (static UI + API proxy)")]
+#[command(
+    name = "nerve-waf-console",
+    about = "Nerve WAF Console (static UI + API proxy)"
+)]
 struct Args {
     #[arg(long, env = "WAF_CONSOLE_PORT")]
     port: Option<u16>,
@@ -69,7 +72,9 @@ fn build_upstream_uri(base: &str, path_and_query: &str) -> Result<Uri, String> {
         .parse::<Uri>()
         .map_err(|e| format!("invalid upstream uri {full}: {e}"))?;
     if uri.scheme().is_none() || uri.host().is_none() {
-        return Err(format!("api upstream must be absolute URL with host: {full}"));
+        return Err(format!(
+            "api upstream must be absolute URL with host: {full}"
+        ));
     }
     Ok(uri)
 }
@@ -206,13 +211,8 @@ async fn main() {
         .init();
 
     let args = Args::parse();
-    let port = args
-        .port
-        .or(args.console_port)
-        .unwrap_or_else(default_port);
-    let upstream = args
-        .api_upstream
-        .unwrap_or_else(default_api_upstream);
+    let port = args.port.or(args.console_port).unwrap_or_else(default_port);
+    let upstream = args.api_upstream.unwrap_or_else(default_api_upstream);
 
     let Some(dir) = console_static::resolve_console_dir() else {
         eprintln!(

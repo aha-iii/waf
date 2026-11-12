@@ -56,7 +56,9 @@ pub fn load_packs_from_dir(dir: &Path) -> Result<Vec<LoadedPack>, RulesOpsError>
     if !dir.is_dir() {
         return Ok(packs);
     }
-    for entry in glob::glob(&format!("{}/**/*.json", dir.display())).unwrap_or_else(|_| glob::glob("").unwrap()) {
+    for entry in glob::glob(&format!("{}/**/*.json", dir.display()))
+        .unwrap_or_else(|_| glob::glob("").unwrap())
+    {
         let path = entry.map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
         if let Ok(pack) = load_pack_file(&path) {
             packs.push(pack);
@@ -71,10 +73,13 @@ pub fn load_raw_rules_from_dir(dir: &Path) -> Result<Vec<RawRule>, RulesOpsError
     if !dir.is_dir() {
         return Ok(out);
     }
-    for entry in glob::glob(&format!("{}/**/*.json", dir.display())).unwrap_or_else(|_| glob::glob("").unwrap()) {
+    for entry in glob::glob(&format!("{}/**/*.json", dir.display()))
+        .unwrap_or_else(|_| glob::glob("").unwrap())
+    {
         let path = entry.map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
         let raw = std::fs::read_to_string(&path)?;
-        let file: PackFile = serde_json::from_str(&raw).map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
+        let file: PackFile =
+            serde_json::from_str(&raw).map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
         if !file.meta.enabled || file.meta.rollout_pct == 0 {
             continue;
         }
@@ -85,7 +90,8 @@ pub fn load_raw_rules_from_dir(dir: &Path) -> Result<Vec<RawRule>, RulesOpsError
 
 pub fn load_pack_file(path: &Path) -> Result<LoadedPack, RulesOpsError> {
     let raw = std::fs::read_to_string(path)?;
-    let file: PackFile = serde_json::from_str(&raw).map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
+    let file: PackFile =
+        serde_json::from_str(&raw).map_err(|e| RulesOpsError::Invalid(e.to_string()))?;
     if !file.meta.enabled && file.meta.rollout_pct == 0 {
         return Ok(LoadedPack {
             meta: file.meta,

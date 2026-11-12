@@ -1,5 +1,5 @@
-use crate::{compile_rules, embedded_rules, RawChainStep, RawRule};
 use crate::scan_targets::ScanTarget;
+use crate::{compile_rules, embedded_rules, RawChainStep, RawRule};
 
 fn raw(
     id: &str,

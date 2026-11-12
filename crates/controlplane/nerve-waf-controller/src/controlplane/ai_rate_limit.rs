@@ -54,7 +54,11 @@ pub fn check_expensive_ai(kind: AiRateLimitKind) -> Result<(), u64> {
         entry.reset_at = now + window;
     }
     if entry.count >= max {
-        let retry = entry.reset_at.saturating_duration_since(now).as_secs().max(1);
+        let retry = entry
+            .reset_at
+            .saturating_duration_since(now)
+            .as_secs()
+            .max(1);
         return Err(retry);
     }
     entry.count += 1;

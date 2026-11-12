@@ -52,7 +52,10 @@ async fn register_agent(
     State(state): State<Arc<AppState>>,
     Json(body): Json<AgentRegisterRequest>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     topo.register_agent(body)
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -63,7 +66,10 @@ async fn ingest_flows(
     State(state): State<Arc<AppState>>,
     Json(body): Json<FlowIngestBatch>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let n = topo
         .ingest_flows(body)
         .await
@@ -75,7 +81,10 @@ async fn sync_workloads(
     State(state): State<Arc<AppState>>,
     Json(body): Json<WorkloadSyncBatch>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let n = topo
         .sync_workloads(body)
         .await
@@ -87,7 +96,10 @@ async fn list_workloads(
     State(state): State<Arc<AppState>>,
     Query(q): Query<WorkloadsQuery>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let items = topo
         .list_workloads(q.cluster.as_deref(), q.limit.unwrap_or(100))
         .await
@@ -99,17 +111,18 @@ async fn sync_docker_inventory(
     State(state): State<Arc<AppState>>,
     Json(body): Json<Value>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let node_id = body.get("node_id").and_then(|v| v.as_str()).unwrap_or("");
     if node_id.is_empty() {
         return Err(StatusCode::UNPROCESSABLE_ENTITY);
     }
-    topo.sync_docker_inventory(body)
-        .await
-        .map_err(|e| {
-            tracing::error!("docker sync failed: {e}");
-            StatusCode::INTERNAL_SERVER_ERROR
-        })?;
+    topo.sync_docker_inventory(body).await.map_err(|e| {
+        tracing::error!("docker sync failed: {e}");
+        StatusCode::INTERNAL_SERVER_ERROR
+    })?;
     Ok(Json(json!({ "ok": true })))
 }
 
@@ -117,7 +130,10 @@ async fn list_docker_inventory(
     State(state): State<Arc<AppState>>,
     Query(q): Query<DockerInventoryQuery>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let inv = topo
         .docker_inventory_aggregate(q.node_id.as_deref(), 120)
         .await
@@ -142,7 +158,10 @@ async fn list_flows(
     State(state): State<Arc<AppState>>,
     Query(q): Query<FlowsQuery>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let flows = topo
         .recent_flows(q.limit.unwrap_or(50), q.direction.as_deref())
         .await
@@ -154,7 +173,10 @@ async fn topology_graph(
     State(state): State<Arc<AppState>>,
     Query(q): Query<GraphQuery>,
 ) -> Result<Json<Value>, StatusCode> {
-    let topo = state.topology.as_ref().ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
+    let topo = state
+        .topology
+        .as_ref()
+        .ok_or(StatusCode::SERVICE_UNAVAILABLE)?;
     let graph = topo
         .graph_with_cluster(
             q.minutes.unwrap_or(15),

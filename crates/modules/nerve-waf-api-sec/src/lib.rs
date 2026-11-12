@@ -96,7 +96,10 @@ pub fn validate_request(
         }
     }
 
-    let schema = cfg.schemas.iter().find(|s| s.host == host || s.host == "*")?;
+    let schema = cfg
+        .schemas
+        .iter()
+        .find(|s| s.host == host || s.host == "*")?;
     let path_spec = schema.paths.get(path);
     if path_spec.is_none() {
         if cfg.block_unknown_paths {
@@ -111,7 +114,11 @@ pub fn validate_request(
     }
     let spec = path_spec.unwrap();
     let method_up = method.to_uppercase();
-    if !spec.methods.iter().any(|m| m.eq_ignore_ascii_case(&method_up)) {
+    if !spec
+        .methods
+        .iter()
+        .any(|m| m.eq_ignore_ascii_case(&method_up))
+    {
         return Some(ApiSecViolation {
             schema_id: schema.id.clone(),
             reason: "method_not_allowed".into(),
