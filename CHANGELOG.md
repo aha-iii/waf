@@ -10,6 +10,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Console 全部 `/api/*` 返回 502（`waf-control unreachable`）**：`ops/mars-test/docker-compose.yml`
+  与 `ops/prod/app/docker-compose.yml` 设置的是 `WAF_API_UPSTREAM`，而 `nerve-waf-console` 实际只读
+  `WAF_CONTROLLER_UPSTREAM`。变量名不匹配 → 回落到默认值 `http://127.0.0.1:9000`；console 与
+  controller 是两个独立容器，console 容器内的 `127.0.0.1:9000` 并无监听，于是代理层返回
+  `{"error":"waf-control unreachable"}`。两处编排统一改为 `WAF_CONTROLLER_UPSTREAM`，
+  并在 `console.rs` 增加对旧变量名的兼容回退，避免既有环境升级后再次静默回落。
+  判据：`curl /api/sites` 由 `502` 变为 `401`（未带登录态），`/api/health` 为 `200`。
+
 ## [1.0.0] - 2026-11-12
 
 首个正式发布版本。相比 `develop/1.0` 分支此前状态，本次补齐了开源合规、CI 与一键安装链路，

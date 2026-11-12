@@ -52,7 +52,11 @@ fn default_port() -> u16 {
 }
 
 fn default_api_upstream() -> String {
+    // `WAF_API_UPSTREAM` 是 ops/ 下编排文件曾用过的旧名，保留兼容：
+    // 早期 mars-test / prod 的 docker-compose 只设了旧名，而本程序只读新名，
+    // 结果回落到 127.0.0.1:9000（console 与 controller 分属不同容器，必 502）。
     std::env::var("WAF_CONTROLLER_UPSTREAM")
+        .or_else(|_| std::env::var("WAF_API_UPSTREAM"))
         .unwrap_or_else(|_| "http://127.0.0.1:9000".into())
         .trim_end_matches('/')
         .to_string()
