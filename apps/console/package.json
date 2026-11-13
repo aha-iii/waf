@@ -16,7 +16,7 @@
     "@logicflow/extension": "^2.2.3",
     "@nerve/ui": "file:./vendor/nerve-ui",
     "@patternfly/react-core": "^5.4.0",
-    "@patternfly/react-icons": "^5.4.0",
+    "@patternfly/react-icons": "^6.7.0",
     "@patternfly/react-styles": "^5.4.0",
     "@patternfly/react-topology": "^5.4.0",
     "keycloak-js": "^26.0.0",
