@@ -4,12 +4,12 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](VERSION)
-[![Repo](https://img.shields.io/badge/GitHub-ahaiii%2Fwaf-181717?logo=github)](https://github.com/ahaiii/waf)
+[![Repo](https://img.shields.io/badge/GitHub-aha-iii%2Fwaf-181717?logo=github)](https://github.com/aha-iii/waf)
 
 <!-- CI：fmt / clippy -D warnings / test / helm lint，见 .github/workflows/nerve-waf-ci.yml -->
 
 Nerve WAF 对 HTTP/S 流量做规范化与规则检测（CRS / 自定义 / 可选 Expert 引擎），并提供策略与快照下发。  
-crate：`nerve-waf-*`（本仓库独立发版；检测引擎子产品见 [Nerve Antibody](https://github.com/ahaiii/antibody)）
+crate：`nerve-waf-*`（本仓库独立发版；检测引擎子产品见 [Nerve Antibody](https://github.com/aha-iii/antibody)）
 
 **架构总览（建议先读）：** [docs/what-is-waf.md](./docs/what-is-waf.md) → [capabilities.md](./docs/capabilities.md) → [how-it-works.md](./docs/how-it-works.md) → [architecture-overview.md](./docs/architecture-overview.md)
 
@@ -90,7 +90,7 @@ NERVE_UI_DIR=/path/to/Nerve-ui bash install.sh
 
 | 类型 | 坐标 |
 |------|------|
-| OCI 镜像 | `ghcr.io/ahaiii/waf:1.0.0`（tag `nerve-waf-v1.0.0`） |
+| OCI 镜像 | `ghcr.io/aha-iii/waf:1.0.0`（tag `nerve-waf-v1.0.0`） |
 | Helm Chart | `deploy/helm/nerve-waf/` |
 
 发版流程：[RELEASE.md](./RELEASE.md)

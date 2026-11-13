@@ -47,8 +47,8 @@ version = "1.0.0"
 edition = "2021"
 license = "MIT"
 authors = ["Nerve Team"]
-repository = "https://github.com/ahaiii/waf"
-homepage = "https://github.com/ahaiii/waf"
+repository = "https://github.com/aha-iii/waf"
+homepage = "https://github.com/aha-iii/waf"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

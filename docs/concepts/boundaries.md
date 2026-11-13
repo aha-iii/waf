@@ -27,7 +27,7 @@ Nerve WAF **开源仓库**交付 L7 检测、控制面 API、L7 Agent 与可选 
 
 | 集成 | 方式 |
 |------|------|
-| Expert 规则引擎 | 构建 `--features expert`（依赖 `github.com/ahaiii/antibody`） |
+| Expert 规则引擎 | 构建 `--features expert`（依赖 `github.com/aha-iii/antibody`） |
 | 告警中心 | `NERVE_ALERT_ENABLED`，HTTP 至 Nerve-alert |
 | 节点 L3 deny | `NERVE_URL` 指向节点 Agent API（**可选** env） |
 | HTTP 旁路检测 | 外部组件 `POST /api/inspect` |

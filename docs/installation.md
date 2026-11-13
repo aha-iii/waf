@@ -112,7 +112,7 @@ bash ../scripts/smoke-test.sh
 ## 方式 B — 预构建 OCI 镜像
 
 ```bash
-docker pull ghcr.io/ahaiii/waf:1.0.0
+docker pull ghcr.io/aha-iii/waf:1.0.0
 cd deploy && cp .env.example .env
 # DATABASE_URL=...  TAG=1.0.0
 docker compose -f docker-compose.prebuilt.yml up -d

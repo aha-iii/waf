@@ -26,18 +26,18 @@ No `Nerve-antibody` or `Nerve-alert` directory required.
 | Feature flag | Dependency | How to get it | Purpose |
 |--------------|------------|---------------|---------|
 | `alert` | HTTP dispatch to Nerve-alert (`--features alert`, env `NERVE_ALERT_URL`) | 无 crate 依赖，纯 HTTP | 告警分发 |
-| `expert` | `nerve-antibody` | Cargo 自动拉取 `github.com/ahaiii/antibody` | Expert 检测阶段 |
+| `expert` | `nerve-antibody` | Cargo 自动拉取 `github.com/aha-iii/antibody` | Expert 检测阶段 |
 
 `expert` 是跨仓库依赖，声明为 **git 依赖**，无需手工排列目录：
 
 ```toml
-nerve-antibody = { git = "https://github.com/ahaiii/antibody", branch = "main", optional = true }
+nerve-antibody = { git = "https://github.com/aha-iii/antibody", branch = "main", optional = true }
 ```
 
 本地联调两个仓库时，放一个不入库的 `.cargo/config.toml` 指向同级工作副本即可：
 
 ```toml
-[patch."https://github.com/ahaiii/antibody"]
+[patch."https://github.com/aha-iii/antibody"]
 nerve-antibody = { path = "../Nerve-antibody/crates/integration/nerve-antibody" }
 ```
 

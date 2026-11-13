@@ -28,7 +28,7 @@ nerve-waf-libinjection = { workspace = true }
 nerve-waf-semantic = { workspace = true }
 nerve-waf-coraza = { workspace = true }
 nerve-waf-wasm = { workspace = true }
-nerve-antibody = { git = "https://github.com/ahaiii/antibody", branch = "main", optional = true }
+nerve-antibody = { git = "https://github.com/aha-iii/antibody", branch = "main", optional = true }
 nerve-inspect-trace = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
