@@ -1,0 +1,7 @@
+# 关闭空白 issue，引导使用模板。
+# 安全漏洞与规则绕过请勿走公开 issue，见 SECURITY.md 的私报流程。
+blank_issues_enabled: false
+contact_links:
+  - name: 安全漏洞 / 规则绕过
+    url: https://github.com/ahaiii/waf/security/advisories/new
+    about: 请勿在公开 issue 中披露；走私有 Advisory 流程，详见 SECURITY.md

@@ -1950,7 +1950,7 @@ dependencies = [
 name = "nerve-antibody-dsl"
 version = "0.1.0"
 dependencies = [
- "nerve-waf-canonical",
+ "nerve-waf-canonical 0.1.0",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -2022,7 +2022,7 @@ version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
  "nerve-antibody-dsl",
- "nerve-waf-canonical",
+ "nerve-waf-canonical 0.1.0",
  "regex",
  "serde",
  "serde_json",
@@ -2146,6 +2146,10 @@ version = "1.0.0"
 dependencies = [
  "serde",
 ]
+
+[[package]]
+name = "nerve-waf-canonical"
+version = "0.1.0"
 
 [[package]]
 name = "nerve-waf-canonical"
@@ -2421,7 +2425,7 @@ name = "nerve-waf-normalize"
 version = "1.0.0"
 dependencies = [
  "base64 0.22.1",
- "nerve-waf-canonical",
+ "nerve-waf-canonical 1.0.0",
  "nerve-waf-l7",
  "serde",
  "serde_json",

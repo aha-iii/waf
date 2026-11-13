@@ -5,7 +5,7 @@
 ## 开发
 
 ```bash
-cd Nerve-waf/Nerve-waf/apps/console
+cd apps/console
 npm install
 npm run dev
 ```

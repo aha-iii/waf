@@ -4,6 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](VERSION)
+[![Repo](https://img.shields.io/badge/GitHub-ahaiii%2Fwaf-181717?logo=github)](https://github.com/ahaiii/waf)
 
 <!-- CI：fmt / clippy -D warnings / test / helm lint，见 .github/workflows/nerve-waf-ci.yml -->
 
@@ -89,7 +90,7 @@ NERVE_UI_DIR=/path/to/Nerve-ui bash install.sh
 
 | 类型 | 坐标 |
 |------|------|
-| OCI 镜像 | `ghcr.io/<org>/nerve-waf:1.0.0`（tag `nerve-waf-v1.0.0`） |
+| OCI 镜像 | `ghcr.io/ahaiii/waf:1.0.0`（tag `nerve-waf-v1.0.0`） |
 | Helm Chart | `deploy/helm/nerve-waf/` |
 
 发版流程：[RELEASE.md](./RELEASE.md)
@@ -97,7 +98,7 @@ NERVE_UI_DIR=/path/to/Nerve-ui bash install.sh
 ## 社区
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
-- [CODE_OF_CONDUCT.md](../../CODE_OF_CONDUCT.md)
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 - [SECURITY.md](./SECURITY.md)
 
 ## License

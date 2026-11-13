@@ -16,8 +16,10 @@
 | `prod/` | 正式环境编排 |
 | `private-test/` | 私有测试环境编排（本机目录名以实际为准） |
 
+以下脚本属**内部部署工具，未随仓库发布**（对应目录仅有本 README）。
+开源版本请使用 `deploy/scripts/` 下的脚本与仓库根 `Makefile`：
+
 ```bash
-bash ops/scripts/start-waf.sh --build    # 或 bash scripts/start-waf.sh
-bash ops/scripts/deploy-test.sh
-bash ops/scripts/deploy-prod.sh --up
+bash deploy/scripts/up.sh --build      # 本地 compose 起停
+bash scripts/start-waf.sh --build      # 直接跑二进制
 ```

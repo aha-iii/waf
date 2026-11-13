@@ -34,8 +34,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     resolve: {
       alias: {
-        "@nerve/ui/style.css": path.resolve(__dirname, "../../../../Nerve-ui/src/styles/index.css"),
-        "@nerve/ui": path.resolve(__dirname, "../../../../Nerve-ui/src/index.ts"),
+        "@nerve/ui/style.css": path.resolve(__dirname, "vendor/nerve-ui/src/styles/index.css"),
+        "@nerve/ui": path.resolve(__dirname, "vendor/nerve-ui/src/index.ts"),
       },
     },
     server: {

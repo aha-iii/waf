@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **Nerve WAF**（`Nerve-waf/Nerve-waf`）are documented in this file.
+All notable changes to **Nerve WAF**（`ahaiii/waf`）are documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).  
 Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -9,6 +9,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 > 检测引擎子产品 Nerve Antibody 独立发版，版本对照见各版本「配套版本」小节。
 
 ## [Unreleased]
+
+### Changed
+
+- **仓库可独立构建**：`nerve-waf-inspect` 的 `expert` feature 由跨仓库 path 依赖改为
+  git 依赖（`github.com/ahaiii/antibody`）；`apps/console` 的 `@nerve/ui` 改为仓库内
+  `vendor/nerve-ui` 源码副本（58 文件，上游 `39efd9b`，逐文件 SHA-256 一致）。
+  此前单独 clone 本仓库时 `cargo metadata` 直接失败，`npm install` 也因路径不存在无法完成。
+- **依赖源**：`apps/console/package-lock.json` 中 474 处内网 npm 私服地址改为公共
+  `registry.npmjs.org`（tarball 与 integrity 未变），外部网络可直接安装。
+- 补齐开源工程文件：`CODE_OF_CONDUCT.md`、issue / PR 模板、Dependabot 配置。
 
 ### Fixed
 
@@ -135,5 +145,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 | `628bc4e` | feat: 优化规则算法 |
 | `d79b051` | Initial commit: Nerve-defender |
 
-[Unreleased]: https://git.ahatec.com.cn/nerve/nerve-waf/nerve-defender/-/compare/v1.0.0...develop/1.0
-[1.0.0]: https://git.ahatec.com.cn/nerve/nerve-waf/nerve-defender/-/tags/v1.0.0
+<!-- 仓库公开后启用：
+[Unreleased]: https://github.com/ahaiii/waf/compare/v1.0.0...main
+[1.0.0]: https://github.com/ahaiii/waf/releases/tag/v1.0.0
+-->

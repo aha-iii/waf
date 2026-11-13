@@ -10,7 +10,11 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@nerve/ui": ["./vendor/nerve-ui/src/index.ts"],
+      "@nerve/ui/style.css": ["./vendor/nerve-ui/src/styles/index.css"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/_legacy", "src/**/*.test.ts", "node_modules", "dist"]

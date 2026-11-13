@@ -6,11 +6,10 @@ Edge single-process CRS uses the [coraza-proxy-wasm](https://github.com/corazawa
 |------|-------------|
 | `coraza-proxy-wasm.wasm` | Official release (OWASP CRS v4 embedded) |
 
-Download / update:
+`coraza-proxy-wasm.wasm`（约 18 MB）已随仓库提供，无需额外下载。
+需要换版本时，用上游 release 的产物覆盖本目录同名文件即可。
 
-```bash
-bash Nerve-waf/scripts/download-coraza-wasm.sh
-```
+> 构建期的下载脚本属内部工具，未随仓库发布。
 
 Environment variables:
 

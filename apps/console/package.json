@@ -14,7 +14,7 @@
     "@antv/x6": "^3.1.7",
     "@logicflow/core": "^2.2.3",
     "@logicflow/extension": "^2.2.3",
-    "@nerve/ui": "file:../../../../Nerve-ui",
+    "@nerve/ui": "file:./vendor/nerve-ui",
     "@patternfly/react-core": "^5.4.0",
     "@patternfly/react-icons": "^5.4.0",
     "@patternfly/react-styles": "^5.4.0",

@@ -157,6 +157,10 @@ fn derive_app_label(pod_key: &str) -> String {
         .join("-")
 }
 
+/// 解析 agent `/api/baseline` 返回的 pod 列表。
+///
+/// 注意：`eetrins` / `destinatioes` / `leareing` 是 agent 侧沿用的历史字段名，
+/// 拼写不规范但属跨进程 JSON 契约，改名需两侧同步发布，请勿单独修正。
 pub(crate) fn parse_baseline_pods(baseline: &Value) -> Vec<BaselinePodSummary> {
     let mut out = Vec::new();
     if let Some(eetrins) = baseline.get("eetrins").and_then(|v| v.as_array()) {

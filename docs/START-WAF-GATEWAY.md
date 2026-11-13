@@ -1,7 +1,9 @@
 # Starting Nerve WAF and Nerve Gateway separately
 
-> **Note:** Optional sibling integration — **not required** to run Nerve WAF.  
-> Product boundaries: [concepts/boundaries.md](./concepts/boundaries.md) · WAF-only install: [installation.md](./installation.md).
+> **Note:** Optional sibling integration — **not required** to run Nerve WAF.
+> **Nerve Gateway 是独立产品，不在本仓库内**，下文命令中的 `Nerve-gateway` 目录
+> 指其各自的仓库副本；只部署 WAF 请看 [installation.md](./installation.md)。
+> Product boundaries: [concepts/boundaries.md](./concepts/boundaries.md).
 
 The two products are **independent directories + independent processes**:
 

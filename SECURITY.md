@@ -13,8 +13,8 @@
 
 Please report privately:
 
-1. **GitHub Security Advisory**（推荐）：Repository → Security → Report a vulnerability  
-2. **Email**：维护者安全邮箱（公开发布前在 `SECURITY.md` 填写）
+1. **GitHub Security Advisory**（推荐）：Repository → Security → Report a vulnerability（Gitea 提供同名入口）
+2. **私有 issue**：未启用 Advisory 的部署，请创建**私有** issue 并标注 `security`；不要在公开 issue 里贴 PoC 或利用细节
 
 Do **not** file public issues for exploitable vulnerabilities.
 

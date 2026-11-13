@@ -7,7 +7,7 @@ Kubernetes 部署 **Controller（控制面）+ L7 Agent（数据面）**。同�
 
 - Kubernetes 1.24+，Helm 3+
 - 外置 PostgreSQL；已执行 [scripts/apply-migrations.sh](../../../scripts/apply-migrations.sh)
-- 镜像 `ghcr.io/<org>/nerve-waf:<tag>`
+- 镜像 `ghcr.io/ahaiii/waf:<tag>`
 
 ## 安装
 

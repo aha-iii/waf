@@ -13,8 +13,6 @@ The official Coraza implementation is Go; there is no production-grade Rust port
 # WSL
 cd Nerve-waf/coraza-engine
 go run ./cmd/nerve-waf-coraza
-# or
-./scripts/start-coraza.sh
 ```
 
 Environment:
