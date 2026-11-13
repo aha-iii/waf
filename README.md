@@ -9,7 +9,7 @@
 <!-- CI：fmt / clippy -D warnings / test / helm lint，见 .github/workflows/nerve-waf-ci.yml -->
 
 Nerve WAF 对 HTTP/S 流量做规范化与规则检测（CRS / 自定义 / 可选 Expert 引擎），并提供策略与快照下发。  
-crate：`nerve-waf-*`（本仓库独立发版；检测引擎子产品见 Nerve Antibody）
+crate：`nerve-waf-*`（本仓库独立发版；检测引擎子产品见 [Nerve Antibody](https://github.com/ahaiii/antibody)）
 
 **架构总览（建议先读）：** [docs/what-is-waf.md](./docs/what-is-waf.md) → [capabilities.md](./docs/capabilities.md) → [how-it-works.md](./docs/how-it-works.md) → [architecture-overview.md](./docs/architecture-overview.md)
 

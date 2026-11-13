@@ -21,19 +21,24 @@ No `Nerve-antibody` or `Nerve-alert` directory required.
 | Expert engine (`nerve-antibody`) | No — enable `--features expert` |
 | Alert dispatch (`nerve-alert`) | No — enable `--features alert` |
 
-## Optional siblings
+## Optional integrations
 
-| Feature flag | Dependency | Expected path (from repo root) | Purpose |
-|--------------|------------|---------------------------------------------|---------|
-| `alert` | HTTP dispatch to Nerve-alert service (`--features alert`, env `NERVE_ALERT_URL`) | No separate `nerve-alert` crate required |
-| `expert` | `nerve-antibody` | `../Nerve-antibody/`（与本仓库并列克隆） | First-party expert inspect stage |
+| Feature flag | Dependency | How to get it | Purpose |
+|--------------|------------|---------------|---------|
+| `alert` | HTTP dispatch to Nerve-alert (`--features alert`, env `NERVE_ALERT_URL`) | 无 crate 依赖，纯 HTTP | 告警分发 |
+| `expert` | `nerve-antibody` | Cargo 自动拉取 `github.com/ahaiii/antibody` | Expert 检测阶段 |
 
-Side-by-side sibling layout (all features):
+`expert` 是跨仓库依赖，声明为 **git 依赖**，无需手工排列目录：
 
-```text
-<parent>/
-├── nerve-waf/            # this repo
-└── Nerve-antibody/       # sibling clone (--features expert)
+```toml
+nerve-antibody = { git = "https://github.com/ahaiii/antibody", branch = "main", optional = true }
+```
+
+本地联调两个仓库时，放一个不入库的 `.cargo/config.toml` 指向同级工作副本即可：
+
+```toml
+[patch."https://github.com/ahaiii/antibody"]
+nerve-antibody = { path = "../Nerve-antibody/crates/integration/nerve-antibody" }
 ```
 
 Build with all integrations:
