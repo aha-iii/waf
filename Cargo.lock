@@ -186,7 +186,7 @@ dependencies = [
  "base64ct",
  "blake2",
  "cpufeatures",
- "password-hash",
+ "password-hash 0.5.0",
 ]
 
 [[package]]
@@ -1900,6 +1900,7 @@ checksum = "1fafa6961cabd9c63bcd77a45d7e3b7f3b552b70417831fb0f56db717e72407e"
 [[package]]
 name = "nerve-antibody"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-dsl",
  "nerve-antibody-engine",
@@ -1911,6 +1912,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-accel"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "aho-corasick",
  "pkg-config",
@@ -1920,6 +1922,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-adaptive"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-dsl",
  "serde",
@@ -1929,6 +1932,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-cache"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "parking_lot",
  "serde",
@@ -1937,6 +1941,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-compiler"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-accel",
  "nerve-antibody-dsl",
@@ -1949,6 +1954,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-dsl"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-waf-canonical 0.1.0",
  "serde",
@@ -1960,6 +1966,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-engine"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-accel",
  "nerve-antibody-adaptive",
@@ -1981,6 +1988,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-license"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "hex",
@@ -1995,10 +2003,12 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-metrics"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 
 [[package]]
 name = "nerve-antibody-pack"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "aes-gcm",
  "base64 0.22.1",
@@ -2019,6 +2029,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-pipeline"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "nerve-antibody-dsl",
@@ -2031,6 +2042,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-runtime"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-adaptive",
  "nerve-antibody-compiler",
@@ -2047,6 +2059,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-semantic"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "nerve-antibody-dsl",
@@ -2058,6 +2071,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-signals"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "serde",
  "serde_yaml",
@@ -2150,6 +2164,7 @@ dependencies = [
 [[package]]
 name = "nerve-waf-canonical"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 
 [[package]]
 name = "nerve-waf-canonical"
@@ -2529,7 +2544,7 @@ dependencies = [
  "nerve-waf-l7",
  "nerve-waf-sdk",
  "nerve-waf-semantic",
- "password-hash",
+ "password-hash 0.6.1",
  "rand 0.8.6",
  "serde",
  "serde_json",
@@ -2737,6 +2752,12 @@ dependencies = [
  "rand_core 0.6.4",
  "subtle",
 ]
+
+[[package]]
+name = "password-hash"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aab41826031698d6ffcd9cff78ef56ef998e39dc7e5067cdfebe373842d4723b"
 
 [[package]]
 name = "paste"
