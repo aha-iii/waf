@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@antv/x6": "^3.1.7",
+    "@antv/x6": "^3.1.8",
     "@logicflow/core": "^2.2.3",
     "@logicflow/extension": "^2.2.3",
     "@nerve/ui": "file:./vendor/nerve-ui",
