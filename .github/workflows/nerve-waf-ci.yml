@@ -51,3 +51,28 @@ jobs:
       - uses: actions/checkout@v4
       - uses: azure/setup-helm@v4
       - run: helm lint deploy/helm/nerve-waf
+
+  hygiene:
+    name: Repo hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 禁止内网地址与仓库外路径
+        run: |
+          fail=0
+          if git grep -In -e "recloud\.com\.cn" -e "ahatec\.com\.cn" -- . ; then
+            echo "::error::发现内网地址，锁文件请使用公共 registry"
+            fail=1
+          fi
+          if git grep -In -e "file:\.\./\.\./\.\./\.\./Nerve-ui" \
+               -e 'path = "\.\./\.\./\.\./\.\./' -- . ; then
+            echo "::error::发现指向仓库外的依赖路径"
+            fail=1
+          fi
+          exit $fail
+      - name: 密钥文件不得被跟踪
+        run: |
+          if git ls-files | grep -E '^\.secrets/'; then
+            echo "::error::.secrets/ 不应被跟踪"
+            exit 1
+          fi
