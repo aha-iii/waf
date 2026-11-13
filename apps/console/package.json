@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@antv/x6": "^3.1.7",
-    "@logicflow/core": "^2.2.3",
+    "@logicflow/core": "^2.2.5",
     "@logicflow/extension": "^2.2.3",
     "@nerve/ui": "file:./vendor/nerve-ui",
     "@patternfly/react-core": "^5.4.0",
