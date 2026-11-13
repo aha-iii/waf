@@ -1900,6 +1900,7 @@ checksum = "1fafa6961cabd9c63bcd77a45d7e3b7f3b552b70417831fb0f56db717e72407e"
 [[package]]
 name = "nerve-antibody"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-dsl",
  "nerve-antibody-engine",
@@ -1911,6 +1912,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-accel"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "aho-corasick",
  "pkg-config",
@@ -1920,6 +1922,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-adaptive"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-dsl",
  "serde",
@@ -1929,6 +1932,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-cache"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "parking_lot",
  "serde",
@@ -1937,6 +1941,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-compiler"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-accel",
  "nerve-antibody-dsl",
@@ -1949,6 +1954,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-dsl"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-waf-canonical 0.1.0",
  "serde",
@@ -1960,6 +1966,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-engine"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-accel",
  "nerve-antibody-adaptive",
@@ -1981,6 +1988,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-license"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "hex",
@@ -1995,10 +2003,12 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-metrics"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 
 [[package]]
 name = "nerve-antibody-pack"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "aes-gcm",
  "base64 0.22.1",
@@ -2019,6 +2029,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-pipeline"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "nerve-antibody-dsl",
@@ -2031,6 +2042,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-runtime"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "nerve-antibody-adaptive",
  "nerve-antibody-compiler",
@@ -2047,6 +2059,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-semantic"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "base64 0.22.1",
  "nerve-antibody-dsl",
@@ -2058,6 +2071,7 @@ dependencies = [
 [[package]]
 name = "nerve-antibody-signals"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 dependencies = [
  "serde",
  "serde_yaml",
@@ -2150,6 +2164,7 @@ dependencies = [
 [[package]]
 name = "nerve-waf-canonical"
 version = "0.1.0"
+source = "git+https://github.com/aha-iii/antibody?branch=main#572e90764d36e5a0a869b34a4bc7bf0c4eab396e"
 
 [[package]]
 name = "nerve-waf-canonical"
@@ -2232,7 +2247,7 @@ dependencies = [
  "serde_json",
  "tar",
  "tokio",
- "tower-http",
+ "tower-http 0.7.1",
  "tracing",
  "tracing-subscriber",
  "urlencoding",
@@ -3192,7 +3207,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tower",
- "tower-http",
+ "tower-http 0.6.11",
  "tower-service",
  "url",
  "wasm-bindgen",
@@ -4163,6 +4178,24 @@ checksum = "4cfcf7e2740e6fc6d4d688b4ef00650406bb94adf4731e43c096c3a19fe40840"
 dependencies = [
  "bitflags 2.13.0",
  "bytes",
+ "futures-util",
+ "http",
+ "http-body",
+ "pin-project-lite",
+ "tower",
+ "tower-layer",
+ "tower-service",
+ "url",
+]
+
+[[package]]
+name = "tower-http"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "08a05a66a4fdd61cbbe0a1d755ffe0ca6aba159dd4820936a0ff8a8278245b9c"
+dependencies = [
+ "bitflags 2.13.0",
+ "bytes",
  "futures-core",
  "futures-util",
  "http",
@@ -4176,10 +4209,8 @@ dependencies = [
  "pin-project-lite",
  "tokio",
  "tokio-util",
- "tower",
  "tower-layer",
  "tower-service",
- "url",
 ]
 
 [[package]]
